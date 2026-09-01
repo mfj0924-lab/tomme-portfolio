@@ -1,0 +1,237 @@
+---
+interface Props { scope?: string; }
+const { scope = 'home' } = Astro.props;
+
+const common = [
+  ['数据口径', 'common'], ['Evidence', 'common'], ['边界', 'common'], ['SQL', 'common'],
+  ['验证', 'common'], ['Claim', 'common'], ['Python', 'common'], ['决策', 'common'],
+];
+const groups: Record<string, string[][]> = {
+  citibike: [['R²','citibike'],['时间切分','citibike'],['Feature','citibike'],['FastAPI','citibike'],['Demand','citibike'],['Bike','citibike'],['Dock','citibike']],
+  adventureworks: [['毛利率','adventureworks'],['SKU','adventureworks'],['Channel','adventureworks'],['环比','adventureworks'],['DAX','adventureworks'],['Power BI','adventureworks'],['下钻','adventureworks'],['Gross Margin','adventureworks']],
+  workbench: [['Spec','workbench'],['Audit','workbench'],['Agent','workbench'],['Quality','workbench'],['Analysis','workbench'],['状态灯','workbench'],['Report','workbench']],
+  'qingdao-transit': [['API','qingdao-transit'],['NetworkX','qingdao-transit'],['节点','qingdao-transit'],['换乘','qingdao-transit'],['Path','qingdao-transit'],['Folium','qingdao-transit'],['Graph','qingdao-transit']],
+  'rnd-patent': [['公司×年份','rnd-patent'],['匹配键','rnd-patent'],['Missing','rnd-patent'],['表头识别','rnd-patent'],['Patent','rnd-patent'],['R&D','rnd-patent'],['Join','rnd-patent']],
+};
+const visibleTerms = scope === 'home'
+  ? [...common.slice(0, 5), ...Object.values(groups).flatMap((items) => items.slice(0, 3))]
+  : [...common.slice(0, 5), ...(groups[scope] ?? [])];
+---
+
+<div class="ambient-data-field" data-ambient-field data-scope={scope} aria-hidden="true">
+  <canvas></canvas>
+  <div class="ambient-haze haze-a"></div>
+  <div class="ambient-haze haze-b"></div>
+  <div class="ambient-terms">
+    {visibleTerms.map(([label, group], index) => (
+      <span
+        data-term
+        data-group={group}
+        data-index={index}
+        data-depth={(index % 3) + 1}
+        style={`--seed-x:${(index * 37 + 11) % 94};--seed-y:${(index * 61 + 17) % 91}`}
+      >{label}</span>
+    ))}
+  </div>
+  <p class="ambient-status" data-ambient-status>数据环境 · 自由漂移</p>
+</div>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const compactMotion = window.matchMedia('(max-width: 820px)');
+  const fields = document.querySelectorAll('[data-ambient-field]');
+
+  fields.forEach((field) => {
+    if (!(field instanceof HTMLElement) || field.dataset.ready === 'true') return;
+    field.dataset.ready = 'true';
+    const canvas = field.querySelector('canvas');
+    const status = field.querySelector('[data-ambient-status]');
+    const termElements = [...field.querySelectorAll('[data-term]')].filter((item) => item instanceof HTMLElement);
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    let width = 1;
+    let height = 1;
+    let activeGroup = field.dataset.scope === 'home' ? '' : (field.dataset.scope || '');
+    let pointer = { x: 0, y: 0, active: false };
+    let lastTime = performance.now();
+    let lastCanvasDraw = 0;
+    let running = !document.hidden;
+    const frameInterval = 1000 / (compactMotion.matches ? 30 : 60);
+
+    const terms = termElements.map((element, index) => {
+      const depth = Number(element.dataset.depth || 1);
+      const seedX = Number(element.style.getPropertyValue('--seed-x')) / 100;
+      const seedY = Number(element.style.getPropertyValue('--seed-y')) / 100;
+      return {
+        element,
+        group: element.dataset.group || 'common',
+        depth,
+        index,
+        seedX,
+        seedY,
+        x: 0,
+        y: 0,
+      };
+    });
+
+    const resize = () => {
+      const bounds = field.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      const ratio = 1;
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      terms.forEach((term) => {
+        if (term.x === 0 && term.y === 0) {
+          term.x = width * term.seedX;
+          term.y = height * term.seedY;
+        }
+      });
+    };
+
+    const updateState = (group, source = 'scroll') => {
+      activeGroup = group || '';
+      field.dataset.activeGroup = activeGroup;
+      if (status) status.textContent = activeGroup ? `${activeGroup} · 关系聚合` : '数据环境 · 自由漂移';
+      terms.forEach((term) => {
+        const relevant = !activeGroup || term.group === activeGroup || term.group === 'common';
+        term.element.classList.toggle('is-relevant', relevant && Boolean(activeGroup));
+        term.element.classList.toggle('is-dimmed', !relevant);
+      });
+      if (source === 'click') field.classList.add('was-tapped');
+    };
+
+    const projectSections = [...document.querySelectorAll('[data-project]')].filter((item) => item instanceof HTMLElement);
+    projectSections.forEach((section) => {
+      const group = section.dataset.project || '';
+      section.addEventListener('pointerenter', () => updateState(group, 'pointer'));
+      section.addEventListener('pointerleave', () => updateState('', 'pointer'));
+      section.addEventListener('focusin', () => updateState(group, 'focus'));
+      section.addEventListener('focusout', (event) => {
+        if (!(event.relatedTarget instanceof Node) || !section.contains(event.relatedTarget)) updateState('', 'focus');
+      });
+      section.addEventListener('click', () => updateState(group, 'click'), { capture: true });
+    });
+
+    if (field.dataset.scope !== 'home') {
+      updateState(activeGroup);
+    }
+
+    const handlePointer = (event) => {
+      const bounds = field.getBoundingClientRect();
+      pointer.x = event.clientX - bounds.left;
+      pointer.y = event.clientY - bounds.top;
+      pointer.active = pointer.x >= 0 && pointer.x <= width && pointer.y >= 0 && pointer.y <= height;
+    };
+    window.addEventListener('pointermove', handlePointer, { passive: true });
+    window.addEventListener('pointerleave', () => { pointer.active = false; });
+    document.addEventListener('visibilitychange', () => { running = !document.hidden; if (running) requestAnimationFrame(frame); });
+    new ResizeObserver(resize).observe(field);
+    resize();
+
+    const drawBackdrop = (time) => {
+      context.clearRect(0, 0, width, height);
+      context.save();
+      context.lineWidth = 1;
+      const activeTerms = terms.filter((term) => activeGroup && (term.group === activeGroup || term.group === 'common'));
+      if (activeGroup && pointer.active) {
+        activeTerms.forEach((term, index) => {
+          const alpha = term.group === activeGroup ? .2 : .08;
+          context.beginPath();
+          context.moveTo(term.x, term.y);
+          const bend = Math.sin(time * .001 + index) * 34;
+          context.quadraticCurveTo((term.x + pointer.x) / 2 + bend, (term.y + pointer.y) / 2 - bend, pointer.x, pointer.y);
+          context.strokeStyle = `rgba(40,92,255,${alpha})`;
+          context.stroke();
+        });
+        context.beginPath();
+        context.arc(pointer.x, pointer.y, 7, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(255,103,77,.34)';
+        context.fill();
+      }
+      for (let row = 1; row < 6; row += 1) {
+        context.beginPath();
+        const baseY = height * row / 6;
+        context.moveTo(0, baseY);
+        for (let x = 0; x <= width; x += 80) context.lineTo(x, baseY + Math.sin(x * .008 + time * .00025 + row) * 14);
+        context.strokeStyle = 'rgba(40,92,255,.045)';
+        context.stroke();
+      }
+      context.restore();
+    };
+
+    const frame = (time) => {
+      if (!running) return;
+      if (time - lastTime < frameInterval) {
+        requestAnimationFrame(frame);
+        return;
+      }
+      const delta = Math.min(50, time - lastTime);
+      lastTime = time;
+      const interactionActive = pointer.active && Boolean(activeGroup);
+
+      terms.forEach((term) => {
+        if (compactMotion.matches && term.index >= 10) return;
+        const associated = activeGroup && (term.group === activeGroup || term.group === 'common');
+        const driftX = Math.sin(time * .00016 + term.index * 1.7) * (12 + term.depth * 5);
+        const driftY = Math.cos(time * .00013 + term.index * 1.1) * (10 + term.depth * 4);
+        let targetX = width * term.seedX + driftX;
+        let targetY = height * term.seedY + driftY;
+
+        if (interactionActive) {
+          const dx = term.x - pointer.x;
+          const dy = term.y - pointer.y;
+          const distance = Math.max(1, Math.hypot(dx, dy));
+          if (associated) {
+            const angle = term.index * 2.399 + time * .00012;
+            const radius = 105 + term.depth * 34;
+            targetX = pointer.x + Math.cos(angle) * radius;
+            targetY = pointer.y + Math.sin(angle) * radius;
+          } else if (distance < 155) {
+            const force = (155 - distance) / 155;
+            targetX += dx / distance * force * 70;
+            targetY += dy / distance * force * 70;
+          }
+        }
+
+        const margin = 44;
+        targetX = Math.min(width - margin, Math.max(margin, targetX));
+        targetY = Math.min(height - margin, Math.max(margin, targetY));
+        const moveX = targetX - term.x;
+        const moveY = targetY - term.y;
+        const moveDistance = Math.max(1, Math.hypot(moveX, moveY));
+        const easing = 1 - Math.exp(-delta * (associated ? .006 : .0035));
+        const maxStep = associated ? 14 : 7;
+        const requestedStep = moveDistance * easing;
+        const step = Math.min(maxStep, requestedStep);
+        term.x += moveX / moveDistance * step;
+        term.y += moveY / moveDistance * step;
+        term.element.style.transform = `translate3d(${term.x}px,${term.y}px,0) translate(-50%,-50%)`;
+      });
+      if (!compactMotion.matches && (interactionActive || time - lastCanvasDraw > 120)) {
+        drawBackdrop(time);
+        lastCanvasDraw = time;
+      }
+      requestAnimationFrame(frame);
+    };
+
+    if (reduceMotion.matches) {
+      field.classList.add('is-static');
+      terms.forEach((term) => { term.element.style.transform = `translate3d(${term.x}px,${term.y}px,0) translate(-50%,-50%)`; });
+      drawBackdrop(0);
+    } else {
+      requestAnimationFrame(frame);
+    }
+  });
+</script>
+
+<style>
+  .ambient-data-field{position:fixed;inset:0 0 0 var(--rail-width);z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(circle at 18% 18%,rgba(115,87,232,.15),transparent 28%),radial-gradient(circle at 86% 24%,rgba(40,92,255,.19),transparent 32%),radial-gradient(circle at 72% 82%,rgba(255,103,77,.12),transparent 26%),var(--canvas);isolation:isolate;contain:layout paint style}.ambient-data-field canvas,.ambient-terms,.ambient-haze{position:absolute;inset:0}.ambient-data-field canvas{z-index:1;filter:blur(.25px)}.ambient-haze{z-index:0;border-radius:50%;filter:blur(70px);opacity:.7}.haze-a{inset:8% 48% 54% 6%;background:rgba(191,234,217,.52)}.haze-b{inset:48% 4% 7% 56%;background:rgba(223,231,255,.88)}.ambient-terms{z-index:2}.ambient-terms span{position:absolute;top:0;left:0;padding:.16rem .35rem;color:#465b7c;background:rgba(255,255,255,.18);border-radius:5px;font-size:clamp(.76rem,.96vw,1rem);font-weight:740;letter-spacing:.01em;white-space:nowrap;opacity:.36;filter:blur(.35px);transition:opacity .35s var(--ease),filter .35s var(--ease),color .35s var(--ease),background .35s var(--ease),box-shadow .35s var(--ease),font-size .35s var(--ease)}.ambient-terms span[data-depth="1"]{opacity:.22;filter:blur(1.1px);font-size:.74rem}.ambient-terms span[data-depth="3"]{opacity:.52;filter:none;font-size:1.06rem}.ambient-terms span.is-relevant{z-index:3;color:#173b9b;background:rgba(255,255,255,.78);box-shadow:0 10px 30px rgba(40,92,255,.16);opacity:.96;filter:none;font-size:1.12rem;will-change:transform}.ambient-terms span.is-dimmed{opacity:.06;filter:blur(2.2px)}.ambient-status{position:absolute;right:1.2rem;bottom:1rem;z-index:3;margin:0;color:rgba(16,25,43,.38);font-size:.68rem;font-weight:760;letter-spacing:.08em}.ambient-data-field.was-tapped .ambient-status{color:var(--blue)}
+  @media(max-width:820px){.ambient-data-field{inset:62px 0 0}.ambient-data-field canvas{display:none}.ambient-terms span:nth-child(n+11){display:none}.ambient-terms span{font-size:.7rem}.ambient-status{display:none}.ambient-haze{filter:blur(52px)}}
+  @media(prefers-reduced-motion:reduce){.ambient-haze{animation:none}.ambient-data-field.is-static .ambient-terms span{transition:none}}
+</style>

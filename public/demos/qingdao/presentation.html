@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青岛公交网络分析与可视化 - 答辩展示</title>
+<style>
+:root{
+  --bg: #f8f9fc;
+  --card: #ffffff;
+  --shadow: 0 2px 12px rgba(0,0,0,.08);
+  --blue: #1a73e8;
+  --blue2: #e8f0fe;
+  --red: #e53935;
+  --red2: #fdecea;
+  --green: #0d904f;
+  --green2: #e6f4ea;
+  --orange: #e37400;
+  --orange2: #fef7e0;
+  --purple: #7b1fa2;
+  --purple2: #f3e8fd;
+  --text: #202124;
+  --text2: #5f6368;
+  --border: #e0e0e0;
+  --cyan: #007b83;
+  --cyan2: #e0f7fa;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.slide{scroll-snap-align:start;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:50px 40px;border-bottom:1px solid var(--border)}
+
+/* ===== Cover ===== */
+.cover{background:linear-gradient(135deg,#1a73e8 0%,#0d47a1 50%,#7b1fa2 100%);color:#fff}
+.cover h1{font-size:3em;margin-bottom:.2em;text-align:center;color:#fff}
+.cover h2{font-size:1.3em;font-weight:400;opacity:.9;margin-bottom:2.5em;text-align:center;color:#fff}
+.cover .meta{font-size:1.1em;opacity:.85;text-align:center;line-height:2.2}
+.cover .tags{margin-top:40px;justify-content:center}
+
+/* ===== Section Title ===== */
+.section-title h1{font-size:2.6em;color:var(--blue);margin-bottom:.1em}
+.section-title .num{font-size:1.1em;color:var(--text2);letter-spacing:4px;text-transform:uppercase;margin-bottom:.3em}
+.section-title .sub{font-size:1.1em;color:var(--text2);margin-top:.3em}
+
+/* ===== Content ===== */
+.content{max-width:960px;width:100%}
+.content h1{font-size:2em;color:var(--blue);margin-bottom:.5em}
+.content h2{font-size:1.2em;color:var(--purple);margin:1em 0 .3em}
+.content h3{font-size:1.05em;color:var(--text);margin:.8em 0 .3em}
+
+/* ===== Info Cards ===== */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.card{background:var(--card);border-radius:12px;padding:22px 18px;box-shadow:var(--shadow);border-top:3px solid var(--blue);text-align:center}
+.card .val{font-size:2.2em;font-weight:800;color:var(--blue);line-height:1.2}
+.card .lbl{font-size:.85em;color:var(--text2);margin-top:4px}
+.card.red{border-top-color:var(--red)}.card.red .val{color:var(--red)}
+.card.green{border-top-color:var(--green)}.card.green .val{color:var(--green)}
+.card.purple{border-top-color:var(--purple)}.card.purple .val{color:var(--purple)}
+.card.orange{border-top-color:var(--orange)}.card.orange .val{color:var(--orange)}
+.card.cyan{border-top-color:var(--cyan)}.card.cyan .val{color:var(--cyan)}
+
+/* ===== Chart Bar ===== */
+.bar-chart{display:flex;flex-direction:column;gap:8px;margin:16px 0;font-size:.9em}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{width:130px;text-align:right;font-weight:600;flex-shrink:0}
+.bar-track{flex:1;height:26px;background:var(--blue2);border-radius:13px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-weight:700;font-size:.85em;transition:width .6s}
+.bar-fill.blue{background:linear-gradient(90deg,#4a9af5,#1a73e8)}
+.bar-fill.green{background:linear-gradient(90deg,#5cb85c,#0d904f)}
+.bar-fill.purple{background:linear-gradient(90deg,#b47cde,#7b1fa2)}
+.bar-fill.orange{background:linear-gradient(90deg,#f5a623,#e37400)}
+.bar-fill.red{background:linear-gradient(90deg,#f06060,#e53935)}
+.bar-fill.cyan{background:linear-gradient(90deg,#5cc0c7,#007b83)}
+
+/* ===== Comparison Panels ===== */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:768px){.split,.split3{grid-template-columns:1fr}}
+.box{background:var(--card);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.box.blue{border-left:4px solid var(--blue)}
+.box.green{border-left:4px solid var(--green)}
+.box.purple{border-left:4px solid var(--purple)}
+.box.orange{border-left:4px solid var(--orange)}
+.box.red{border-left:4px solid var(--red)}
+
+/* ===== Highlight ===== */
+.hl{background:var(--blue2);border-left:3px solid var(--blue);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0;font-size:.95em}
+.hl.green{background:var(--green2);border-left-color:var(--green)}
+.hl.red{background:var(--red2);border-left-color:var(--red)}
+.hl.orange{background:var(--orange2);border-left-color:var(--orange)}
+.hl.purple{background:var(--purple2);border-left-color:var(--purple)}
+.hl.cyan{background:var(--cyan2);border-left-color:var(--cyan)}
+
+/* ===== Tags ===== */
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.tag{background:var(--blue2);border-radius:20px;padding:6px 16px;font-size:.85em;color:var(--blue);font-weight:500}
+
+/* ===== Process Flow ===== */
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0;font-size:.9em}
+.flow .step{background:var(--card);box-shadow:var(--shadow);border-radius:12px;padding:14px 16px;text-align:center;min-width:90px}
+.flow .step .icon{font-size:1.8em;margin-bottom:4px}
+.flow .arrow{font-size:1.3em;color:var(--text2)}
+@media(max-width:768px){.flow{flex-direction:column}.flow .arrow{transform:rotate(90deg)}}
+
+/* ===== Table ===== */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.92em;background:var(--card);box-shadow:var(--shadow);border-radius:10px;overflow:hidden}
+th,td{border-bottom:1px solid var(--border);padding:11px 16px;text-align:left}
+th{background:#f0f4ff;color:var(--blue);font-weight:700}
+tr:last-child td{border-bottom:none}
+tr:hover{background:#fafbff}
+.val-high{color:var(--blue);font-weight:700}
+.val-red{color:var(--red);font-weight:700}
+
+/* ===== Network Viz (CSS only) ===== */
+.network-viz{display:flex;align-items:center;justify-content:center;gap:40px;margin:20px 0;flex-wrap:wrap}
+.net-node{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9em;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);position:relative}
+.net-node.big{width:90px;height:90px;font-size:1.1em}
+.net-node.mid{width:70px;height:70px}
+.net-node.s{background:var(--blue)}
+.net-node.m{background:var(--purple)}
+.net-node.l{background:var(--red)}
+.net-line{position:absolute;background:var(--border);height:3px;z-index:-1}
+
+/* ===== Badge ===== */
+.badge{display:inline-block;background:var(--green2);color:var(--green);padding:4px 12px;border-radius:12px;font-size:.8em;font-weight:600;margin-left:8px}
+
+/* ===== Footer ===== */
+.footer{position:absolute;bottom:16px;text-align:center;width:100%;color:var(--text2);font-size:.8em}
+
+/* ===== Last Slide ===== */
+.thanks{background:linear-gradient(135deg,#e8f0fe,#f3e8fd,#e6f4ea);text-align:center}
+.thanks h1{font-size:3em;color:var(--blue)}
+.thanks .thanks-meta{font-size:1.1em;color:var(--text2);margin:20px 0;line-height:2}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .slide{padding:30px 20px}
+  .cover h1{font-size:2em}.section-title h1{font-size:2em}
+  .cards{grid-template-columns:1fr}
+  .net-node.big{width:60px;height:60px;font-size:.8em}
+}
+
+/* ===== Animation ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.slide>*{animation:fadeUp .5s ease-out}
+</style>
+</head>
+<body>
+
+<!-- ===== SLIDE 1 — COVER ===== -->
+<div class="slide cover">
+  <h1>城市公交网络分析与可视化</h1>
+  <h2>以青岛市为例 | 高德地图 API + Python | 874 条线路 · 5,616 个站点</h2>
+  <div class="meta">大数据分析课程设计 · 实例 1<br>2026年6月</div>
+  <div class="tags" style="margin-top:35px">
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">Python 3.12</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">高德 API</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">plotly</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">folium</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">networkx</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">matplotlib</div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 2 — TECH STACK ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">01</div>
+    <h1>工具与技术栈</h1>
+  </div>
+  <div class="content">
+    <table>
+      <colgroup><col width="130"><col width="160"></colgroup>
+      <tr><th>类别</th><th>工具 / 库</th><th>用途</th></tr>
+      <tr><td>编程语言</td><td><strong>Python 3.12</strong></td><td>全部代码实现，约 800 行</td></tr>
+      <tr><td>API 数据源</td><td><strong>高德地图 Web API</strong></td><td>公交线路查询、站点详情、行驶轨迹</td></tr>
+      <tr><td>HTTP 通信</td><td><strong>requests</strong></td><td>构造 URL → 发送请求 → 获取 JSON 响应</td></tr>
+      <tr><td>数据解析</td><td><strong>json</strong></td><td>解析 API 返回的 JSON 结构为 Python 字典</td></tr>
+      <tr><td>数据工程</td><td><strong>pandas</strong></td><td>清洗、去重、统计分析、Excel 读写</td></tr>
+      <tr><td>统计图表</td><td><strong>matplotlib</strong></td><td>7 张 PNG 统计图（直方图、散点图、柱状图）</td></tr>
+      <tr><td>地图可视化</td><td><strong>plotly</strong></td><td>交互式地图（Scattermap + 自定义瓦片）</td></tr>
+      <tr><td>地图增强版</td><td><strong>folium (Leaflet.js)</strong></td><td>站点聚合、点击高亮、悬停弹窗</td></tr>
+      <tr><td>网络分析</td><td><strong>networkx</strong></td><td>无向图建模、度/路径/聚类系数计算</td></tr>
+    </table>
+    <div class="hl cyan">
+      <strong>坐标系说明：</strong>高德 API 返回 GCJ-02 坐标，地图底图直接使用高德瓦片（同为 GCJ-02）→ <strong>无需任何坐标转换</strong>，线路自动精准贴合道路，国内秒加载，零 VPN 依赖。
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 3 — DATA CRAWLING ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">02</div>
+    <h1>数据爬取与处理</h1>
+    <div class="sub">高德地图 Web API · 模糊搜索策略 · 三阶段 pipeline</div>
+  </div>
+  <div class="content">
+    <h2>API 调用</h2>
+    <div class="hl">
+      <code style="font-size:.9em">GET /v3/bus/linename?<strong>key</strong>=xxx&<strong>keywords</strong>=1&<strong>city</strong>=青岛&<strong>offset</strong>=100</code>
+    </div>
+    <p>高德 API 的 <code>keywords</code> 参数天然支持<strong>模糊匹配</strong>——搜索 <code>"6"</code> 一次返回 6路、16路、26路、66路、606路…等全部含"6"的线路 ID。</p>
+
+    <h2>爬取流程</h2>
+    <div class="flow">
+      <div class="step"><div class="icon">🔍</div>模糊搜索<br><small>"0"~"9"<br>"10"~"999"<br>"隧道""黄岛"…</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="icon">📋</div>收集线路ID<br><small>1,779 个<br>唯一 ID</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="icon">📡</div>ID 批量查询<br><small>lineid API<br>5000次/天</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="icon">🗺️</div>边界过滤<br><small>排除平度/莱西<br>保留核心城区</small></div>
+    </div>
+
+    <div class="cards">
+      <div class="card green">
+        <div class="val">874</div><div class="lbl">有效公交线路 (核心城区全覆盖)</div>
+      </div>
+      <div class="card purple">
+        <div class="val">5,616</div><div class="lbl">唯一公交站点</div>
+      </div>
+      <div class="card">
+        <div class="val">22,198</div><div class="lbl">站点行程记录</div>
+      </div>
+      <div class="card red">
+        <div class="val">310,411</div><div class="lbl">轨迹坐标点 (polyline)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 4 — VISUALIZATION ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">03</div>
+    <h1>城市公交网络可视化</h1>
+    <div class="sub">双方案 · 按需渲染 · 高德瓦片免坐标转换</div>
+  </div>
+  <div class="content">
+    <div class="split">
+      <div class="box blue">
+        <h3 style="color:var(--blue);margin-top:0">方案一：plotly Scattermap</h3>
+        <p style="font-size:.9em">直接 Python 生成 HTML，Tab 切换站点/线路/路网三视图。默认 20 条按需渲染，支持 20/50/100/200/全部 一键切换，内置搜索定位。</p>
+      </div>
+      <div class="box green">
+        <h3 style="color:var(--green);margin-top:0">方案二：folium (Leaflet.js)</h3>
+        <p style="font-size:.9em">Canvas 渲染引擎，874 条线流畅叠加。MarkerCluster 站点聚合、点击线路高亮飞至、悬停弹窗显示线路名+方向。</p>
+      </div>
+    </div>
+
+    <div class="hl green">
+      <strong>关键设计：</strong>底图统一使用高德瓦片 <code>webrd01.is.autonavi.com</code>（GCJ-02 坐标系），与 API 返回的公交坐标完全一致 → <strong>无需 WGS-84 ↔ GCJ-02 坐标转换</strong>，线路自动精准贴合道路，且在国内直连加载，不依赖 VPN。
+    </div>
+
+    <div class="cards">
+      <div class="card cyan"><div class="lbl"><strong>🎯 坐标对齐</strong><br>GCJ-02 数据 + GCJ-02 底图 = 零偏移</div></div>
+      <div class="card"><div class="lbl"><strong>⚡ 按需渲染</strong><br>默认 20 条，一键切至 874 条</div></div>
+      <div class="card green"><div class="lbl"><strong>🔍 搜索定位</strong><br>站名/线路名 → 飞至 + 高亮</div></div>
+      <div class="card purple"><div class="lbl"><strong>📱 交互增强</strong><br>聚合/弹窗/高亮/图层开关</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 5 — FEATURE ANALYSIS ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">04</div>
+    <h1>公交路线基本特征分析</h1>
+    <div class="sub">基于 874 条线路的统计分析</div>
+  </div>
+  <div class="content">
+    <table>
+      <colgroup><col width="180"><col width="160"><col></colgroup>
+      <tr><th>指标</th><th>数值</th><th>解读</th></tr>
+      <tr><td>平均线路长度</td><td><span class="val-high">19.61 km</span></td><td>中位数 15.93 km，大部分 8~22 km</td></tr>
+      <tr><td>平均站点数</td><td><span class="val-high">25.4 站/线</span></td><td>中位数 24 站，与长度正相关</td></tr>
+      <tr><td>平均站距</td><td><span class="val-high">803.6 米</span></td><td>总里程/(总站点-线路数)，反映郊区+丘陵特征</td></tr>
+      <tr><td>非直线系数（中位数）</td><td><span class="val-high">1.61</span></td><td>棋盘式 1.2~1.4，放射式≈2.6，青岛居中</td></tr>
+    </table>
+
+    <h2>线路长度分布</h2>
+    <div class="bar-chart">
+      <div class="bar-row"><div class="bar-label">5-10 km</div><div class="bar-track"><div class="bar-fill blue" style="width:38%">33%</div></div></div>
+      <div class="bar-row"><div class="bar-label">10-15 km</div><div class="bar-track"><div class="bar-fill green" style="width:48%">42%</div></div></div>
+      <div class="bar-row"><div class="bar-label">15-20 km</div><div class="bar-track"><div class="bar-fill purple" style="width:32%">28%</div></div></div>
+      <div class="bar-row"><div class="bar-label">20-30 km</div><div class="bar-track"><div class="bar-fill orange" style="width:22%">19%</div></div></div>
+      <div class="bar-row"><div class="bar-label">&gt; 30 km</div><div class="bar-track"><div class="bar-fill red" style="width:8%">7%</div></div></div>
+    </div>
+    <div class="hl orange">
+      <strong>丘陵+海岸线双重约束：</strong>青岛依山傍海，公交需绕行海湾和山体，非直线系数 1.61 显著高于平原棋盘式城市。站距 804 米略高于平原城市（500-700 米），体现了地形对规划的客观制约。
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 6 — NETWORK MODELING ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">05</div>
+    <h1>公交换乘网络搭建</h1>
+    <div class="sub">networkx 无向图建模 · 381,501 对线路比较</div>
+  </div>
+  <div class="content">
+    <div class="split">
+      <div>
+        <div class="box blue">
+          <h3 style="color:var(--blue);margin-top:0">建模规则 <span style="font-size:.75em;color:var(--text2);font-weight:400">(Space-L 模型)</span></h3>
+          <p style="font-size:.95em"><strong>节点 = 公交线路</strong><br>每条线路一个独立节点 <span style="font-size:.8em;color:var(--text2)">(L = Line)</span></p>
+          <p style="font-size:.95em;margin-top:8px"><strong>边 = 换乘关系</strong><br>两条线路共享 ≥1 个站点 → 连边<br>公共站点数 = 边的权重</p>
+          <p style="font-size:.95em;margin-top:8px"><strong>图类型 = 无向图</strong><br>换乘是双向的</p>
+        </div>
+      </div>
+      <div>
+        <div class="box green">
+          <h3 style="color:var(--green);margin-top:0">构建过程</h3>
+          <div style="font-size:.9em;line-height:2.2">
+            <div>① 遍历 874 条线路，建立站点集合</div>
+            <div>② 双重循环：874×873÷2 = <strong>381,501</strong> 对</div>
+            <div>③ 检查交集 → <code>nx.add_edge()</code></div>
+            <div>④ 导出 GEXF → 可用 Gephi 打开</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card green"><div class="val">874</div><div class="lbl">节点 (线路数)</div></div>
+      <div class="card purple"><div class="val">25,929</div><div class="lbl">边 (换乘关系)</div></div>
+      <div class="card"><div class="val">0.068</div><div class="lbl">网络密度</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 7 — NETWORK ANALYSIS ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">06</div>
+    <h1>公交换乘网络分析</h1>
+  </div>
+  <div class="content">
+    <table>
+      <colgroup><col width="180"><col width="140"><col></colgroup>
+      <tr><th>指标</th><th>数值</th><th>含义</th></tr>
+      <tr><td>节点数 / 边数</td><td><span class="val-high">874 / 25,929</span></td><td>网络规模</td></tr>
+      <tr><td>最大度</td><td><span class="val-red">176</span> <span class="badge">地铁1号线</span></td><td>地铁成为绝对网络枢纽</td></tr>
+      <tr><td>平均度</td><td><span class="val-high">59.3</span></td><td>每条线路平均可换乘约 59 条其他线路</td></tr>
+      <tr><td>最大连通分量</td><td><span class="val-high">98.5%</span></td><td>几乎全部线路互联互通</td></tr>
+      <tr><td style="background:#e6f4ea">★ 平均路径长度</td><td style="background:#e6f4ea"><span class="val-high">2.57</span></td><td style="background:#e6f4ea"><strong>任意两线平均仅需 2.6 次换乘</strong></td></tr>
+      <tr><td>网络直径</td><td>6</td><td>最远两线 6 次换乘</td></tr>
+      <tr><td>聚类系数</td><td><span class="val-high">0.553</span></td><td>随机网络≈0.0013 → <strong style="color:var(--orange)">小世界特性</strong></td></tr>
+    </table>
+
+    <h2>度分布可视化</h2>
+    <div class="bar-chart">
+      <div class="bar-row"><div class="bar-label">0-30 (低度)</div><div class="bar-track"><div class="bar-fill blue" style="width:18%">16%</div></div></div>
+      <div class="bar-row"><div class="bar-label">30-60 (中度)</div><div class="bar-track"><div class="bar-fill green" style="width:52%">46%</div></div></div>
+      <div class="bar-row"><div class="bar-label">60-100 (高度)</div><div class="bar-track"><div class="bar-fill purple" style="width:30%">26%</div></div></div>
+      <div class="bar-row"><div class="bar-label">100+ (超级枢纽)</div><div class="bar-track"><div class="bar-fill red" style="width:14%">12%</div></div></div>
+    </div>
+
+    <div class="hl green">
+      <strong>核心发现：</strong>青岛公交网络具有显著的<strong>"小世界"特性</strong>——聚类系数 0.553 是随机网络的 400+ 倍，局部换乘密集、全局高效连通。地铁 1 号线以 176 的枢纽度成为绝对核心，平均 2.6 次换乘可达全网任意位置。
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 8 — SUMMARY ===== -->
+<div class="slide">
+  <div class="section-title">
+    <div class="num">07</div>
+    <h1>总结与收获</h1>
+  </div>
+  <div class="content">
+    <div class="split">
+      <div class="box green">
+        <h3 style="color:var(--green);margin-top:0">✅ 完成的工作</h3>
+        <ul style="padding-left:18px;font-size:.92em;line-height:2">
+          <li>爬取 <strong>874 条</strong>青岛核心城区公交线路</li>
+          <li>提取 <strong>5,616 个</strong>站点 + <strong>310K</strong> 轨迹点</li>
+          <li>Plotly + Folium <strong>双版</strong>交互地图</li>
+          <li><strong>7 张</strong> matplotlib 统计图表</li>
+          <li>networkx 复杂网络建模分析</li>
+          <li>自动生成 Word 课程设计报告</li>
+        </ul>
+      </div>
+      <div class="box purple">
+        <h3 style="color:var(--purple);margin-top:0">📚 掌握的技术</h3>
+        <ul style="padding-left:18px;font-size:.92em;line-height:2">
+          <li>高德 Web API 调用与配额管理</li>
+          <li>requests + json 数据获取解析</li>
+          <li>pandas 数据处理与分析</li>
+          <li>plotly / folium 地图可视化</li>
+          <li>networkx 复杂网络分析</li>
+          <li>GCJ-02 坐标系与地图投影</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hl cyan" style="margin-top:20px;font-size:1em">
+      <strong>核心收获：</strong>独立完成了"API 调用 → 数据爬取 → 清洗处理 → 可视化 → 网络分析 → 报告撰写"的<strong>全流程数据科学实践</strong>，掌握了从数据获取到成果交付的完整技能链。
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 9 — THANKS ===== -->
+<div class="slide cover">
+  <h1>感谢聆听</h1>
+  <div class="meta" style="margin:25px 0">
+    实例1：地方城市公交网络分析与可视化（以青岛市为例）
+  </div>
+  <div class="tags" style="margin-top:25px;justify-content:center">
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">874 条线路</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">5,616 站点</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">平均度 59.3</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">路径长度 2.57</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">聚类系数 0.55</div>
+    <div class="tag" style="background:rgba(255,255,255,.25);color:#fff">小世界特性</div>
+  </div>
+</div>
+
+</body>
+</html>

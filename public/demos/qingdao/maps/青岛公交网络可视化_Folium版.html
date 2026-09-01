@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青岛公交网络可视化 (Folium版)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="data.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei",Arial,sans-serif;background:#1a1a2e;display:flex;flex-direction:column;height:100vh}
+#header{background:linear-gradient(135deg,#16213e,#0f3460);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;z-index:1000}
+#header h1{font-size:16px;color:#eee}
+.tab-btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:bold;background:#2a2a4a;color:#aaa;transition:all .15s}
+.tab-btn.active{background:#e94560;color:#fff}
+#controls{display:flex;gap:4px;align-items:center}
+#controls span{font-size:11px;color:#999}
+.count-btn{padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold;background:#2a2a4a;color:#aaa}
+.count-btn.active{background:#e94560;color:#fff}
+#line-count{width:55px;padding:4px 6px;border:none;border-radius:4px;font-size:11px;background:#fff;color:#333;outline:none;text-align:center}
+#search-box{position:relative;display:flex;gap:4px;align-items:center}
+#search-input{padding:5px 10px;border:none;border-radius:4px;width:200px;font-size:12px;background:#fff;color:#333;outline:none}
+#search-btn{padding:5px 10px;border:none;border-radius:4px;background:#e94560;color:#fff;font-size:12px;font-weight:bold;cursor:pointer}
+#suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:0 0 4px 4px;max-height:160px;overflow-y:auto;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.suggestion-item{padding:5px 10px;cursor:pointer;color:#333;font-size:12px;border-bottom:1px solid #eee}
+.suggestion-item:hover{background:#e94560;color:#fff}
+#map-container{flex:1;position:relative}
+#map{width:100%;height:100%}
+#info-panel{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;display:none;white-space:nowrap;z-index:999;max-width:90%}
+#info-panel .route-name{font-size:15px;font-weight:bold;color:#e94560}
+#info-panel .route-detail{font-size:11px;color:#ccc;margin-top:4px}
+#info-panel .close-btn{position:absolute;top:4px;right:8px;cursor:pointer;color:#aaa;font-size:16px}
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>青岛公交网络可视化 (Folium版)</h1>
+  <div style="display:flex;gap:4px">
+    <button class="tab-btn active" data-tab="stations">站点分布</button>
+    <button class="tab-btn" data-tab="routes">线路轨迹</button>
+    <button class="tab-btn" data-tab="overview">路网全图</button>
+  </div>
+  <div id="controls">
+    <span>显示:</span>
+    <button class="count-btn active" data-n="20">20</button>
+    <button class="count-btn" data-n="50">50</button>
+    <button class="count-btn" data-n="100">100</button>
+    <button class="count-btn" data-n="300">300</button>
+    <input id="line-count" type="number" value="20" min="1">
+    <button class="count-btn" data-n="9999">全部</button>
+  </div>
+  <div id="search-box">
+    <input id="search-input" type="text" placeholder="搜站点/线路">
+    <div id="suggestions"></div>
+    <button id="search-btn">搜索</button>
+  </div>
+</div>
+<div id="map-container"><div id="map"></div><div id="info-panel"><span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span><div class="route-name"></div><div class="route-detail"></div></div></div>
+
+<script>
+(function(){
+if (typeof STOPS_FOLIUM==='undefined'||typeof LINES_FOLIUM==='undefined'){document.getElementById('map').innerHTML='<div style="text-align:center;padding-top:200px;color:#fff">数据加载失败</div>';return}
+
+var currentTab='stations',currentCount=20;
+var stopLayer=null, routeLayerGroup=null, overviewLayerGroup=null, highlightLine=null;
+
+// Use Folium-format data
+var STOPS = STOPS_FOLIUM;
+var LINES = LINES_FOLIUM;
+STOPS_FOLIUM=null;LINES_FOLIUM=null; // Free memory
+
+// Init map
+var map = L.map('map',{zoomControl:true}).setView([CENTER.lat,CENTER.lon],11);
+L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{
+    attribution:'© 高德地图',maxZoom:18
+}).addTo(map);
+
+// Build stop cluster
+stopLayer = L.markerClusterGroup({maxClusterRadius:50,disableClusteringAtZoom:16});
+STOPS.forEach(function(s){
+    var m = L.circleMarker([s.la,s.lo],{radius:4,fillColor:'#FF4500',color:'#FF4500',weight:1,fillOpacity:0.7});
+    m.bindTooltip(s.n,{sticky:true,opacity:0.9});
+    m.bindPopup('<b>'+s.n+'</b>');
+    stopLayer.addLayer(m);
+});
+stopLayer.addTo(map);
+
+// Build route layers
+routeLayerGroup = L.layerGroup().addTo(map);
+overviewLayerGroup = L.layerGroup();
+
+// Search index
+var searchIdx=[];
+STOPS.forEach(function(s,i){searchIdx.push({t:'stop',n:s.n,i:i})});
+LINES.forEach(function(l,i){searchIdx.push({t:'line',n:l.s,f:l.fn,i:i})});
+
+function drawRoutes(count){
+    count=Math.min(count,LINES.length);
+    currentCount=count;
+    routeLayerGroup.clearLayers();
+    overviewLayerGroup.clearLayers();
+    for(var i=0;i<count;i++){
+        var l=LINES[i],coords=l.coords.map(function(c){return [c[0],c[1]]});
+        // Route line
+        var line = L.polyline(coords,{color:l.c,weight:3,opacity:0.8});
+        line.bindTooltip('<b>'+l.s+'</b>',{sticky:true});
+        line.bindPopup('<b>'+l.s+'</b><br><small>'+l.dir+'</small>');
+        line.on('click',function(ln){return function(){highlightRoute(ln)}}(l));
+        line.on('mouseover',function(ln){return function(){
+            document.getElementById('info-panel').querySelector('.route-name').textContent=ln.s;
+            document.getElementById('info-panel').querySelector('.route-detail').textContent=ln.dir;
+            document.getElementById('info-panel').style.display='block';
+        }}(l));
+        line.on('mouseout',function(){
+            document.getElementById('info-panel').style.display='none';
+        });
+        routeLayerGroup.addLayer(line);
+        // Marker in middle
+        var mid=Math.floor(l.coords.length/2);
+        var mk = L.circleMarker([l.coords[mid][0],l.coords[mid][1]],{radius:8,fillColor:l.c,color:'#fff',weight:2,fillOpacity:0.9});
+        mk.bindTooltip(l.s,{sticky:true});
+        routeLayerGroup.addLayer(mk);
+        // Overview
+        var ol = L.polyline(coords,{color:'red',weight:1.5,opacity:0.4});
+        overviewLayerGroup.addLayer(ol);
+    }
+}
+
+function switchTab(tab){
+    currentTab=tab;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelector('[data-tab="'+tab+'"]').classList.add('active');
+    if(tab==='stations'){
+        if(!map.hasLayer(stopLayer))stopLayer.addTo(map);
+        if(map.hasLayer(routeLayerGroup))map.removeLayer(routeLayerGroup);
+        if(map.hasLayer(overviewLayerGroup))map.removeLayer(overviewLayerGroup);
+    }else if(tab==='routes'){
+        if(map.hasLayer(stopLayer))map.removeLayer(stopLayer);
+        if(!map.hasLayer(routeLayerGroup))routeLayerGroup.addTo(map);
+        if(map.hasLayer(overviewLayerGroup))map.removeLayer(overviewLayerGroup);
+    }else{
+        if(map.hasLayer(stopLayer))map.removeLayer(stopLayer);
+        if(map.hasLayer(routeLayerGroup))map.removeLayer(routeLayerGroup);
+        if(!map.hasLayer(overviewLayerGroup))overviewLayerGroup.addTo(map);
+    }
+}
+
+function rebuild(n){
+    n=Math.max(1,Math.min(n,LINES.length));
+    document.getElementById('line-count').value=n;
+    document.querySelectorAll('.count-btn').forEach(function(b){b.classList.remove('active')});
+    drawRoutes(n);
+    switchTab(currentTab);
+}
+
+function highlightRoute(l){
+    switchTab('routes');
+    map.setView([l.la,l.lo],14);
+    // Briefly add a thick highlight
+    var coords=l.coords.map(function(c){return [c[0],c[1]]});
+    if(highlightLine)map.removeLayer(highlightLine);
+    highlightLine=L.polyline(coords,{color:'yellow',weight:8,opacity:0.8}).addTo(map);
+    document.getElementById('info-panel').querySelector('.route-name').textContent=l.s;
+    document.getElementById('info-panel').querySelector('.route-detail').textContent=l.dir||l.fn;
+    document.getElementById('info-panel').style.display='block';
+    setTimeout(function(){if(highlightLine)map.removeLayer(highlightLine);highlightLine=null},4000);
+}
+
+function goStop(i){
+    var s=STOPS[i];switchTab('stations');
+    map.setView([s.la,s.lo],17);
+    document.getElementById('search-input').value=s.n;
+}
+
+function goLine(i){
+    if(i>=currentCount)rebuild(Math.max(currentCount,i+20));
+    highlightRoute(LINES[i]);
+    document.getElementById('search-input').value=LINES[i].s;
+}
+
+// Buttons
+document.querySelectorAll('.tab-btn').forEach(function(b){b.onclick=function(){switchTab(this.dataset.tab)}});
+document.querySelectorAll('.count-btn').forEach(function(b){b.onclick=function(){rebuild(parseInt(this.dataset.n))}});
+document.getElementById('line-count').onchange=function(){rebuild(parseInt(this.value)||20)};
+document.getElementById('search-btn').onclick=doSearch;
+document.getElementById('search-input').oninput=onInput;
+
+function onInput(){
+    var q=document.getElementById('search-input').value.trim();
+    var sug=document.getElementById('suggestions');
+    if(q.length<1){sug.style.display='none';return}
+    var m=searchIdx.filter(function(x){return x.n.indexOf(q)!==-1||(x.f&&x.f.indexOf(q)!==-1)}).slice(0,8);
+    if(m.length===0){sug.style.display='none';return}
+    sug.innerHTML=m.map(function(x){return '<div class="suggestion-item" data-t="'+x.t+'" data-i="'+x.i+'">'+x.n+'<span style="color:#999;font-size:10px;margin-left:4px">['+(x.t==='stop'?'站点':'线路')+']</span></div>'}).join('');
+    sug.style.display='block';
+    sug.querySelectorAll('.suggestion-item').forEach(function(el){el.onclick=function(){sug.style.display='none';if(this.dataset.t==='stop')goStop(parseInt(this.dataset.i));else goLine(parseInt(this.dataset.i))}});
+}
+
+function doSearch(){
+    var q=document.getElementById('search-input').value.trim();
+    document.getElementById('suggestions').style.display='none';
+    if(!q)return;
+    for(var i=0;i<searchIdx.length;i++){if(searchIdx[i].n===q||searchIdx[i].f===q){if(searchIdx[i].t==='stop')goStop(searchIdx[i].i);else goLine(searchIdx[i].i);return}}
+    for(var i=0;i<searchIdx.length;i++){if(searchIdx[i].n.indexOf(q)!==-1){if(searchIdx[i].t==='stop')goStop(searchIdx[i].i);else goLine(searchIdx[i].i);return}}
+    alert('未找到: '+q);
+}
+
+document.addEventListener('click',function(e){if(e.target!==document.getElementById('search-input'))document.getElementById('suggestions').style.display='none'});
+
+// Init
+drawRoutes(20);
+switchTab('stations');
+})();
+</script>
+</body>
+</html>

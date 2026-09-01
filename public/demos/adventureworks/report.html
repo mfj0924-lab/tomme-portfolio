@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>分析工作台报告</title>
+  <style>
+    :root { color-scheme: light; font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif; color: #17202b; background: #e9ece8; }
+    * { box-sizing: border-box; }
+    body { max-width: 78rem; min-height: 100vh; margin: 0 auto; padding: clamp(1rem, 4vw, 3rem); background: #fbfcfa; line-height: 1.6; }
+    h1 { max-width: 18ch; margin: 0 0 .75rem; font-size: clamp(2rem, 5vw, 4.5rem); line-height: 1.02; letter-spacing: -.035em; }
+    h2 { margin: 0 0 .75rem; font-size: clamp(1.35rem, 2.5vw, 2rem); line-height: 1.2; letter-spacing: -.02em; }
+    h3 { margin: 1.25rem 0 .5rem; }
+    p, li { max-width: 72ch; }
+    section { margin-block: clamp(2.5rem, 6vw, 5rem); }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    caption { margin-block-end: .75rem; text-align: start; color: #4e5965; }
+    th, td { padding: .75rem; border-bottom: 1px solid #c9ced2; text-align: start; vertical-align: top; }
+    th { background: #eef1ed; font-weight: 700; }
+    tbody tr:hover { background: #f3f6f2; }
+    .report-lead { margin: 0 0 2rem; color: #4e5965; font-size: 1.05rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: 1px; margin-top: 1.25rem; background: #c9ced2; border: 1px solid #c9ced2; }
+    .summary-grid div { min-width: 0; padding: 1rem; background: #fbfcfa; }
+    .summary-grid dt { color: #4e5965; font-size: .85rem; }
+    .summary-grid dd { margin: .25rem 0 0; font-size: 1.15rem; font-weight: 750; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .contract-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .status-note { padding: 1rem; border: 1px solid #b8bfc4; border-radius: 14px; background: #eef1ed; }
+    .claim-list article { padding-block: .85rem; border-bottom: 1px solid #d8dcdf; }
+    .claim-list article p { margin: 0; }
+    .claim-meta { margin-top: .3rem !important; color: #59636f; font-size: .85rem; }
+    code { overflow-wrap: anywhere; }
+    .audit-alert { padding: 1rem; border: 1px solid #9b2922; border-radius: 14px; color: #9b2922; background: #fde7e5; }
+    .audit-alert.is-mixed { border-color: #7a4d00; color: #7a4d00; background: #fff3cf; }
+    .audit-alert h2 { margin-block: 0 .4rem; }
+    .audit-alert p { margin-block: 0; }
+    .explore-watermark { padding: 1rem; border: 2px dashed #7a4d00; border-radius: 14px; color: #5f3c00; background: #fff3cf; font-weight: 700; }
+    .metric-value, .metric-status, .metric-reason { display: block; overflow-wrap: anywhere; }
+    .metric-value { font: 700 .95rem/1.4 Consolas, monospace; }
+    .metric-status { margin-block-start: .35rem; }
+    .metric-reason { margin-block-start: .2rem; color: #59636f; }
+    .status-verified .metric-status { color: #17633a; }
+    .status-rejected .metric-status, .status-stale .metric-status { color: #9b2922; }
+    .status-needs_review .metric-status, .status-unverified .metric-status { color: #7a4d00; }
+    :focus-visible { outline: 3px solid #17633a; outline-offset: 3px; }
+    @media (max-width: 820px) {
+      body { padding: 1rem; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .contract-summary-grid { grid-template-columns: minmax(0, 1fr); }
+      .table-scroll { overflow-x: auto; scrollbar-gutter: stable; }
+      .table-scroll table { min-width: 52rem; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      body { animation: report-reveal .35s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes report-reveal { from { opacity: .65; transform: translateY(6px); } }
+    }
+  </style>
+</head>
+<body>
+  <h1>分析工作台报告</h1>
+  <p class="report-lead">先看程序计算结果，再看结果审查状态；AI 解读始终作为单独的建议稿呈现。</p>
+  
+  
+  <section id="analysis-input-contract">
+    <h2>分析输入合同</h2>
+    
+    <p class="status-note">数据质量检查已通过合同中可自动核对的结构与唯一键要求；核对结果来自质量报告产物 <code>5459f986-95ee-4b9f-9085-25708915fa7c</code>。以下清洗方法、粒度、单位和限制仍属于上游声明，不代表工作台重新执行过清洗。</p>
+    
+    <dl class="summary-grid contract-summary-grid">
+      <div><dt>数据粒度</dt><dd>一行代表一张销售订单，双渠道订单号已增加渠道前缀</dd></div>
+      <div><dt>唯一键</dt><dd>order_id</dd></div>
+      <div><dt>时间字段 / 时区</dt><dd>order_date / UTC</dd></div>
+      <div><dt>金额单位</dt><dd>USD</dd></div>
+      <div><dt>准备日期</dt><dd>2026-08-17</dd></div>
+      <div><dt>清洗工具 / 版本</dt><dd>SQL Server 2022 portfolio views + Python 3.12 export script / adventureworks-portfolio-v1</dd></div>
+    </dl>
+    <h3>上游已知限制</h3>
+    <ul><li>Microsoft虚构样例数据，不代表真实企业经营结果</li><li>cost来自样例TotalProductCost，毛利为估算口径，不是经审计毛利或净利润</li><li>源库没有退货事实，returned固定为false，不能分析退货率</li><li>2010与2014为不完整年度，Reseller的2013仅覆盖到11月</li><li>category为订单内收入最高的主品类，只用于订单级工作台分组</li></ul>
+  </section>
+  
+  
+  
+  <section id="business-overview">
+    <h2>经营总览</h2>
+    <p>这些数值由固定的数据库查询语句（SQL）从当前数据快照计算，不依赖 AI。</p>
+    <dl class="summary-grid">
+      <div><dt>收入</dt><dd>109,809,274.20</dd></div>
+      <div><dt>毛利</dt><dd>12,551,366.25</dd></div>
+      <div><dt>毛利率</dt><dd>11.43%</dd></div>
+      <div><dt>订单行数</dt><dd>31,455</dd></div>
+      <div><dt>退货率</dt><dd>0.00%</dd></div>
+    </dl>
+  </section>
+
+  <section id="monthly-trend">
+    <h2>月度趋势</h2>
+    
+    <div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的月度趋势表">
+      <table>
+        <caption>趋势用于观察时间变化；它描述发生了什么，不自动说明原因。</caption>
+        <thead><tr><th scope="col">月份</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">2010-12</th><td>532,749.62</td><td>34,882.41</td><td>6.55%</td><td>52</td><td>0.00%</td></tr><tr><th scope="row">2011-01</th><td>2,008,232.23</td><td>257,899.91</td><td>12.84%</td><td>219</td><td>0.00%</td></tr><tr><th scope="row">2011-02</th><td>466,334.90</td><td>188,039.91</td><td>40.32%</td><td>144</td><td>0.00%</td></tr><tr><th scope="row">2011-03</th><td>2,495,816.73</td><td>278,082.64</td><td>11.14%</td><td>250</td><td>0.00%</td></tr><tr><th scope="row">2011-04</th><td>502,073.85</td><td>201,534.00</td><td>40.14%</td><td>157</td><td>0.00%</td></tr><tr><th scope="row">2011-05</th><td>4,588,761.82</td><td>383,969.06</td><td>8.37%</td><td>327</td><td>0.00%</td></tr><tr><th scope="row">2011-06</th><td>737,839.82</td><td>296,125.02</td><td>40.13%</td><td>230</td><td>0.00%</td></tr><tr><th scope="row">2011-07</th><td>1,309,863.25</td><td>263,008.21</td><td>20.08%</td><td>228</td><td>0.00%</td></tr><tr><th scope="row">2011-08</th><td>3,970,627.28</td><td>373,898.26</td><td>9.42%</td><td>336</td><td>0.00%</td></tr><tr><th scope="row">2011-09</th><td>1,485,983.44</td><td>271,150.10</td><td>18.25%</td><td>222</td><td>0.00%</td></tr><tr><th scope="row">2011-10</th><td>2,977,324.72</td><td>372,046.12</td><td>12.50%</td><td>306</td><td>0.00%</td></tr><tr><th scope="row">2011-11</th><td>1,662,349.58</td><td>-338,275.92</td><td>-20.35%</td><td>276</td><td>0.00%</td></tr><tr><th scope="row">2011-12</th><td>3,063,121.03</td><td>326,006.56</td><td>10.64%</td><td>294</td><td>0.00%</td></tr><tr><th scope="row">2012-01</th><td>4,096,554.84</td><td>332,377.72</td><td>8.11%</td><td>391</td><td>0.00%</td></tr><tr><th scope="row">2012-02</th><td>3,392,353.39</td><td>355,411.76</td><td>10.48%</td><td>371</td><td>0.00%</td></tr><tr><th scope="row">2012-03</th><td>2,175,637.22</td><td>229,520.99</td><td>10.55%</td><td>285</td><td>0.00%</td></tr><tr><th scope="row">2012-04</th><td>3,454,151.94</td><td>299,958.28</td><td>8.68%</td><td>352</td><td>0.00%</td></tr><tr><th scope="row">2012-05</th><td>2,544,091.11</td><td>257,991.88</td><td>10.14%</td><td>321</td><td>0.00%</td></tr><tr><th scope="row">2012-06</th><td>1,872,701.98</td><td>282,296.45</td><td>15.07%</td><td>383</td><td>0.00%</td></tr><tr><th scope="row">2012-07</th><td>2,829,404.82</td><td>263,119.11</td><td>9.30%</td><td>378</td><td>0.00%</td></tr><tr><th scope="row">2012-08</th><td>2,087,872.46</td><td>286,326.43</td><td>13.71%</td><td>400</td><td>0.00%</td></tr><tr><th scope="row">2012-09</th><td>2,351,455.88</td><td>286,951.20</td><td>12.20%</td><td>343</td><td>0.00%</td></tr><tr><th scope="row">2012-10</th><td>3,415,912.17</td><td>340,566.99</td><td>9.97%</td><td>447</td><td>0.00%</td></tr><tr><th scope="row">2012-11</th><td>2,525,828.22</td><td>328,025.69</td><td>12.99%</td><td>426</td><td>0.00%</td></tr><tr><th scope="row">2012-12</th><td>3,290,152.71</td><td>81,359.56</td><td>2.47%</td><td>449</td><td>0.00%</td></tr><tr><th scope="row">2013-01</th><td>5,070,661.42</td><td>100,605.64</td><td>1.98%</td><td>817</td><td>0.00%</td></tr><tr><th scope="row">2013-02</th><td>4,818,922.78</td><td>42,917.48</td><td>0.89%</td><td>1,597</td><td>0.00%</td></tr><tr><th scope="row">2013-03</th><td>3,332,023.27</td><td>434,546.58</td><td>13.04%</td><td>1,789</td><td>0.00%</td></tr><tr><th scope="row">2013-04</th><td>4,529,184.17</td><td>456,183.04</td><td>10.07%</td><td>1,790</td><td>0.00%</td></tr><tr><th scope="row">2013-05</th><td>4,795,541.66</td><td>562,411.37</td><td>11.73%</td><td>1,968</td><td>0.00%</td></tr><tr><th scope="row">2013-06</th><td>3,305,725.10</td><td>681,263.16</td><td>20.61%</td><td>2,101</td><td>0.00%</td></tr><tr><th scope="row">2013-07</th><td>4,070,976.60</td><td>580,185.46</td><td>14.25%</td><td>2,049</td><td>0.00%</td></tr><tr><th scope="row">2013-08</th><td>4,289,719.18</td><td>647,432.73</td><td>15.09%</td><td>2,140</td><td>0.00%</td></tr><tr><th scope="row">2013-09</th><td>3,654,220.91</td><td>603,195.33</td><td>16.51%</td><td>1,977</td><td>0.00%</td></tr><tr><th scope="row">2013-10</th><td>4,987,894.19</td><td>663,874.76</td><td>13.31%</td><td>2,310</td><td>0.00%</td></tr><tr><th scope="row">2013-11</th><td>5,197,154.91</td><td>724,686.30</td><td>13.94%</td><td>2,267</td><td>0.00%</td></tr><tr><th scope="row">2013-12</th><td>1,874,360.29</td><td>776,239.12</td><td>41.41%</td><td>2,192</td><td>0.00%</td></tr><tr><th scope="row">2014-01</th><td>45,694.72</td><td>25,552.94</td><td>55.92%</td><td>871</td><td>0.00%</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+  <section id="period-comparison">
+    <h2>前后期对比</h2>
+    
+    <p>2010-12—2012-06 对比 2012-07—2014-01。月份按时间排序后分成互不重叠的前后两段。</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的前后期对比表">
+      <table>
+        <caption>相对变化以较早时期为基准；分母为零时显示为空。</caption>
+        <thead><tr><th scope="col">指标</th><th scope="col">绝对变化</th><th scope="col">相对变化</th></tr></thead>
+        <tbody><tr><th scope="row">收入</th><td>23,136,136.75</td><td>53.39%</td></tr><tr><th scope="row">毛利</th><td>3,219,519.51</td><td>69.00%</td></tr><tr><th scope="row">订单行数</th><td>21,167</td><td>411.49%</td></tr><tr><th scope="row">退货率</th><td>0.00 个百分点</td><td>—</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+  <section id="dimension-breakdowns">
+    <h2>业务分组</h2>
+    <p>按地区、品类、渠道和客户类型拆开看，帮助定位“整体平均数”掩盖的差异。</p>
+    
+    <h3>地区</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="地区分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">Southwest</th><td>24,184,609.60</td><td>2,356,143.50</td><td>9.74%</td><td>6,224</td><td>0.00%</td></tr><tr><th scope="row">Canada</th><td>16,355,770.46</td><td>1,008,148.59</td><td>6.16%</td><td>4,067</td><td>0.00%</td></tr><tr><th scope="row">Northwest</th><td>16,084,942.55</td><td>1,740,528.07</td><td>10.82%</td><td>4,594</td><td>0.00%</td></tr><tr><th scope="row">Australia</th><td>10,655,335.96</td><td>3,577,134.19</td><td>33.57%</td><td>6,843</td><td>0.00%</td></tr><tr><th scope="row">Central</th><td>7,909,009.01</td><td>141,909.52</td><td>1.79%</td><td>385</td><td>0.00%</td></tr><tr><th scope="row">Southeast</th><td>7,879,655.07</td><td>125,404.35</td><td>1.59%</td><td>486</td><td>0.00%</td></tr><tr><th scope="row">United Kingdom</th><td>7,670,721.04</td><td>1,396,872.69</td><td>18.21%</td><td>3,219</td><td>0.00%</td></tr><tr><th scope="row">France</th><td>7,251,555.65</td><td>1,048,955.12</td><td>14.47%</td><td>2,672</td><td>0.00%</td></tr><tr><th scope="row">Northeast</th><td>6,939,374.48</td><td>80,153.16</td><td>1.16%</td><td>352</td><td>0.00%</td></tr><tr><th scope="row">Germany</th><td>4,878,300.38</td><td>1,076,117.07</td><td>22.06%</td><td>2,613</td><td>0.00%</td></tr></tbody>
+      </table>
+    </div>
+    
+    <h3>品类</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="品类分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">Bikes</th><td>108,113,238.67</td><td>12,122,972.69</td><td>11.21%</td><td>18,247</td><td>0.00%</td></tr><tr><th scope="row">Components</th><td>994,715.49</td><td>57,485.43</td><td>5.78%</td><td>572</td><td>0.00%</td></tr><tr><th scope="row">Accessories</th><td>434,779.10</td><td>264,417.40</td><td>60.82%</td><td>9,594</td><td>0.00%</td></tr><tr><th scope="row">Clothing</th><td>266,540.95</td><td>106,490.73</td><td>39.95%</td><td>3,042</td><td>0.00%</td></tr></tbody>
+      </table>
+    </div>
+    
+    <h3>渠道</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="渠道分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">Reseller</th><td>80,450,596.98</td><td>470,482.60</td><td>0.58%</td><td>3,796</td><td>0.00%</td></tr><tr><th scope="row">Internet</th><td>29,358,677.22</td><td>12,080,883.65</td><td>41.15%</td><td>27,659</td><td>0.00%</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+  <section id="metric-definitions">
+    <h2>指标口径与 BI 交付</h2>
+    <p>指标口径说明“数字怎么算、能解释到哪一步”。完整只读 SQL、聚合结果表、分析结论—证据关系、DAX 度量值和 Power BI 页面蓝图保存在与本报告绑定的 BI 数据包中。</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的指标口径表">
+      <table>
+        <thead><tr><th scope="col">指标</th><th scope="col">定义</th><th scope="col">公式</th><th scope="col">解释边界</th></tr></thead>
+        <tbody><tr><th scope="row">收入<small><code>revenue</code></small></th><td>所有物理数据行的收入合计。</td><td><code>SUM(revenue)</code></td><td>币种来自输入合同声明；工作台不会自动换算币种。</td></tr><tr><th scope="row">毛利<small><code>gross_profit</code></small></th><td>收入减去成本后的合计。</td><td><code>SUM(revenue - cost)</code></td><td>这里不包含输入数据未提供的税费、履约费或其他费用。</td></tr><tr><th scope="row">毛利率<small><code>gross_margin</code></small></th><td>毛利占收入的比例。</td><td><code>SUM(revenue - cost) / SUM(revenue)</code></td><td>收入为零时结果为空，避免无意义的除零值。</td></tr><tr><th scope="row">订单行数<small><code>orders</code></small></th><td>输入数据中的物理行数。</td><td><code>COUNT(*)</code></td><td>只有输入合同声明并验证一行一单时，才能解释为订单数。</td></tr><tr><th scope="row">退货率<small><code>return_rate</code></small></th><td>标记为退货的数据行占全部物理行的比例。</td><td><code>AVG(CASE WHEN returned THEN 1 ELSE 0 END)</code></td><td>它是行级退货率；是否等同订单退货率取决于数据粒度。</td></tr></tbody>
+      </table>
+    </div>
+    <p class="status-note">本报告绑定 BI 数据包产物 <code>fac37c74-3633-4233-9d67-1558f64eb747</code>，版本 v0001，SHA-256 <code>7464d2b0d44f6032e80e804c8f922eb7a785e8dfeb11d83a5cfb28a1746bcad1</code>。正式下载仍受当前报告发布审批约束。</p>
+  </section>
+  
+
+  <section id="data-quality">
+    <h2>数据质量</h2>
+    <p>质量检查报告：产物 <code>5459f986-95ee-4b9f-9085-25708915fa7c</code> · v0001 · SHA-256 <code>25177ab3c4d83ad4bf1be6feb4079da48a2f098c7a0286638ae926ce135686e2</code></p>
+  </section>
+  <section id="provenance">
+    <h2>产物来源说明</h2>
+    
+      <article data-artifact-id="a2718045-2ba0-4398-9e35-6e93e511d62c">
+        <p>产物类型（<code>kind</code>）：审查结果</p>
+        <p>生成方式（<code>completion_source</code>）：程序计算</p>
+        <p>降级原因（<code>fallback_reason</code>）：无</p>
+        <p>放宽的假设（<code>relaxed_assumptions</code>）：无</p>
+      </article>
+    
+      <article data-artifact-id="66e840ee-6fde-4f82-939a-0f5a0a14ba4d">
+        <p>产物类型（<code>kind</code>）：数据分析结果</p>
+        <p>生成方式（<code>completion_source</code>）：程序计算</p>
+        <p>降级原因（<code>fallback_reason</code>）：无</p>
+        <p>放宽的假设（<code>relaxed_assumptions</code>）：无</p>
+      </article>
+    
+  </section>
+  <section id="verified-findings" class="claim-list">
+    
+    <h2>已验证结论</h2>
+    <article data-claim-id="18d04d04-bf34-4697-b20b-905fd4f3d51b"><p>收入为 109,809,274.20</p><p class="claim-meta">已验证 · 结论编号 18d04d04-bf34-4697-b20b-905fd4f3d51b</p></article><article data-claim-id="7da1ba23-2c2c-404a-8f50-23cbe8371862"><p>毛利为 12,551,366.25</p><p class="claim-meta">已验证 · 结论编号 7da1ba23-2c2c-404a-8f50-23cbe8371862</p></article><article data-claim-id="30a33619-afbb-4656-a24f-3fcf7a0566b2"><p>订单行数为 31,455</p><p class="claim-meta">已验证 · 结论编号 30a33619-afbb-4656-a24f-3fcf7a0566b2</p></article><article data-claim-id="aa1fed18-466c-40b0-b5a8-a1075466bf09"><p>退货率为 0.00%</p><p class="claim-meta">已验证 · 结论编号 aa1fed18-466c-40b0-b5a8-a1075466bf09</p></article><article data-claim-id="0398c3bc-6237-4d6f-80a0-3f554bd8a466"><p>整体毛利率低于关注阈值。</p><p class="claim-meta">已验证 · 结论编号 0398c3bc-6237-4d6f-80a0-3f554bd8a466</p></article><article data-claim-id="6ec6651d-d0b7-4776-a130-9ddaa4fbf302"><p>地区（region）=Canada 的毛利率比整体至少低 5 个百分点。</p><p class="claim-meta">已验证 · 结论编号 6ec6651d-d0b7-4776-a130-9ddaa4fbf302</p></article><article data-claim-id="4d9fca27-1079-46f7-87e1-ad98871af93e"><p>渠道（channel）=Reseller 的毛利率比整体至少低 5 个百分点。</p><p class="claim-meta">已验证 · 结论编号 4d9fca27-1079-46f7-87e1-ad98871af93e</p></article>
+    <h3>已审查建议索引</h3><p>以下建议已经过证据检查，但仍是行动建议而不是事实结论；完整内容见“建议”部分。</p><article data-claim-id="c54fbbb1-14e6-42e0-ac47-d9c67d9bb060"><p class="claim-meta">建议编号 c54fbbb1-14e6-42e0-ac47-d9c67d9bb060</p></article><article data-claim-id="ba4e6d44-a814-47d9-a322-885ba4da8835"><p class="claim-meta">建议编号 ba4e6d44-a814-47d9-a322-885ba4da8835</p></article><article data-claim-id="f697d8c8-dd32-4438-8b92-c7c9ea7a0480"><p class="claim-meta">建议编号 f697d8c8-dd32-4438-8b92-c7c9ea7a0480</p></article>
+    
+  </section>
+  <section id="recommendations">
+    <h2>建议</h2>
+    
+      <article data-claim-id="c54fbbb1-14e6-42e0-ac47-d9c67d9bb060"><p>先复核定价、折扣和成本记录，再决定具体行动。</p><p class="claim-meta">状态：已验证</p></article><article data-claim-id="ba4e6d44-a814-47d9-a322-885ba4da8835"><p>先复核地区（region）=Canada 的价格、折扣和成本记录，确认后再决定行动。</p><p class="claim-meta">状态：已验证</p></article><article data-claim-id="f697d8c8-dd32-4438-8b92-c7c9ea7a0480"><p>先复核渠道（channel）=Reseller 的价格、折扣和成本记录，确认后再决定行动。</p><p class="claim-meta">状态：已验证</p></article>
+    
+  </section>
+  
+  <section id="limitations">
+    <h2>局限</h2>
+    <p>未声明额外局限。</p>
+  </section>
+  <section id="audit-appendix">
+    <h2>审计附录</h2>
+    
+      <article data-claim-id="18d04d04-bf34-4697-b20b-905fd4f3d51b"><p>收入为 109,809,274.20</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="7da1ba23-2c2c-404a-8f50-23cbe8371862"><p>毛利为 12,551,366.25</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="30a33619-afbb-4656-a24f-3fcf7a0566b2"><p>订单行数为 31,455</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="aa1fed18-466c-40b0-b5a8-a1075466bf09"><p>退货率为 0.00%</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="0398c3bc-6237-4d6f-80a0-3f554bd8a466"><p>整体毛利率低于关注阈值。</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="6ec6651d-d0b7-4776-a130-9ddaa4fbf302"><p>地区（region）=Canada 的毛利率比整体至少低 5 个百分点。</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="4d9fca27-1079-46f7-87e1-ad98871af93e"><p>渠道（channel）=Reseller 的毛利率比整体至少低 5 个百分点。</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="c54fbbb1-14e6-42e0-ac47-d9c67d9bb060"><p>先复核定价、折扣和成本记录，再决定具体行动。</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="ba4e6d44-a814-47d9-a322-885ba4da8835"><p>先复核地区（region）=Canada 的价格、折扣和成本记录，确认后再决定行动。</p><p>状态：
+      已验证</p></article>
+    
+      <article data-claim-id="f697d8c8-dd32-4438-8b92-c7c9ea7a0480"><p>先复核渠道（channel）=Reseller 的价格、折扣和成本记录，确认后再决定行动。</p><p>状态：
+      已验证</p></article>
+    
+  </section>
+</body>
+</html>

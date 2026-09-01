@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { projects } from '../../data/projects';
+export function getStaticPaths() { return projects.map((project) => ({ params: { slug: project.slug }, props: { project } })); }
+const { project } = Astro.props;
+const currentIndex = projects.findIndex((item) => item.slug === project.slug);
+const nextProject = projects[(currentIndex + 1) % projects.length];
+---
+<BaseLayout title={`${project.name}｜Tomme`} description={project.summary}>
+  <article class="project-page">
+    <header class="project-hero page-shell">
+      <div class="hero-copy"><a class="back-link" href="/#projects">← 返回全部项目</a><h1>{project.name}</h1><p class="question">{project.question}</p><p class="project-type">{project.type}</p><div class="button-row">{project.links.slice(0,2).map((link) => <a class:list={['button',link.kind==='primary'&&'primary']} href={link.href}>{link.label}</a>)}</div></div>
+      <aside class="hero-context"><p>{project.belief}</p><div class="context-meta"><span>{project.year} · 个人项目</span><small>{project.ai}</small></div></aside>
+    </header>
+
+    <section class="turning-point"><div class="page-shell turning-grid"><div><h2>问题最初是怎样展开的</h2><p>{project.story}</p></div><div><h2>哪些发现改变了原来的方案</h2><p>{project.shift}</p></div></div></section>
+
+    <section class="summary-section page-shell"><div><h2>这个项目处理了哪些具体工作</h2><p>{project.summary}</p></div><div><h2>我在项目中负责哪些判断</h2><p>{project.role}</p></div></section>
+
+    <section class="number-line page-shell" aria-label="项目关键数据">{project.numbers.map((item)=><div><strong>{item.value}</strong><span>{item.label}</span></div>)}</section>
+
+    <section class="process-section section page-shell"><h2 class="section-heading">项目经历了哪些阶段</h2><div class="process-route">{project.process.map((step,index)=><article><span>{index+1}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></article>)}</div></section>
+
+    <section class="ai-collab-section section"><div class="page-shell"><h2 class="section-heading">AI怎样参与这个项目</h2><p class="section-lead">工具名称只能说明使用过什么。下面记录需求怎样形成、AI承担了哪些工作、我检查了什么，以及项目为什么在当前版本停止。</p><div class="collab-list">{project.aiCollaboration.map((item)=><article><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></div></section>
+
+    {project.references.length>0&&<section class="reference-section page-shell"><h2>项目参考了哪些现有资料</h2><p>我会先查找能够满足相似需求的项目，再判断哪些方法可以复用、哪些部分需要重新设计。这里只记录已经能够确认来源和实际关系的资料。</p><div class="reference-list">{project.references.map((item)=><article><h3>{item.href?<a href={item.href}>{item.name} ↗</a>:item.name}</h3><p>{item.relation}</p></article>)}</div></section>}
+
+    {project.images.length>0&&<section class="evidence-section section"><div class="page-shell"><h2 class="section-heading">这些页面分别证明什么</h2><p class="section-lead">下面保留项目实际页面和产物。图片可以放大，说明文字标明每张页面在项目中承担的作用。</p><div class="gallery">{project.images.map((image,index)=><figure><button type="button" data-lightbox data-src={image.src} data-alt={image.alt} data-caption={image.caption}><img src={image.src} alt={image.alt} loading="lazy" /></button><figcaption><span>证据 {index+1}</span><strong>{image.caption}</strong></figcaption></figure>)}</div></div></section>}
+
+    <section class="judgement-section section page-shell"><div><h2>当前材料能够支持哪些结论</h2><ul>{project.findings.map((finding)=><li>{finding}</li>)}</ul></div><div class="boundary"><h2>哪些问题仍然需要更多数据</h2><ul>{project.boundaries.map((item)=><li>{item}</li>)}</ul></div></section>
+
+    <section class="tools-section"><div class="page-shell tools-grid"><div><h2>项目使用了哪些工具</h2><ul class="tag-list">{project.tools.map((tool)=><li>{tool}</li>)}</ul></div><div><h2>可以继续查看哪些材料</h2><div class="button-row">{project.links.map((link)=><a class:list={['button','small',link.kind==='primary'&&'primary']} href={link.href}>{link.label}</a>)}</div></div></div></section>
+
+    <nav class="next-project page-shell" aria-label="下一个项目"><span>下一条路径</span><a href={`/projects/${nextProject.slug}/`}><strong>{nextProject.name}</strong><em>继续 →</em></a></nav>
+  </article>
+  <dialog id="image-dialog"><button class="dialog-close" type="button" data-close-dialog aria-label="关闭大图">×</button><figure><img src="/assets/portrait.png" alt="项目证据大图" /><figcaption></figcaption></figure></dialog>
+</BaseLayout>
+
+<style>
+  .project-hero{position:relative;z-index:1;min-height:720px;padding:5rem 2rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);gap:clamp(3rem,5vw,5rem);align-items:center}.project-hero::before{content:"";position:absolute;inset:2rem 0;z-index:-1;background:rgba(244,247,251,.7);border:1px solid rgba(201,211,226,.7);border-radius:28px;box-shadow:0 32px 90px rgba(35,54,87,.12);backdrop-filter:blur(16px) saturate(1.08)}.hero-copy{min-width:0}.back-link{display:inline-block;margin-bottom:2rem;color:var(--muted);font-weight:800}.project-type{margin:0 0 .6rem;color:var(--blue);font-weight:900}.project-hero h1{margin:0;max-width:12ch;font-size:clamp(3.2rem,5.5vw,5.8rem);line-height:1;letter-spacing:-.04em}.question{max-width:62ch;margin:2rem 0;font-size:1.15rem}.hero-context{position:relative;align-self:center;padding:1.7rem 1.8rem;background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:16px}.hero-context::before{content:"";position:absolute;inset:12px -14px -14px 12px;z-index:-1;background:var(--blue-soft);border-radius:16px}.hero-context>p{max-width:28ch;margin:0;color:var(--violet);font-family:"Songti SC","SimSun",serif;font-size:clamp(1.08rem,1.5vw,1.35rem);font-weight:700;line-height:1.75;text-wrap:pretty}.context-meta{margin-top:1.5rem;padding-top:1rem;display:flex;flex-wrap:wrap;gap:.45rem 1rem;align-items:baseline;border-top:1px solid var(--line)}.hero-context span{font-weight:850}.hero-context small{color:var(--muted)}
+  .turning-point{padding:5rem 0;color:#fff;background:var(--ink)}.turning-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#46536c}.turning-grid>div{padding:2.5rem;background:var(--ink)}.turning-grid>div:last-child{background:#17243e}.turning-grid h2{margin:0 0 1rem;color:var(--yellow);font-size:1rem}.turning-grid p{max-width:65ch;margin:0;color:#d6deeb;font-size:1.05rem}
+  .summary-section{padding:5rem 0;display:grid;grid-template-columns:1fr 1fr;gap:5rem}.summary-section h2{font-size:1.35rem}.summary-section p{max-width:65ch;font-size:1.08rem}.number-line{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line)}.number-line div{padding:1.7rem 1rem 1.7rem 0}.number-line strong,.number-line span{display:block}.number-line strong{color:var(--blue);font-size:clamp(2rem,4vw,3.7rem);line-height:1.05}.number-line span{color:var(--muted);font-size:.8rem}
+  .process-route{position:relative;max-width:900px;margin-left:auto}.process-route::before{content:"";position:absolute;top:0;bottom:0;left:25px;width:1px;background:var(--line)}.process-route article{position:relative;padding:0 0 2.8rem 80px}.process-route article>span{position:absolute;top:0;left:6px;width:39px;height:39px;display:grid;place-items:center;color:#fff;background:var(--blue);border-radius:50%;font-weight:900}.process-route h3{margin:0 0 .4rem;font-size:1.4rem}.process-route p{max-width:70ch;margin:0;color:var(--muted)}
+  .ai-collab-section{color:#fff;background:var(--ink)}.ai-collab-section .section-lead{color:#cbd5e7}.collab-list{max-width:940px;margin-left:auto;border-top:1px solid #46536c}.collab-list article{padding:2rem 0;display:grid;grid-template-columns:minmax(180px,.55fr) minmax(0,1.45fr);gap:2.5rem;border-bottom:1px solid #46536c}.collab-list h3,.collab-list p{margin:0}.collab-list h3{color:var(--yellow);font-size:1.25rem}.collab-list p{max-width:72ch;color:#d6deeb}.reference-section{padding:6rem 0}.reference-section>h2{max-width:22ch;font-size:clamp(2.2rem,4vw,4rem);line-height:1.15}.reference-section>p{max-width:70ch;color:var(--muted)}.reference-list{margin-top:2.5rem;border-top:1px solid var(--line)}.reference-list article{padding:1.5rem 0;display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:2.5rem;border-bottom:1px solid var(--line)}.reference-list h3,.reference-list p{margin:0}.reference-list h3{font-size:1.1rem}.reference-list a{color:var(--blue)}.reference-list p{max-width:70ch;color:var(--muted)}
+  .evidence-section{background:#eaf0f8}.gallery{display:grid;gap:5rem}.gallery figure{margin:0;display:grid;grid-template-columns:1.35fr .65fr;gap:2.5rem;align-items:center}.gallery figure:nth-child(even){grid-template-columns:.65fr 1.35fr}.gallery figure:nth-child(even) button{order:2}.gallery button{padding:0;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 22px 50px rgba(26,47,83,.14);cursor:zoom-in}.gallery img{width:100%;max-height:720px;object-fit:contain;transition:transform .35s var(--ease)}.gallery button:hover img{transform:scale(1.015)}.gallery figcaption span{display:block;margin-bottom:.55rem;color:var(--blue);font-size:.8rem;font-weight:900}.gallery figcaption strong{font-size:1.08rem;line-height:1.75}
+  .judgement-section{display:grid;grid-template-columns:1fr 1fr;gap:5rem}.judgement-section>div{padding-top:1.3rem;border-top:1px solid var(--line)}.judgement-section h2{color:var(--blue);font-size:2rem}.judgement-section .boundary h2{color:var(--coral)}.judgement-section li{margin-bottom:1rem}.tools-section{padding:5rem 0;background:var(--blue-soft)}.tools-grid{display:grid;grid-template-columns:.75fr 1.25fr;gap:5rem}.tools-grid h2{font-size:1.35rem}.next-project{padding:5rem 0 7rem}.next-project>span{display:block;margin-bottom:1rem;color:var(--muted);font-size:.8rem;font-weight:850}.next-project a{display:flex;justify-content:space-between;gap:2rem;align-items:end;text-decoration:none}.next-project strong{max-width:16ch;font-size:clamp(2rem,4vw,4rem);line-height:1.1}.next-project em{color:var(--blue);font-style:normal;font-weight:900}
+  @media(max-width:1100px){.project-hero{grid-template-columns:1fr;min-height:auto;gap:3rem}.hero-context{width:min(100%,680px)}.hero-context>p{max-width:52ch}}
+  @media(max-width:900px){.turning-grid,.summary-section,.judgement-section,.tools-grid{grid-template-columns:1fr}.number-line{grid-template-columns:1fr 1fr}.gallery figure,.gallery figure:nth-child(even){grid-template-columns:1fr;gap:1rem}.gallery figure:nth-child(even) button{order:initial}.gallery figcaption{max-width:70ch}.turning-grid{gap:1px}.summary-section,.judgement-section,.tools-grid{gap:2rem}.collab-list article,.reference-list article{grid-template-columns:1fr;gap:.65rem}}
+  @media(max-width:520px){.project-hero h1{font-size:clamp(3rem,14vw,4.8rem)}.number-line{grid-template-columns:1fr}.number-line div{border-bottom:1px solid var(--line)}.process-route article{padding-left:60px}.next-project a{align-items:flex-start;flex-direction:column}}
+</style>
+
+<style>
+  .project-hero::before { display: none; }
+
+  @media (min-width: 1101px) {
+    .project-hero h1 {
+      font-size: clamp(3.1rem, 4.7vw, 5rem);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .project-hero h1 {
+      font-size: clamp(2rem, 9vw, 2.8rem);
+      letter-spacing: -.055em;
+    }
+  }
+</style>

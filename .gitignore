@@ -1,0 +1,22 @@
+# Dependencies and generated output
+node_modules/
+dist/
+.astro/
+.vercel/
+
+# Local QA and temporary artifacts
+tmp/
+review/
+*.log
+
+# Local design-working files
+.impeccable/
+PRODUCT.md
+DESIGN.md
+VOICE.md
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

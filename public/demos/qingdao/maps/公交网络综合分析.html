@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>青岛公交网络综合分析</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>if(typeof Plotly==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"><\/script>')}</script>
+<script src="analysis_data.js"></script>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--card2:#f8f9ff;--border:#e0e4ed;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--cyan:#06b6d4;--text:#1e293b;--dim:#64748b;--accent:#e94560}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{background:linear-gradient(135deg,#1e3a5f,#2d1b69);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:16px;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:12px}
+.header h1{font-size:16px;font-weight:700;color:#fff}.header-sub{font-size:11px;color:rgba(255,255,255,.65)}
+.header-stats{display:flex;gap:20px;flex-wrap:wrap}
+.header-stat{text-align:center}.header-stat .val{font-size:18px;font-weight:800;color:#fff}.header-stat .lbl{font-size:10px;color:rgba(255,255,255,.6)}
+.nav-wrap{border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:56px;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;overflow-x:auto}
+.nav-btn{flex-shrink:0;padding:12px 20px;border:none;background:none;color:var(--dim);font-size:13px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+.nav-btn:hover,.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.main{max-width:1400px;margin:0 auto;padding:24px}
+.section{display:none}.section.active{display:block}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.metric-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.metric-card.blue::before{background:var(--blue)}.metric-card.green::before{background:var(--green)}.metric-card.orange::before{background:var(--orange)}.metric-card.purple::before{background:var(--purple)}.metric-card.red::before{background:var(--red)}.metric-card.cyan::before{background:var(--cyan)}
+.metric-card .val{font-size:2em;font-weight:800;line-height:1.2}
+.metric-card.blue .val{color:var(--blue)}.metric-card.green .val{color:var(--green)}.metric-card.orange .val{color:var(--orange)}.metric-card.purple .val{color:var(--purple)}.metric-card.red .val{color:var(--red)}.metric-card.cyan .val{color:var(--cyan)}
+.metric-card .lbl{font-size:.85em;color:var(--text);margin-top:4px}.metric-card .sub{font-size:.75em;color:var(--dim);margin-top:2px}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.chart-card h3{font-size:14px;margin-bottom:8px;color:var(--text)}
+.plot{min-height:350px}
+.hub-table{width:100%;border-collapse:collapse;font-size:.9em}
+.hub-table td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.hub-table tr:last-child td{border-bottom:none}
+.hub-name{color:var(--text);font-weight:600}.hub-deg{color:var(--blue);font-weight:700;text-align:right;font-size:1.1em}
+.about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.about-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.about-item h3{font-size:18px;margin:12px 0 8px}.about-item .desc{color:var(--dim);font-size:.9em;line-height:1.7}
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+@media(max-width:768px){.model-grid{grid-template-columns:1fr}}
+.model-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.model-box.blue{border-top:3px solid var(--blue)}.model-box.green{border-top:3px solid var(--green)}
+.model-box h3{font-size:16px;margin-bottom:16px}
+.model-box .rule{font-size:.9em;color:var(--dim);line-height:2}.model-box .rule strong{color:var(--text)}
+.model-box .example{background:var(--card2);border-radius:8px;padding:12px;margin-top:12px;font-size:.85em;color:var(--dim)}
+.footer{text-align:center;padding:20px;color:var(--dim);font-size:.8em;border-top:1px solid var(--border);background:var(--card)}
+.hub-table{width:100%;border-collapse:collapse;font-size:.9em}
+.hub-table td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.hub-table tr:last-child td{border-bottom:none}
+.hub-name{color:var(--text);font-weight:600}.hub-deg{color:var(--blue);font-weight:700;text-align:right;font-size:1.1em}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div><h1>青岛公交网络综合分析</h1><div class="header-sub">高德地图API · 874条线路 · 5616站点 · Space-L换乘网络模型</div></div>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat"><div class="val" id="h-lines">-</div><div class="lbl">线路</div></div>
+      <div class="header-stat"><div class="val" id="h-stops">-</div><div class="lbl">站点</div></div>
+      <div class="header-stat"><div class="val" id="h-edges">-</div><div class="lbl">换乘边</div></div>
+      <div class="header-stat"><div class="val" id="h-path">-</div><div class="lbl">平均路径</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-tab="overview">总览</button>
+    <button class="nav-btn" data-tab="features">线路特征</button>
+    <button class="nav-btn" data-tab="network">换乘网络</button>
+    <button class="nav-btn" data-tab="hubs">枢纽站点</button>
+    <button class="nav-btn" data-tab="model">建模说明</button>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="section active" id="tab-overview">
+  <div class="metrics-grid">
+    <div class="metric-card blue"><div class="val" id="ov-lines">-</div><div class="lbl">有效公交线路</div><div class="sub">覆盖青岛核心城区</div></div>
+    <div class="metric-card green"><div class="val" id="ov-stops">-</div><div class="lbl">唯一公交站点</div><div class="sub">去重后站点总数</div></div>
+    <div class="metric-card orange"><div class="val" id="ov-km">-</div><div class="lbl">总运营里程 (km)</div><div class="sub">874条线路合计</div></div>
+    <div class="metric-card purple"><div class="val" id="ov-pts">310K</div><div class="lbl">轨迹坐标点</div><div class="sub">polyline展开</div></div>
+    <div class="metric-card red"><div class="val" id="ov-edges">-</div><div class="lbl">换乘关系边</div><div class="sub">Space-L网络</div></div>
+    <div class="metric-card cyan"><div class="val" id="ov-avgpath">-</div><div class="lbl">平均路径长度</div><div class="sub">仅需2-3次换乘</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>线路长度分布</h3><div class="plot" id="chart-overview-length"></div></div>
+    <div class="chart-card"><h3>度分布直方图</h3><div class="plot" id="chart-overview-degree"></div></div>
+  </div>
+</div>
+
+<div class="section" id="tab-features">
+  <h2 style="margin-bottom:16px;color:var(--blue)">公交线路基本特征分析</h2>
+  <div class="metrics-grid">
+    <div class="metric-card blue"><div class="val" id="ft-avglen">-</div><div class="lbl">平均线路长度 (km)</div></div>
+    <div class="metric-card green"><div class="val" id="ft-medlen">-</div><div class="lbl">线路长度中位数 (km)</div></div>
+    <div class="metric-card orange"><div class="val" id="ft-avgstops">-</div><div class="lbl">平均站点数</div></div>
+    <div class="metric-card purple"><div class="val" id="ft-spacing">-</div><div class="lbl">平均站距 (米)</div></div>
+    <div class="metric-card red"><div class="val" id="ft-nlc">-</div><div class="lbl">非直线系数中位数</div></div>
+    <div class="metric-card cyan"><div class="val" id="ft-totalkm">-</div><div class="lbl">总里程 (km)</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>线路长度分布直方图</h3><div class="plot" id="chart-feat-length"></div></div>
+    <div class="chart-card"><h3>站点数分布</h3><div class="plot" id="chart-feat-stops"></div></div>
+    <div class="chart-card"><h3>长度 vs 站点数 散点图</h3><div class="plot" id="chart-feat-scatter"></div></div>
+    <div class="chart-card"><h3>非直线系数分布</h3><div class="plot" id="chart-feat-nlc"></div></div>
+  </div>
+</div>
+
+<div class="section" id="tab-network">
+  <h2 style="margin-bottom:16px;color:var(--purple)">公交换乘网络分析</h2>
+  <div class="metrics-grid">
+    <div class="metric-card purple"><div class="val" id="net-nodes">-</div><div class="lbl">节点 (线路数)</div></div>
+    <div class="metric-card blue"><div class="val" id="net-edges">-</div><div class="lbl">边 (换乘关系)</div></div>
+    <div class="metric-card green"><div class="val" id="net-density">-</div><div class="lbl">网络密度</div></div>
+    <div class="metric-card orange"><div class="val" id="net-avgdeg">-</div><div class="lbl">平均度</div></div>
+    <div class="metric-card red"><div class="val" id="net-maxdeg">-</div><div class="lbl">最大度 (地铁1号线)</div></div>
+    <div class="metric-card cyan"><div class="val" id="net-conn">-</div><div class="lbl">最大连通分量</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>节点度分布直方图</h3><div class="plot" id="chart-net-degree-hist"></div></div>
+    <div class="chart-card"><h3>度概率分布</h3><div class="plot" id="chart-net-degree-prob"></div></div>
+    <div class="chart-card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px">
+      <div style="font-size:.9em;color:var(--dim);margin-bottom:8px">平均路径长度</div>
+      <div style="font-size:3em;font-weight:800;color:var(--green);margin:10px 0" id="net-path-val">2.57</div>
+      <div style="color:var(--dim);font-size:.9em">任意两线路之间平均仅需 <strong style="color:var(--green)">2.6 次换乘</strong></div>
+      <div style="color:var(--dim);font-size:.8em;margin-top:8px">网络直径: 6 | 最大连通分量 861 节点上计算</div>
+    </div>
+    <div class="chart-card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px">
+      <div style="font-size:.9em;color:var(--dim);margin-bottom:8px">聚类系数</div>
+      <div style="font-size:3em;font-weight:800;color:var(--orange);margin:10px 0">0.553</div>
+      <div style="color:var(--dim);font-size:.9em">随机网络仅约 <strong>0.0013</strong> → 高出 <strong style="color:var(--orange)">400+倍</strong></div>
+      <div style="color:var(--dim);font-size:.8em;margin-top:8px">具有显著的<strong style="color:var(--orange)">小世界特性</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-hubs">
+  <h2 style="margin-bottom:16px;color:var(--orange)">Top 15 枢纽站点 (换乘最密集)</h2>
+  <div class="chart-grid">
+    <div class="chart-card" style="grid-column:1/-1"><div class="plot" id="chart-hub"></div></div>
+  </div>
+</div>
+
+<div class="section" id="tab-model">
+  <h2 style="margin-bottom:16px;color:var(--cyan)">网络建模方法说明</h2>
+  <div class="model-grid">
+    <div class="model-box blue">
+      <div style="font-size:40px;margin-bottom:8px">🚌</div>
+      <h3 style="color:var(--blue)">Space-L 模型 (本项目采用)</h3>
+      <div class="rule">
+        <strong>节点 = 公交线路</strong><br>
+        <strong>边 = 换乘关系</strong> (两线路有公共站点)<br>
+        <strong>度 = 换乘能力</strong> (一条线路能与多少线路换乘)<br>
+        <strong>分析目标 = 换乘效率</strong>
+      </div>
+      <div class="example">
+        <strong>举例：</strong>1路 经过 A→B→C，5路 经过 B→D→E<br>
+        1路和5路共享B站 → 有一条边 → 1路的度=1
+      </div>
+    </div>
+    <div class="model-box green">
+      <div style="font-size:40px;margin-bottom:8px">📍</div>
+      <h3 style="color:var(--green)">Space-P 模型 (另一种视角)</h3>
+      <div class="rule">
+        <strong>节点 = 公交站点</strong><br>
+        <strong>边 = 直达关系</strong> (两站点在同一条线路上)<br>
+        <strong>度 = 站点重要性</strong> (一个站能直达多少站)<br>
+        <strong>分析目标 = 站点可达性</strong>
+      </div>
+      <div class="example">
+        <strong>举例：</strong>A站和B站同在1路上<br>
+        A-B之间有一条边（可直达）→ A的度=看能直达几个站
+      </div>
+    </div>
+  </div>
+  <div class="about-grid" style="margin-top:20px">
+    <div class="about-item">
+      <div style="font-size:40px">🔵</div><h3 style="color:var(--blue)">节 点</h3>
+      <p class="desc">Space-L模型中<br><strong>每个节点 = 一条公交线路</strong><br>如"1路""5路""地铁1号线"<br>874个节点 = 874条线路</p>
+    </div>
+    <div class="about-item">
+      <div style="font-size:40px">🔗</div><h3 style="color:var(--green)">边</h3>
+      <p class="desc">两条线路有<strong>至少一个</strong>公共站点<br>→ 在它们之间连一条边<br>表示"可以在这两线路之间换乘"<br>25,929条边 = 25,929个换乘关系</p>
+    </div>
+    <div class="about-item">
+      <div style="font-size:40px">📊</div><h3 style="color:var(--orange)">度</h3>
+      <p class="desc">一个节点连着多少条边<br>即 <strong>一条线路能和多少线路换乘</strong><br>地铁1号线度=176（最高）<br>平均度=59.3</p>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-top:20px;border-left:3px solid var(--red)">
+    <p style="font-size:.9em;line-height:1.8;text-align:center">
+      <strong style="color:var(--red)">重要说明：</strong>
+      Space-L 和 Space-P 是公交网络分析中两种公认的建模范式，<strong>没有对错之分</strong>。<br>
+      如果你同学采用 Space-P 模型，节点数、边数、度值会与本文<strong>完全不同</strong>——这是分析视角差异，不是方法错误。
+    </p>
+  </div>
+</div>
+
+</div><!-- main -->
+<div class="footer">青岛公交网络综合分析 | 大数据课程设计 实例1 | 数据：高德地图API (GCJ-02) | 可视化：Plotly</div>
+
+<script>
+function init(){
+if(typeof ANALYSIS==='undefined'||typeof Plotly==='undefined'){
+  document.body.innerHTML='<div style="color:#fff;text-align:center;padding:200px 20px;font-size:18px">数据加载中...请稍候<br><small>如持续无法加载，请确保 analysis_data.js 在同一目录下</small></div>';
+  if(typeof Plotly==='undefined')setTimeout(init,500);
+  return;
+}
+var A=ANALYSIS;
+var CFG={responsive:true,displayModeBar:false};
+var FONT={font:{family:'Microsoft YaHei,Arial,sans-serif',color:'#64748b'}};
+var MARGIN={l:50,r:20,t:30,b:50};
+var BG={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)'};
+var GRID={xaxis:{gridcolor:'#e2e8f0',color:'#64748b'},yaxis:{gridcolor:'#e2e8f0',color:'#64748b'}};
+
+function h(data,color,bins,id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  Plotly.newPlot(el,[{type:'histogram',x:data,nbinsx:bins||40,marker:{color:color,opacity:.85,line:{color:'#fff',width:1}}}],Object.assign({},FONT,MARGIN,BG,GRID,{height:350}),CFG);
+}
+
+// Fill all stats first
+function set(id,val){var e=document.getElementById(id);if(e)e.textContent=val}
+function med(arr){var s=arr.slice().sort(function(a,b){return a-b});var m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+
+set('ov-lines',A.n_nodes);set('ov-stops',A.uniq_stops);
+set('ov-km',Math.round(A.total_km).toLocaleString());
+set('ov-edges',A.n_edges.toLocaleString());set('ov-avgpath',A.avg_path);
+set('h-lines',A.n_nodes);set('h-stops',A.uniq_stops);
+set('h-edges',(A.n_edges/1000).toFixed(1)+'K');set('h-path',A.avg_path);
+set('ft-avglen',A.avg_length);set('ft-medlen',med(A.lengths).toFixed(2));
+set('ft-avgstops',A.avg_stops);set('ft-spacing',A.avg_spacing);
+set('ft-nlc',A.med_nlc);set('ft-totalkm',Math.round(A.total_km).toLocaleString());
+set('net-nodes',A.n_nodes);set('net-edges',A.n_edges.toLocaleString());
+set('net-density',(A.n_edges/(A.n_nodes*(A.n_nodes-1))).toFixed(6));
+set('net-avgdeg',A.avg_deg);set('net-maxdeg',A.max_deg);
+set('net-conn',(A.n_nodes-13)+'/'+A.n_nodes+' (98.5%)');
+set('net-path-val',A.avg_path);
+
+// Charts
+h(A.lengths,'#5b9cf5',40,'chart-overview-length');
+h(A.degrees,'#4ecb71',50,'chart-overview-degree');
+h(A.lengths,'#5b9cf5',40,'chart-feat-length');
+h(A.stops,'#4ecb71',35,'chart-feat-stops');
+h(A.nlc,'#f5a623',50,'chart-feat-nlc');
+h(A.degrees,'#b47cde',60,'chart-net-degree-hist');
+
+// Scatter
+(function(){
+  var el=document.getElementById('chart-feat-scatter');
+  if(!el)return;
+  Plotly.newPlot(el,[{type:'scatter',x:A.lengths,y:A.stops,mode:'markers',marker:{color:'#5b9cf5',opacity:.4,size:6}}],
+    Object.assign({},FONT,MARGIN,BG,{height:350,xaxis:Object.assign({title:'线路长度 (km)'},GRID.xaxis),yaxis:Object.assign({title:'站点数'},GRID.yaxis)}),CFG);
+})();
+
+// Degree probability
+(function(){
+  var el=document.getElementById('chart-net-degree-prob');
+  if(!el)return;
+  var dc={};A.degrees.forEach(function(d){dc[d]=(dc[d]||0)+1});
+  var sd=Object.keys(dc).map(Number).sort(function(a,b){return a-b});
+  var ps=sd.map(function(d){return dc[d]/A.degrees.length});
+  Plotly.newPlot(el,[{type:'bar',x:sd,y:ps,marker:{color:'#f5a623',opacity:.85}}],
+    Object.assign({},FONT,MARGIN,BG,{height:350,xaxis:Object.assign({title:'节点的度 K'},GRID.xaxis),yaxis:Object.assign({title:'概率 P(K)'},GRID.yaxis)}),CFG);
+})();
+
+// Hub chart
+(function(){
+  var el=document.getElementById('chart-hub');
+  if(!el)return;
+  var names=A.hub.slice().reverse().map(function(h){return h[0].length>14?h[0].slice(0,13)+'..':h[0]});
+  var vals=A.hub.slice().reverse().map(function(h){return h[1]});
+  var colors=vals.map(function(v){return v>200?'#f56565':v>100?'#f5a623':'#5b9cf5'});
+  Plotly.newPlot(el,[{type:'bar',y:names,x:vals,orientation:'h',marker:{color:colors,opacity:.9},text:vals.map(String),textposition:'outside',textfont:{color:'#334155'}}],
+    Object.assign({},FONT,{margin:{l:130,r:60,t:20,b:30}},BG,{height:500,xaxis:Object.assign({title:'经过该站的线路数'},GRID.xaxis)}),CFG);
+})();
+
+// Tab switching
+var currentTab='overview';
+document.querySelectorAll('.nav-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    currentTab=this.dataset.tab;
+    document.querySelectorAll('.nav-btn').forEach(function(x){x.classList.remove('active')});
+    this.classList.add('active');
+    document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+    var el=document.getElementById('tab-'+currentTab);if(el)el.classList.add('active');
+    // Resize plots in newly visible section
+    setTimeout(function(){
+      var plots=document.querySelectorAll('#tab-'+currentTab+' .js-plotly-plot');
+      plots.forEach(function(p){Plotly.Plots.resize(p)});
+    },150);
+  });
+});
+}
+
+// Wait for Plotly
+var retries=0;
+function waitForPlotly(){
+  if(typeof Plotly!=='undefined'){init();return}
+  retries++;if(retries>50)return;
+  setTimeout(waitForPlotly,200);
+}
+waitForPlotly();
+</script>
+</body>
+</html>

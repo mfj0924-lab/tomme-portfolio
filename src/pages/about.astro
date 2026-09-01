@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="关于我｜Tomme" description="Tomme如何理解主体性、完美主义、进步与工作的价值。">
+  <article class="about-page">
+    <header class="about-hero page-shell">
+      <div class="about-copy"><h1>工具清单可以很快读完，人的判断需要更多内容。</h1><p>SQL、Power BI、Python和AI协作能够说明我使用过哪些工具。一个问题为什么值得继续、什么时候应该停止、怎样依据新证据调整方案，以及我希望从工作中获得什么，需要结合项目和真实选择继续说明。</p><p>这一页记录这些判断怎样形成，也记录它们怎样进入我的作品。</p></div>
+      <figure class="portrait-figure">
+        <img class="portrait-artwork" src="/assets/portrait-data-constructivist.png" alt="Tomme的数据构成主义风格头像" />
+        <figcaption>2026年，还在学校，也还在形成自己的工作方式。</figcaption>
+      </figure>
+    </header>
+
+    <section class="belief-route section page-shell">
+      <h2 class="section-heading">四种想法怎样进入我的作品</h2>
+      <div class="belief-list">
+        <article><span>回到问题</span><div><h3>第一性原理帮助我重新确认问题</h3><p>面对一个已经存在的方案，我会继续追问它解决了什么、依赖哪些前提，以及当前真正需要解决的对象是否已经变化。工作台最初计划把爬取、工程、分析、审核和报告全部放进Agent流程。继续调研和实现以后，我发现现有工具已经能够完成大量执行工作，真正缺少的是对数据、证据、限制和发布责任的统一记录。产品范围随后收缩到这个问题。</p><a href="/projects/workbench/">在工作台中查看 →</a></div></article>
+        <article><span>选择尺度</span><div><h3>完美主义帮助我选择当前更合适的完成方式</h3><p>我理解的完美主义是一种处理问题的宏观思路。面对具体方案，我需要先判断当前任务适合直接寻找最优解，还是应该先完成从0到1，再根据新的经验逐步完善。我也会判断哪些相关问题会影响当前项目、哪些问题具有继续投入的价值，以及什么问题可以留给下一版。</p><p>因此，完成标准会随时间、风险、用途和能力边界变化。一个问题没有改变当前结果时，我可以记录以后再做；一个问题已经动摇主要结论时，我会优先处理。CitiBike完成最小修复以后没有继续重做全部API和看板，也来自这套判断。</p><a href="/projects/citibike/">在CitiBike修正中查看 →</a></div></article>
+        <article><span>允许改变</span><div><h3>进步意味着作品可以依据新证据继续变化</h3><p>我希望在持续学习和实践中更新自己的方法。经验会让我知道哪些方案更好，新的工具和证据也可能改变原来的判断。CitiBike修复后的分数下降了，但新版本调整了字段来源和数据切分，评估条件更接近未来预测。旧版继续保留，新版记录认识变化，两个版本分别承担不同作用。</p><p>进步也要求我主动寻找现有思路之外的可能方案。当前方法只是目前能够看见的一种路径，新的问题、工具和经验可能让我重新定义目标，也可能出现原方案没有包含的解决方式。我会理解现有方法，同时保留继续改变方法的能力。</p><p>我在意进步带来的实际变化，也在意过程中是否还保留兴趣和创造空间。作品完成以后仍然值得被理解、使用和继续检查。</p><a href="/projects/citibike/">查看前后版本 →</a></div></article>
+        <article><span>保留可能</span><div><h3>灰度思维帮助我区分事实、解释和暂时判断</h3><p>同一组数据可能支持多个解释，信息不足时需要暂时保留可能。随着证据增加，我会逐渐排除不符合条件的解释，并说明当前仍然缺少什么。AdventureWorks中，折扣与低毛利同时出现只能形成待验证原因；地区毛利差异也需要继续检查渠道和产品结构。</p><p>这套认知方式允许相反观点暂时同时存在，也要求我在获得足够信息以后继续收紧结论。</p><a href="/method/">查看分析方法 →</a></div></article>
+      </div>
+    </section>
+
+    <section class="situational-method section page-shell"><div><h2>我会先判断问题发生在哪里，再选择具体处理方法</h2><p>问题可能来自数据、方法、工具，也可能来自目标本身。处理之前，我会先判断哪一类问题正在影响结果，再选择对应方法。这个过程帮助我保持行动上的变通，也避免使用同一套方案处理所有情况。</p></div><div class="situation-list"><article><h3>CitiBike需要调整评估方法</h3><p>模型能够运行，API和看板也已经完成；疑点发生在预测时点、字段来源和数据切分。对应方法是保留原成果、增加安全特征和时间切分，并重新解释旧版指标。</p></article><article><h3>AdventureWorks需要继续缩小问题范围</h3><p>经营总览能够说明整体规模，无法定位低毛利集中在哪里。对应方法是继续按渠道、品类、SKU和区域下钻，再区分已经确认的事实与仍待验证的原因。</p></article><article><h3>工作台需要降低理解和操作门槛</h3><p>核心检查已经能够运行，实际使用时出现了专业词汇难懂、112条重复拒绝和下一步不明确。对应方法是重写普通视图、合并共性问题、增加状态说明和具体修改建议。</p></article><article><h3>个人网站需要让结构容纳完整内容</h3><p>视觉和导航已经具备，正文却在多轮排版中不断被压缩。对应方法是修正产品目标，恢复项目过程、AI协作和个人判断，再让页面结构适配真实内容。</p></article></div></section>
+
+    <section class="structure-section">
+      <div class="page-shell structure-grid">
+        <div class="structure-heading"><h2>我理解的柔韧包含四个层次</h2><p>外部情况会变化，我也会调整认知、情绪和行动。调整需要保留价值观、热爱和底线，因此每一次变通都要知道自己正在保护什么。</p></div>
+        <div class="structure-levels"><p><strong>认知上的弹性</strong><span>我会尽量避免只用对错理解一件事。两种相反观点可以同时存在：坚持原则的同时理解例外，承认失败以后也继续寻找转机。现实不符合预期时，我会先换角度，给判断留下继续修正的空间。</span></p><p><strong>情绪上的容纳</strong><span>情绪出现以后，我会先感受和辨认它，再决定下一步。愤怒可以转为清醒表达，焦虑可以提醒我检查风险，悲伤也可以被完整感受；情绪提供信息，但不直接替我决定行动。</span></p><p><strong>行动上的变通</strong><span>目标和手段需要分开。一条路线无法继续时，我会评估B计划是否仍然通向原目标。暂时调整路线可以换取继续行动的空间，也能减少在错误方法上的消耗。</span></p><p><strong>核心上的钢性</strong><span>价值观、热爱和底线构成不会随便利消失的内核。琐事可以让步，路径可以调整；原则受到影响时，我需要明确自己可以接受到什么程度。</span></p></div>
+      </div>
+      <div class="page-shell flexibility-practice"><h3>我怎样练习它</h3><ol><li><strong>把自己暂时当成旁观者：</strong>发生冲突时，先想如果这是别人的处境，我会怎样建议。</li><li><strong>给结论加上“暂时”：</strong>“暂时做不到”仍然给经验和方法留下了进入的空间。</li><li><strong>提前看最坏结果：</strong>确认底线是否能够承受；接受以后，反而更有余地寻找其他路线。</li></ol></div>
+    </section>
+
+    <section class="work-value section page-shell" id="work-value">
+      <div class="work-value-intro">
+        <p class="serif">我希望工作占用时间的同时，也能留下经验、判断和一点属于自己的东西。</p>
+        <div><h2>我希望工作里存在选择</h2><p>我不要求所有意见都被接受，也不认为每项任务都必须宏大。但是我希望能知道问题为什么值得解决、自己的判断影响了什么，以及一件事是否还有更合适的做法。</p><p>这种要求也会进入我的项目。我愿意用AI扩大执行范围，同时会检查更快的生产是否遮住问题；我会看结果，也会继续追问结果由谁定义、用什么证据确认。</p></div>
+      </div>
+      <div class="work-value-grid">
+        <div><h2>我希望团队怎样讨论问题</h2><p>我希望进入一个允许提问、重视证据、尊重个人判断的团队。公司不需要接受我的每个想法，但应该愿意讨论“为什么”，让我能够看见自己的分析怎样影响实际决策，也能够在反馈中继续修正自己的判断。</p></div>
+        <div><h2>我能带来什么</h2><p>我的背景横跨经管、数据和AI协作，这让我能在业务问题与技术实现之间来回走。遇到不会的部分，我通常不会马上回避，也不会假装已经懂了；我会先弄清它是否影响结果，再决定学到什么程度。</p></div>
+      </div>
+    </section>
+    <footer class="contact-end page-shell"><h2>如果你想进一步了解这些项目，或者想和我讨论一份具体工作，欢迎联系我。</h2><div class="button-row"><a class="button primary" href="mailto:1877916299@qq.com">1877916299@qq.com</a><span class="button contact-button">微信：ccsjt0924</span><a class="button" href="https://github.com/mfj0924-lab">GitHub</a></div></footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .about-page{padding-bottom:6rem}.about-hero{min-height:760px;padding:5rem 0;display:grid;grid-template-columns:1.1fr .65fr;gap:6rem;align-items:center}.about-copy h1{margin:0 0 2rem;max-width:14ch;font-size:clamp(3.2rem,6vw,6rem);line-height:1.04;letter-spacing:-.04em}.about-copy p{max-width:65ch;font-size:1.08rem}.about-hero figure{margin:0;position:relative}.about-hero figure::before{content:"";position:absolute;inset:-18px 26px 18px -26px;z-index:-1;background:var(--blue-soft);border-radius:45% 45% 14px 14px}.about-hero img{width:100%;max-height:600px;object-fit:cover;object-position:50% 24%;border-radius:45% 45% 14px 14px}.about-hero figcaption{padding:.7rem 0;color:var(--muted);font-size:.8rem}.belief-list{border-top:1px solid var(--line)}.belief-list article{padding:2rem 0;display:grid;grid-template-columns:180px 1fr;border-bottom:1px solid var(--line)}.belief-list article>span{color:var(--blue);font-size:.82rem;font-weight:850}.belief-list h3{margin:0 0 .7rem;font-size:2rem}.belief-list p{max-width:74ch}.belief-list a{color:var(--blue);font-weight:800}.situational-method{display:grid;grid-template-columns:.7fr 1.3fr;gap:5rem}.situational-method>div>h2{font-size:clamp(2.4rem,4.5vw,4.6rem);line-height:1.12}.situational-method>div>p{max-width:52ch;color:var(--muted)}.situation-list{border-top:1px solid var(--line)}.situation-list article{padding:1.5rem 0;border-bottom:1px solid var(--line)}.situation-list h3{margin:0 0 .45rem;font-size:1.25rem}.situation-list p{max-width:72ch;margin:0;color:var(--muted)}.structure-section{padding:7rem 0;color:#fff;background:var(--ink)}.structure-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:5rem}.structure-grid h2{margin:0;max-width:12ch;font-size:clamp(3rem,5vw,5.2rem);line-height:1.08}.structure-heading>p{max-width:40ch;color:#9eabc0}.structure-levels p{margin:0;padding:1.2rem 0;display:grid;grid-template-columns:180px 1fr;color:#cbd5e7;border-bottom:1px solid #3a465d}.structure-levels strong{color:var(--yellow)}.structure-levels span{max-width:68ch}.flexibility-practice{margin-top:4rem;padding-top:2rem;border-top:1px solid #3a465d}.flexibility-practice h3{font-size:1.6rem}.flexibility-practice ol{padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;list-style:none}.flexibility-practice li{color:#cbd5e7}.flexibility-practice strong{display:block;margin-bottom:.45rem;color:#fff}.work-value{display:grid;gap:4rem}.work-value-intro{display:grid;grid-template-columns:.8fr 1.2fr;gap:5rem;align-items:start}.work-value-intro>.serif{max-width:25ch;margin:0;color:var(--violet);font-size:clamp(2rem,3.5vw,3.4rem);line-height:1.4}.work-value-intro>div{padding-top:1rem;border-top:1px solid var(--line)}.work-value-intro h2{margin-top:0;color:var(--blue);font-size:2rem}.work-value-intro p:not(.serif){max-width:66ch}.work-value-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem}.work-value-grid>div{padding-top:1rem;border-top:1px solid var(--line)}.work-value-grid h2{font-size:2rem}.work-value-grid>div:first-child h2{color:var(--blue)}.work-value-grid>div:last-child h2{color:var(--coral)}.contact-end{padding:4rem;background:var(--yellow);border-radius:16px}.contact-end h2{max-width:24ch;margin:0 0 2rem;font-size:clamp(2.3rem,4.5vw,4.6rem);line-height:1.15}
+  @media(max-width:820px){.about-hero,.situational-method,.structure-grid,.work-value-intro,.work-value-grid{grid-template-columns:1fr}.about-hero{min-height:auto;gap:3rem}.about-hero figure{max-width:420px}.situational-method,.work-value-intro{gap:2rem}.belief-list article{grid-template-columns:1fr}.structure-grid{gap:2rem}.structure-levels p{grid-template-columns:1fr;gap:.25rem}.flexibility-practice ol{grid-template-columns:1fr}.contact-end{padding:2rem}}
+</style>

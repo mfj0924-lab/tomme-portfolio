@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { projects } from '../data/projects';
+
+const traits = [
+  { id: 'progress', label: '允许作品被修正', title: '上一版可以错，但不能装作没错', text: 'CitiBike复核后，模型分数没有原来漂亮。我保留了旧版，也留下了为什么要改、改了什么，以及新版暂时只能说明到哪里。', projects: ['citibike', 'workbench'] },
+  { id: 'evidence', label: '在结论前停一下', title: '有些话，现在还不能说满', text: '收入增长是数据，促销导致增长却需要另一组证据。把两者分开以后，分析才不会在最像答案的地方提前结束。', projects: ['adventureworks', 'workbench'] },
+  { id: 'create', label: '把分散事物连起来', title: '有时问题不缺数据，缺的是连接', text: '公交线路、站点和坐标原本只是很多条记录；研发表和专利表也各自完整。我要做的是找到它们之间可以成立的关系。', projects: ['qingdao-transit', 'rnd-patent'] },
+  { id: 'choice', label: '在当前边界内做选择', title: '我会给“继续完善”设置条件', text: '有些问题值得追到最优解，有些项目应先从0走到1。我会判断下一步是否能够改变结果，再决定继续完善、保留限制或结束当前阶段。', projects: ['citibike', 'adventureworks', 'rnd-patent'] },
+];
+---
+<BaseLayout ambient ambientScope="home">
+  <section class="hero page-shell">
+    <div class="hero-copy">
+      <p class="hero-name">Tomme</p>
+      <h1>我用数据理解问题，也把判断做成可以检查的作品。</h1>
+      <p class="hero-lead">我主要关注经营分析、商业分析和AI协作。数字可以说明发生了什么；业务理解需要继续追问需求属于谁、为什么会变化、企业能够采取什么行动，以及行动以后怎样确认结果。</p>
+      <div class="route-choice" aria-label="选择阅读方式">
+        <a href="/?route=quick#projects" class="route-button active" data-route-button="quick" aria-current="true"><strong>先建立总体认识</strong><span>查看五个项目分别处理了什么</span></a>
+        <a href="/?route=deep#projects" class="route-button" data-route-button="deep"><strong>在首页展开项目过程</strong><span>继续查看问题来源与方案变化</span></a>
+      </div>
+      <p class="route-feedback" data-route-feedback aria-live="polite"><strong>当前显示总体介绍。</strong>每个项目的完整内容仍然保留在独立页面。</p>
+      <div class="button-row">
+        <a class="button primary" href="#projects">从项目开始 ↓</a>
+        <a class="button quiet" href="/downloads/Tomme_经营分析商业分析_展示版.pdf" download>下载简历 PDF</a>
+      </div>
+    </div>
+    <div class="hero-map" aria-label="Tomme的项目与思考轨迹">
+      <div class="portrait-layer"><img src="/assets/portrait.png" alt="Tomme个人头像" /></div>
+      <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+      <a href="/projects/citibike/" class="map-node node-1">模型被质疑</a>
+      <a href="/projects/workbench/" class="map-node node-2">让结论可审查</a>
+      <a href="/projects/adventureworks/" class="map-node node-3">从总览向下钻</a>
+      <a href="/projects/qingdao-transit/" class="map-node node-4">把城市连成网络</a>
+      <a href="/projects/rnd-patent/" class="map-node node-5">让异构数据有秩序</a>
+      <p class="map-note">五个项目解决的事情并不相同，<br />但我总会反复确认：<br /><strong>现在解决的，还是原来的问题吗？</strong></p>
+    </div>
+  </section>
+
+  <section class="opening-note page-shell">
+    <p class="serif">很多项目开始时，我只有一个大概的想法。</p>
+    <p>我会先整理已经知道的信息，再与AI讨论需求、现有方案、工具、风险和验收标准。目标有时已经明确，有时会在实施过程中继续变化。这个网站同时记录完成的结果、问题怎样被重新定义、方案为什么修改，以及当前仍然缺少什么。</p>
+  </section>
+
+  <section id="projects" class="projects-section section">
+    <div class="page-shell projects-heading">
+      <h2 class="section-heading">五个项目分别记录了什么</h2>
+      <p class="section-lead">五个项目覆盖数据获取、清洗、整合、建模、经营分析、网络分析、AI数据产品和可视化。每个独立页面会继续说明项目如何开始、参考了哪些资料、AI怎样参与、我负责哪些判断、结果怎样被验证，以及哪些工作留在当前版本之后。</p>
+    </div>
+    <div class="project-route page-shell">
+      {projects.map((project, index) => (
+        <article class:list={['project-story', `story-${index + 1}`]} data-project={project.slug}>
+          <div class="route-marker"><span>{index + 1}</span></div>
+          <div class="story-copy">
+            <p class="project-type">{project.type}</p>
+            <h3>{project.name}</h3>
+            <blockquote>{project.belief}</blockquote>
+            <p>{project.summary}</p>
+            <div class="deep-layer">
+              <div class="deep-content">
+                <p><strong>问题是怎样展开的：</strong>{project.story}</p>
+                <p><strong>项目中的关键判断：</strong>{project.shift}</p>
+              </div>
+            </div>
+            <div class="story-meta"><span>{project.ai}</span><span>{project.year} · 个人项目</span></div>
+            <div class="button-row"><a class="button primary" href={`/projects/${project.slug}/`}>进入完整项目</a>{project.links[0] && <a class="button quiet" href={project.links[0].href}>GitHub ↗</a>}</div>
+          </div>
+          <a class="story-image" href={`/projects/${project.slug}/`} aria-label={`查看${project.name}`}>
+            {project.images[0] ? <img src={project.images[0].src} alt={project.images[0].alt} loading="lazy" /> : <div class="no-image"><span>公司 × 年份</span><strong>把数据损失也留下记录</strong></div>}
+            <div class="image-caption"><span>{project.numbers[0].value}<small>{project.numbers[0].label}</small></span><span>{project.numbers[1].value}<small>{project.numbers[1].label}</small></span></div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="connection-section section">
+    <div class="page-shell connection-grid">
+      <div class="connection-intro">
+        <h2 class="section-heading">项目中的选择也记录了我的思考方式</h2>
+        <p>允许作品被修正、区分事实与原因、连接分散数据，以及为继续完善设置条件，都能够在具体项目中找到对应行动。右侧选择一种思考方式后，页面会显示相关项目。</p>
+      </div>
+      <div class="thought-console">
+        <div class="thought-buttons" role="tablist" aria-label="选择一种思考方式">
+          {traits.map((trait, index) => <button type="button" role="tab" aria-selected={index === 0 ? 'true' : 'false'} class:list={[index === 0 && 'active']} data-trait={trait.id} data-title={trait.title} data-text={trait.text} data-projects={trait.projects.join(',')}>{trait.label}</button>)}
+        </div>
+        <div class="thought-result" aria-live="polite"><h3>{traits[0].title}</h3><p>{traits[0].text}</p></div>
+        <div class="project-constellation">
+          {projects.map((project) => <a href={`/projects/${project.slug}/`} data-constellation-project={project.slug} class:list={[traits[0].projects.includes(project.slug) && 'active']}><span></span>{project.shortName}</a>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="method-preview section page-shell">
+    <div>
+      <h2 class="section-heading">经营分析从需求开始，并用证据推动决策</h2>
+      <p>我会先判断需求属于谁、发生在什么场景、用户为什么愿意改变选择，以及企业能否以合理成本触达和交付。进入数据分析以后，再按“结—证—因—策—界”整理答案，让事实、原因、建议和限制保持清楚。</p>
+      <a class="text-link" href="/method/">查看需求思维与“结—证—因—策—界” →</a>
+    </div>
+    <ol class="method-path">
+      <li><strong>结</strong><span>发生了什么</span></li><li><strong>证</strong><span>凭什么这样说</span></li><li><strong>因</strong><span>原因是否验证</span></li><li><strong>策</strong><span>下一步怎样做</span></li><li><strong>界</strong><span>现在不能证明什么</span></li>
+    </ol>
+  </section>
+
+  <section class="ai-preview">
+    <div class="page-shell ai-grid">
+      <div><h2>我怎样使用AI，也怎样检查AI产生的结果</h2></div>
+      <div><p>我长期使用ChatGPT、Codex、Claude Code、DeepSeek Pro与Trae，也会根据任务调用和定制Skill。项目通常经历参考项目调研、上下文组织、方案选择、阶段实施、测试审查和人工确认。</p><p class="serif">完整信息决定AI输出的下限，完整审视决定AI能力能够到达的位置，执行边界决定哪些结果可以采用。</p><a class="button" href="/ai-collaboration/">查看完整AI协作方法</a></div>
+    </div>
+  </section>
+
+  <section class="about-close section page-shell">
+    <p class="serif">工作当然要完成任务，但我希望自己最后留下的不只是“完成”。</p>
+    <h2>我想知道自己的判断<br />究竟改变了什么。</h2>
+    <p>可能是让一个经营问题更清楚，让一份报告少说一句没有证据的话，也可能只是让下一版项目减少已经识别的问题。影响不一定很大，但应该能够被看见。</p>
+    <div class="button-row"><a class="button primary" href="/about/">继续认识我</a><a class="button quiet" href="mailto:1877916299@qq.com">和我聊聊</a></div>
+  </section>
+
+  <script>
+    const root = document.documentElement;
+    const routeButtons = document.querySelectorAll('[data-route-button]');
+    const setRoute = (route) => {
+      root.dataset.readingRoute = route;
+      routeButtons.forEach((button) => {
+        const active = button.getAttribute('data-route-button') === route;
+        button.classList.toggle('active', active);
+        if (active) button.setAttribute('aria-current', 'true'); else button.removeAttribute('aria-current');
+      });
+      const url = new URL(window.location.href);
+      if (route === 'deep') url.searchParams.set('route', 'deep'); else url.searchParams.delete('route');
+      try { history.replaceState({}, '', url); } catch { /* file:// 预览时仍允许切换 */ }
+      const feedback = document.querySelector('[data-route-feedback]');
+      if (feedback) feedback.innerHTML = route === 'deep'
+        ? '<strong>当前已展开项目过程。</strong>项目区会继续显示问题来源和方案变化。'
+        : '<strong>当前显示总体介绍。</strong>每个项目的完整内容仍然保留在独立页面。';
+    };
+    setRoute(new URLSearchParams(location.search).get('route') === 'deep' ? 'deep' : 'quick');
+    routeButtons.forEach((button) => button.addEventListener('click', (event) => {
+      event.preventDefault();
+      setRoute(button.getAttribute('data-route-button') || 'quick');
+      document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+
+    const traitButtons = document.querySelectorAll('[data-trait]');
+    const result = document.querySelector('.thought-result');
+    traitButtons.forEach((button) => button.addEventListener('click', () => {
+      traitButtons.forEach((item) => { item.classList.remove('active'); item.setAttribute('aria-selected', 'false'); });
+      button.classList.add('active'); button.setAttribute('aria-selected', 'true');
+      if (result) result.innerHTML = `<h3>${button.getAttribute('data-title')}</h3><p>${button.getAttribute('data-text')}</p>`;
+      const activeProjects = (button.getAttribute('data-projects') || '').split(',');
+      document.querySelectorAll('[data-constellation-project]').forEach((node) => node.classList.toggle('active', activeProjects.includes(node.getAttribute('data-constellation-project') || '')));
+    }));
+  </script>
+</BaseLayout>
+
+<style>
+  .hero{position:relative;z-index:1;min-height:760px;padding:clamp(4rem,8vw,7rem) 2rem 4rem;display:grid;grid-template-columns:1.12fr .88fr;gap:4rem;align-items:center}.hero::before{content:"";position:absolute;inset:2rem 0;z-index:-1;background:rgba(244,247,251,.68);border:1px solid rgba(201,211,226,.72);border-radius:28px;box-shadow:0 32px 90px rgba(35,54,87,.13);backdrop-filter:blur(16px) saturate(1.08)}.hero-name{margin:0 0 .65rem;color:var(--blue);font-size:1.1rem;font-weight:900}.hero h1{margin:0;max-width:13ch;font-size:clamp(3.5rem,5.8vw,5.8rem);line-height:1.02;letter-spacing:-.04em}.hero h1 em{color:var(--blue);font-family:"Songti SC","SimSun",serif;font-style:normal;font-weight:700}.hero-lead{max-width:62ch;margin:2rem 0;font-size:1.16rem}.route-choice{margin:2rem 0 .65rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.route-button{display:block;padding:1rem;text-align:left;text-decoration:none;color:var(--muted);background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease),box-shadow .2s var(--ease)}.route-button:hover{transform:translateY(-2px);border-color:var(--blue)}.route-button strong,.route-button span{display:block}.route-button strong{color:var(--ink)}.route-button span{font-size:.78rem}.route-button.active{background:#fff;border-color:var(--blue);box-shadow:0 10px 28px rgba(40,92,255,.12)}.route-feedback{min-height:2.8em;margin:0 0 1.4rem;color:var(--muted);font-size:.82rem}.route-feedback strong{color:var(--blue)}
+  .hero-map{position:relative;min-height:600px}.portrait-layer{position:absolute;inset:70px 80px 40px 70px;z-index:2;overflow:hidden;border-radius:48% 48% 16px 16px;background:var(--blue-soft);box-shadow:0 26px 60px rgba(22,39,71,.16)}.portrait-layer img{width:100%;height:100%;object-fit:cover;object-position:50% 25%}.orbit{position:absolute;border:1px solid rgba(40,92,255,.42);border-radius:50%}.orbit-a{inset:25px 25px 15px 10px;transform:rotate(-8deg)}.orbit-b{inset:80px 0 50px 55px;border-color:rgba(255,103,77,.46);transform:rotate(11deg)}.map-node{position:absolute;z-index:4;padding:.42rem .65rem;color:var(--ink);background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 20px rgba(16,25,43,.1);font-size:.78rem;font-weight:780;text-decoration:none;transition:transform .24s var(--ease),border-color .24s}.map-node:hover{transform:translateY(-3px);border-color:var(--blue)}.node-1{top:4%;left:6%}.node-2{top:17%;right:0}.node-3{top:48%;left:0}.node-4{bottom:9%;right:3%}.node-5{bottom:0;left:18%}.map-note{position:absolute;right:3%;bottom:21%;z-index:5;max-width:20ch;margin:0;padding:1rem;background:rgba(16,25,43,.9);color:#fff;border-radius:10px;font-size:.82rem;line-height:1.55}.map-note strong{color:var(--yellow)}
+  .opening-note{position:relative;z-index:1;padding:2.5rem 0 5rem;display:grid;grid-template-columns:.7fr 1.3fr;gap:4rem;border-top:1px solid rgba(201,211,226,.72)}.opening-note p{max-width:64ch;margin:0}.opening-note .serif{font-size:clamp(1.7rem,3vw,2.7rem);line-height:1.45}
+  .projects-section{position:relative;z-index:1;background:rgba(234,240,248,.76);backdrop-filter:blur(10px)}.projects-heading{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end}.project-route{position:relative}.project-route::before{content:"";position:absolute;top:0;bottom:0;left:34px;width:2px;background:linear-gradient(var(--blue),var(--violet),var(--coral))}.project-story{position:relative;padding:3rem 0 7rem 90px;display:grid;grid-template-columns:.92fr 1.08fr;gap:4rem;align-items:center}.project-story:last-child{padding-bottom:3rem}.route-marker{position:absolute;top:3.3rem;left:15px;z-index:2;width:40px;height:40px;display:grid;place-items:center;color:#fff;background:var(--blue);border:6px solid rgba(234,240,248,.9);border-radius:50%;font-weight:900}.story-2 .route-marker{background:var(--violet)}.story-3 .route-marker{background:var(--coral)}.story-4 .route-marker{background:#168a6a}.story-5 .route-marker{background:var(--ink)}.project-type{margin:0 0 .6rem;color:var(--blue);font-size:.82rem;font-weight:850}.story-copy h3{margin:0 0 1.2rem;font-size:clamp(2rem,3.8vw,4.2rem);line-height:1.06;letter-spacing:-.03em}.story-copy blockquote{max-width:36ch;margin:0 0 1.2rem;padding:.75rem .9rem;color:#304369;background:rgba(255,255,255,.56);font-family:"Songti SC","SimSun",serif;font-size:1.08rem;font-weight:650;line-height:1.8;text-wrap:balance}.story-copy>p{max-width:65ch}.story-meta{margin:1.5rem 0;display:grid;gap:.3rem;color:var(--muted);font-size:.78rem}.deep-layer{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .55s var(--ease),opacity .3s var(--ease)}.deep-content{min-height:0;overflow:hidden}.deep-content p{margin:0}.deep-content p+ p{margin-top:1rem}html[data-reading-route="deep"] .deep-layer{grid-template-rows:1fr;opacity:1;margin:1.5rem 0}.story-image{position:relative;display:block;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 22px 48px rgba(35,54,87,.14);text-decoration:none;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}.story-image:hover{transform:translateY(-5px) rotate(.3deg);box-shadow:0 28px 58px rgba(40,92,255,.18)}.story-image img{width:100%;aspect-ratio:16/10;object-fit:contain;background:#fff}.image-caption{padding:1rem 1.2rem;display:flex;gap:2rem;background:rgba(255,255,255,.94);border-top:1px solid var(--line)}.image-caption span{font-size:1.25rem;font-weight:900}.image-caption small{display:block;color:var(--muted);font-size:.7rem;font-weight:600}.no-image{min-height:340px;padding:2.5rem;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(145deg,#dfe7ff,#bfead9)}.no-image span{color:var(--blue);font-weight:900}.no-image strong{max-width:11ch;font-size:2.4rem;line-height:1.15}
+  .connection-section{background:var(--ink);color:#fff}.connection-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:5rem}.connection-intro{align-self:start}.connection-intro p{max-width:45ch;color:#cbd5e7}.thought-console{min-height:500px;padding:2rem;background:#151f34;border:1px solid #3e4b65;border-radius:16px}.thought-buttons{display:flex;flex-wrap:wrap;gap:.65rem}.thought-buttons button{padding:.55rem .75rem;color:#cbd5e7;background:transparent;border:1px solid #4b5873;border-radius:8px;cursor:pointer}.thought-buttons button.active{color:var(--ink);background:var(--yellow);border-color:var(--yellow);font-weight:850}.thought-result{min-height:190px;padding:3rem 0 2rem}.thought-result h3{max-width:18ch;margin:0 0 1rem;font-family:"Songti SC","SimSun",serif;font-size:clamp(2rem,4vw,3.8rem);line-height:1.2}.thought-result p{max-width:62ch;color:#cbd5e7}.project-constellation{position:relative;padding-top:2rem;display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;border-top:1px solid #3e4b65}.project-constellation a{position:relative;padding-top:1.4rem;color:#79869e;font-size:.72rem;text-align:center;text-decoration:none;transition:color .3s}.project-constellation a::before{content:"";position:absolute;top:7px;left:0;right:0;height:1px;background:#3e4b65}.project-constellation a span{position:absolute;top:2px;left:50%;z-index:2;width:11px;height:11px;border:2px solid #79869e;border-radius:50%;background:#151f34;transform:translateX(-50%);transition:background .3s,transform .3s}.project-constellation a.active{color:#fff;font-weight:800}.project-constellation a.active span{background:var(--coral);border-color:var(--coral);transform:translateX(-50%) scale(1.35)}
+  .method-preview{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}.method-preview p{max-width:64ch}.method-path{padding:0;margin:0;list-style:none}.method-path li{padding:1rem 0;display:grid;grid-template-columns:70px 1fr;align-items:center;border-bottom:1px solid var(--line)}.method-path strong{color:var(--blue);font-family:"Songti SC","SimSun",serif;font-size:2.5rem}.method-path span{font-weight:800}.ai-preview{padding:clamp(5rem,9vw,8rem) 0;background:var(--blue);color:#fff}.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem}.ai-grid h2{margin:0;max-width:18ch;font-size:clamp(2.5rem,5vw,5.2rem);line-height:1.08;letter-spacing:-.03em}.ai-grid p{max-width:62ch}.ai-grid .serif{margin:2rem 0;font-size:1.5rem}.ai-grid .button{color:var(--ink)}.about-close{min-height:650px;display:flex;flex-direction:column;justify-content:center}.about-close>.serif{margin:0;color:var(--coral);font-size:1.35rem}.about-close h2{max-width:21ch;margin:1rem 0 2rem;font-size:clamp(2.6rem,5.5vw,5.8rem);line-height:1.08;letter-spacing:-.035em}.about-close>p:not(.serif){max-width:65ch;margin-bottom:2rem;color:var(--muted);font-size:1.08rem}
+  @media(max-width:1050px){.hero{grid-template-columns:1fr;gap:2rem}.hero-map{min-height:520px;max-width:650px;width:100%}.opening-note,.projects-heading,.connection-grid,.method-preview,.ai-grid{grid-template-columns:1fr}.project-story{grid-template-columns:1fr;gap:2rem}.story-image{max-width:760px}.connection-grid{gap:2rem}}
+  @media(max-width:680px){.hero{padding-top:3rem}.hero h1{font-size:clamp(3rem,14vw,4.8rem)}.route-choice{grid-template-columns:1fr}.hero-map{min-height:450px}.portrait-layer{inset:65px 42px 45px 40px}.map-node{font-size:.7rem}.node-2{right:2%}.map-note{right:1%;bottom:14%}.opening-note{gap:1.5rem}.project-route::before{left:15px}.project-story{padding:2.5rem 0 5rem 47px}.route-marker{left:-4px;top:2.8rem}.image-caption{gap:1rem}.project-constellation{grid-template-columns:1fr}.project-constellation a{padding:.55rem 0 .55rem 1.5rem;text-align:left}.project-constellation a::before{top:0;bottom:0;left:5px;right:auto;width:1px;height:auto}.project-constellation a span{top:50%;left:5px}.thought-console{padding:1.2rem}.thought-result{padding:2rem 0}.method-preview,.ai-grid{gap:2rem}}
+</style>
+
+<style>
+  .hero::before {
+    background: rgba(244, 247, 251, .5);
+    border-color: rgba(201, 211, 226, .68);
+    backdrop-filter: blur(8px) saturate(1.08);
+  }
+
+  .projects-section {
+    padding-bottom: 2rem;
+    background: rgba(234, 240, 248, .68);
+    backdrop-filter: none;
+  }
+</style>

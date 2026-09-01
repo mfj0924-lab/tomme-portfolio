@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>分析工作台报告</title>
+  <style>
+    :root { color-scheme: light; font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif; color: #17202b; background: #e9ece8; }
+    * { box-sizing: border-box; }
+    body { max-width: 78rem; min-height: 100vh; margin: 0 auto; padding: clamp(1rem, 4vw, 3rem); background: #fbfcfa; line-height: 1.6; }
+    h1 { max-width: 18ch; margin: 0 0 .75rem; font-size: clamp(2rem, 5vw, 4.5rem); line-height: 1.02; letter-spacing: -.035em; }
+    h2 { margin: 0 0 .75rem; font-size: clamp(1.35rem, 2.5vw, 2rem); line-height: 1.2; letter-spacing: -.02em; }
+    h3 { margin: 1.25rem 0 .5rem; }
+    p, li { max-width: 72ch; }
+    section { margin-block: clamp(2.5rem, 6vw, 5rem); }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    caption { margin-block-end: .75rem; text-align: start; color: #4e5965; }
+    th, td { padding: .75rem; border-bottom: 1px solid #c9ced2; text-align: start; vertical-align: top; }
+    th { background: #eef1ed; font-weight: 700; }
+    tbody tr:hover { background: #f3f6f2; }
+    .report-lead { margin: 0 0 2rem; color: #4e5965; font-size: 1.05rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: 1px; margin-top: 1.25rem; background: #c9ced2; border: 1px solid #c9ced2; }
+    .summary-grid div { min-width: 0; padding: 1rem; background: #fbfcfa; }
+    .summary-grid dt { color: #4e5965; font-size: .85rem; }
+    .summary-grid dd { margin: .25rem 0 0; font-size: 1.15rem; font-weight: 750; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .status-note { padding: 1rem; border: 1px solid #b8bfc4; border-radius: 14px; background: #eef1ed; }
+    .claim-list article { padding-block: .85rem; border-bottom: 1px solid #d8dcdf; }
+    .claim-list article p { margin: 0; }
+    .claim-meta { margin-top: .3rem !important; color: #59636f; font-size: .85rem; }
+    code { overflow-wrap: anywhere; }
+    .audit-alert { padding: 1rem; border: 1px solid #9b2922; border-radius: 14px; color: #9b2922; background: #fde7e5; }
+    .audit-alert.is-mixed { border-color: #7a4d00; color: #7a4d00; background: #fff3cf; }
+    .audit-alert h2 { margin-block: 0 .4rem; }
+    .audit-alert p { margin-block: 0; }
+    .explore-watermark { padding: 1rem; border: 2px dashed #7a4d00; border-radius: 14px; color: #5f3c00; background: #fff3cf; font-weight: 700; }
+    .metric-value, .metric-status, .metric-reason { display: block; overflow-wrap: anywhere; }
+    .metric-value { font: 700 .95rem/1.4 Consolas, monospace; }
+    .metric-status { margin-block-start: .35rem; }
+    .metric-reason { margin-block-start: .2rem; color: #59636f; }
+    .status-verified .metric-status { color: #17633a; }
+    .status-rejected .metric-status, .status-stale .metric-status { color: #9b2922; }
+    .status-needs_review .metric-status, .status-unverified .metric-status { color: #7a4d00; }
+    :focus-visible { outline: 3px solid #17633a; outline-offset: 3px; }
+    @media (max-width: 820px) {
+      body { padding: 1rem; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .table-scroll { overflow-x: auto; scrollbar-gutter: stable; }
+      .table-scroll table { min-width: 52rem; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      body { animation: report-reveal .35s cubic-bezier(.16, 1, .3, 1) both; }
+      @keyframes report-reveal { from { opacity: .65; transform: translateY(6px); } }
+    }
+  </style>
+</head>
+<body>
+  <h1>分析工作台报告</h1>
+  <p class="report-lead">先看确定性计算，再看审计状态；AI 解读始终作为单独的建议稿呈现。</p>
+  
+  <aside class="explore-watermark" role="note">
+    探索草稿：本报告只用于寻找方向，Claim 未经正式审计，不得作为正式报告发布或对外导出。
+  </aside>
+  
+  
+  
+  <section id="business-overview">
+    <h2>经营总览</h2>
+    <p>这些数值由固定 SQL 从当前数据快照计算，不依赖 AI。</p>
+    <dl class="summary-grid">
+      <div><dt>收入</dt><dd>2,609,297.04</dd></div>
+      <div><dt>毛利</dt><dd>798,340.00</dd></div>
+      <div><dt>毛利率</dt><dd>30.60%</dd></div>
+      <div><dt>订单行数</dt><dd>5,000</dd></div>
+      <div><dt>退货率</dt><dd>9.08%</dd></div>
+    </dl>
+  </section>
+
+  <section id="monthly-trend">
+    <h2>月度趋势</h2>
+    
+    <div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的月度趋势表">
+      <table>
+        <caption>趋势用于观察时间变化；它描述发生了什么，不自动说明原因。</caption>
+        <thead><tr><th scope="col">月份</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">2025-01</th><td>146,485.71</td><td>50,155.94</td><td>34.24%</td><td>326</td><td>6.75%</td></tr><tr><th scope="row">2025-02</th><td>140,951.23</td><td>44,681.10</td><td>31.70%</td><td>256</td><td>9.77%</td></tr><tr><th scope="row">2025-03</th><td>154,547.61</td><td>51,097.94</td><td>33.06%</td><td>336</td><td>9.52%</td></tr><tr><th scope="row">2025-04</th><td>178,927.96</td><td>57,940.28</td><td>32.38%</td><td>345</td><td>9.57%</td></tr><tr><th scope="row">2025-05</th><td>185,328.09</td><td>61,814.53</td><td>33.35%</td><td>359</td><td>8.36%</td></tr><tr><th scope="row">2025-06</th><td>256,626.17</td><td>70,525.12</td><td>27.48%</td><td>504</td><td>13.69%</td></tr><tr><th scope="row">2025-07</th><td>205,525.50</td><td>66,798.73</td><td>32.50%</td><td>403</td><td>8.44%</td></tr><tr><th scope="row">2025-08</th><td>202,810.95</td><td>62,682.03</td><td>30.91%</td><td>376</td><td>7.18%</td></tr><tr><th scope="row">2025-09</th><td>216,391.26</td><td>66,761.78</td><td>30.85%</td><td>371</td><td>9.97%</td></tr><tr><th scope="row">2025-10</th><td>232,946.84</td><td>73,483.14</td><td>31.55%</td><td>427</td><td>7.03%</td></tr><tr><th scope="row">2025-11</th><td>369,284.26</td><td>103,056.38</td><td>27.91%</td><td>694</td><td>9.08%</td></tr><tr><th scope="row">2025-12</th><td>319,471.46</td><td>89,343.03</td><td>27.97%</td><td>603</td><td>8.62%</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+  <section id="period-comparison">
+    <h2>前后期对比</h2>
+    
+    <p>2025-01—2025-06 对比 2025-07—2025-12。月份按时间排序后分成互不重叠的前后两段。</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的前后期对比表">
+      <table>
+        <caption>相对变化以较早时期为基准；分母为零时显示为空。</caption>
+        <thead><tr><th scope="col">指标</th><th scope="col">绝对变化</th><th scope="col">相对变化</th></tr></thead>
+        <tbody><tr><th scope="row">收入</th><td>483,563.50</td><td>45.50%</td></tr><tr><th scope="row">毛利</th><td>125,910.18</td><td>37.45%</td></tr><tr><th scope="row">订单行数</th><td>748</td><td>35.18%</td></tr><tr><th scope="row">退货率</th><td>-1.47 个百分点</td><td>-14.81%</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+  <section id="dimension-breakdowns">
+    <h2>业务分组</h2>
+    <p>按地区、品类、渠道和客户类型拆开看，帮助定位“整体平均数”掩盖的差异。</p>
+    
+    <h3>地区</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="地区分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">East</th><td>861,807.35</td><td>278,075.21</td><td>32.27%</td><td>1,661</td><td>9.75%</td></tr><tr><th scope="row">South</th><td>698,722.22</td><td>213,209.37</td><td>30.51%</td><td>1,319</td><td>8.95%</td></tr><tr><th scope="row">North</th><td>589,205.79</td><td>179,424.93</td><td>30.45%</td><td>1,118</td><td>8.41%</td></tr><tr><th scope="row">West</th><td>459,561.68</td><td>127,630.49</td><td>27.77%</td><td>902</td><td>8.87%</td></tr></tbody>
+      </table>
+    </div>
+    
+    <h3>品类</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="品类分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">Electronics</th><td>1,354,761.63</td><td>267,272.86</td><td>19.73%</td><td>1,130</td><td>9.73%</td></tr><tr><th scope="row">Home</th><td>549,776.33</td><td>200,166.91</td><td>36.41%</td><td>982</td><td>8.04%</td></tr><tr><th scope="row">Apparel</th><td>356,758.02</td><td>170,954.44</td><td>47.92%</td><td>1,156</td><td>14.19%</td></tr><tr><th scope="row">Beauty</th><td>242,123.11</td><td>132,011.04</td><td>54.52%</td><td>979</td><td>6.54%</td></tr><tr><th scope="row">Food</th><td>105,877.95</td><td>27,934.75</td><td>26.38%</td><td>753</td><td>4.91%</td></tr></tbody>
+      </table>
+    </div>
+    
+    <h3>渠道</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="渠道分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">App</th><td>1,182,592.56</td><td>367,513.13</td><td>31.08%</td><td>2,311</td><td>7.88%</td></tr><tr><th scope="row">Web</th><td>917,562.50</td><td>281,311.98</td><td>30.66%</td><td>1,716</td><td>9.09%</td></tr><tr><th scope="row">Marketplace</th><td>509,141.98</td><td>149,514.89</td><td>29.37%</td><td>973</td><td>11.92%</td></tr></tbody>
+      </table>
+    </div>
+    
+    <h3>客户类型</h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="客户类型分组表">
+      <table>
+        <thead><tr><th scope="col">分组</th><th scope="col">收入</th><th scope="col">毛利</th><th scope="col">毛利率</th><th scope="col">订单</th><th scope="col">退货率</th></tr></thead>
+        <tbody><tr><th scope="row">Member</th><td>1,685,809.10</td><td>511,119.31</td><td>30.32%</td><td>3,236</td><td>8.84%</td></tr><tr><th scope="row">New</th><td>923,487.94</td><td>287,220.69</td><td>31.10%</td><td>1,764</td><td>9.52%</td></tr></tbody>
+      </table>
+    </div>
+    
+  </section>
+  
+
+  <section id="data-quality">
+    <h2>数据质量</h2>
+    <p>quality_report：同目录 quality_report.json（公开演示副本）</p>
+  </section>
+  <section id="provenance">
+    <h2>产物来源说明</h2>
+    
+      <article data-artifact-id="d1eab8ca-215e-4afb-a64e-a4b775f92bd3">
+        <p>kind：analysis_result</p>
+        <p>completion_source：computed</p>
+        <p>fallback_reason：无</p>
+        <p>relaxed_assumptions：无</p>
+      </article>
+    
+      <article data-artifact-id="01bc2f2e-12ec-4559-8454-bdfbd288c97f">
+        <p>kind：audit_findings</p>
+        <p>completion_source：computed</p>
+        <p>fallback_reason：无</p>
+        <p>relaxed_assumptions：无</p>
+      </article>
+    
+  </section>
+  <section id="verified-findings" class="claim-list">
+    
+    <h2>探索发现（待验证）</h2>
+    <p>下面是确定性计算得到的观察信号，但 Explore 不执行正式 Claim 审计，只能用来决定下一步查什么。</p>
+    <article data-claim-id="0704691c-bf9c-442e-ac1e-9efc6726dff6"><p>收入为 2,609,297.04</p><p class="claim-meta">待验证 · Claim 0704691c-bf9c-442e-ac1e-9efc6726dff6</p></article><article data-claim-id="a3d22237-6a5d-40f8-9520-ebb8ad0b23a8"><p>毛利为 798,340.00</p><p class="claim-meta">待验证 · Claim a3d22237-6a5d-40f8-9520-ebb8ad0b23a8</p></article><article data-claim-id="1e6be556-4160-4333-95b8-f4f087d8ff4d"><p>订单行数为 5,000</p><p class="claim-meta">待验证 · Claim 1e6be556-4160-4333-95b8-f4f087d8ff4d</p></article><article data-claim-id="5671632e-3390-4290-bdc5-78cb18a205e7"><p>退货率为 9.08%</p><p class="claim-meta">待验证 · Claim 5671632e-3390-4290-bdc5-78cb18a205e7</p></article><article data-claim-id="9fbd4a99-dea5-4909-a00b-60f3a71b4575"><p>category=Electronics 的毛利率比整体至少低 5 个百分点。</p><p class="claim-meta">待验证 · Claim 9fbd4a99-dea5-4909-a00b-60f3a71b4575</p></article><article data-claim-id="54d1ebaa-793c-461e-93fb-b0bdf3bab586"><p>category=Apparel 的退货率比整体至少高 5 个百分点。</p><p class="claim-meta">待验证 · Claim 54d1ebaa-793c-461e-93fb-b0bdf3bab586</p></article>
+    
+  </section>
+  <section id="recommendations">
+    <h2>下一步分析建议</h2>
+    
+      <article data-claim-id="752385e9-b6ad-4feb-b061-fb52387ae40c"><p>先复核 category=Electronics 的价格、折扣和成本记录，确认后再决定行动。</p><p class="claim-meta">待验证调查方向，不是自动业务决策。</p></article><article data-claim-id="5c28e0a0-8c41-43ba-9364-950b00b0477d"><p>先复核 category=Apparel 内的退货原因，确认后再决定行动。</p><p class="claim-meta">待验证调查方向，不是自动业务决策。</p></article>
+    
+  </section>
+  
+  <section id="ai-business-interpretation">
+    <h2>AI 商业解读</h2>
+    <p class="status-note">本次允许 AI 解读，但没有配置 Provider；确定性分析与报告已正常完成。</p>
+    
+  </section>
+  
+  <section id="limitations">
+    <h2>局限</h2>
+    <p>未声明额外局限。</p>
+  </section>
+  <section id="audit-appendix">
+    <h2>审计附录</h2>
+    
+      <article data-claim-id="0704691c-bf9c-442e-ac1e-9efc6726dff6"><p>收入为 2,609,297.04</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="a3d22237-6a5d-40f8-9520-ebb8ad0b23a8"><p>毛利为 798,340.00</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="1e6be556-4160-4333-95b8-f4f087d8ff4d"><p>订单行数为 5,000</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="5671632e-3390-4290-bdc5-78cb18a205e7"><p>退货率为 9.08%</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="9fbd4a99-dea5-4909-a00b-60f3a71b4575"><p>category=Electronics 的毛利率比整体至少低 5 个百分点。</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="54d1ebaa-793c-461e-93fb-b0bdf3bab586"><p>category=Apparel 的退货率比整体至少高 5 个百分点。</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="752385e9-b6ad-4feb-b061-fb52387ae40c"><p>先复核 category=Electronics 的价格、折扣和成本记录，确认后再决定行动。</p><p>状态：
+      未验证
+      </p></article>
+    
+      <article data-claim-id="5c28e0a0-8c41-43ba-9364-950b00b0477d"><p>先复核 category=Apparel 内的退货原因，确认后再决定行动。</p><p>状态：
+      未验证
+      </p></article>
+    
+  </section>
+</body>
+</html>
