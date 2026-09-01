@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { sitePath } from '../utils/sitePath';
 ---
 <BaseLayout title="AI协作｜Tomme" description="Tomme如何使用ChatGPT、Codex、Claude Code、DeepSeek Pro与Trae，并承担最终判断责任。">
   <article class="ai-page">
@@ -31,7 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <section class="prompt-section section page-shell"><div><h2>我会真实使用的三个检查问题</h2><p>这些问题会在阶段完成后使用，也会在项目准备发布前重新使用。问题要求AI检查具体对象，并允许AI在没有发现问题时直接说明。</p></div><div class="prompt-list"><blockquote>请从第三者的角度重新检查这次任务：有没有被我们忽略的条件、变量或阶段关系？如果没有，请直接说明没有，不必为了完成检查而制造问题。</blockquote><blockquote>根据当前掌握的信息，哪些判断仍然缺少把握？如果没有明显的不确定项，请直接说明。</blockquote><blockquote>每个阶段单独完成以后，所有阶段连起来是否仍然解决最初的问题？请检查阶段之间的输入、输出和判断依据。</blockquote></div></section>
 
-    <section class="case-section section page-shell"><div><h2>这些方法怎样改变了具体项目</h2><p><strong>CitiBike：</strong>Claude Code与DeepSeek Pro完成首版以后，Codex、ChatGPT-sol和工作台重新检查字段来源与数据切分。我根据代码、数据定义和最小验证增加了修复分支。</p><p><strong>可信分析工作台：</strong>CitiBike实际运行暴露了112条重复拒绝和专业表达难懂的问题。使用反馈推动普通视图、状态灯、责任区分和明确修改建议进入新版。</p><p><strong>个人网站：</strong>多轮文案修改暴露了内容被结构压缩的问题。这个问题随后进入产品目标、写作规则和Tomme专用Skill，页面结构也改为容纳完整正文。</p><div class="button-row"><a class="button primary" href="/projects/citibike/">查看CitiBike修正过程</a><a class="button" href="/projects/workbench/">查看工作台产品变化</a></div></div><aside><h2>哪些能力仍在继续探索</h2><p>多个Agent从需求、数据、业务和反例角度独立检查，能够扩大候选方案与风险范围。当前工作台尚未实现完整的并行Agent模式；这一方向会在真实需求出现以后继续验证。</p><p>MCP相关内容目前停留在概念理解和工具使用。独立MCP Server需要明确的数据源、权限和重复使用场景，当前项目没有为了增加技术名称而单独实现。</p></aside></section>
+    <section class="case-section section page-shell"><div><h2>这些方法怎样改变了具体项目</h2><p><strong>CitiBike：</strong>Claude Code与DeepSeek Pro完成首版以后，Codex、ChatGPT-sol和工作台重新检查字段来源与数据切分。我根据代码、数据定义和最小验证增加了修复分支。</p><p><strong>可信分析工作台：</strong>CitiBike实际运行暴露了112条重复拒绝和专业表达难懂的问题。使用反馈推动普通视图、状态灯、责任区分和明确修改建议进入新版。</p><p><strong>个人网站：</strong>多轮文案修改暴露了内容被结构压缩的问题。这个问题随后进入产品目标、写作规则和Tomme专用Skill，页面结构也改为容纳完整正文。</p><div class="button-row"><a class="button primary" href={sitePath('/projects/citibike/')}>查看CitiBike修正过程</a><a class="button" href={sitePath('/projects/workbench/')}>查看工作台产品变化</a></div></div><aside><h2>哪些能力仍在继续探索</h2><p>多个Agent从需求、数据、业务和反例角度独立检查，能够扩大候选方案与风险范围。当前工作台尚未实现完整的并行Agent模式；这一方向会在真实需求出现以后继续验证。</p><p>MCP相关内容目前停留在概念理解和工具使用。独立MCP Server需要明确的数据源、权限和重复使用场景，当前项目没有为了增加技术名称而单独实现。</p></aside></section>
   </article>
 </BaseLayout>
 <style>

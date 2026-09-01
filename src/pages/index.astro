@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { projects } from '../data/projects';
+import { sitePath } from '../utils/sitePath';
 
 const traits = [
   { id: 'progress', label: '允许作品被修正', title: '上一版可以错，但不能装作没错', text: 'CitiBike复核后，模型分数没有原来漂亮。我保留了旧版，也留下了为什么要改、改了什么，以及新版暂时只能说明到哪里。', projects: ['citibike', 'workbench'] },
@@ -16,23 +17,23 @@ const traits = [
       <h1>我用数据理解问题，也把判断做成可以检查的作品。</h1>
       <p class="hero-lead">我主要关注经营分析、商业分析和AI协作。数字可以说明发生了什么；业务理解需要继续追问需求属于谁、为什么会变化、企业能够采取什么行动，以及行动以后怎样确认结果。</p>
       <div class="route-choice" aria-label="选择阅读方式">
-        <a href="/?route=quick#projects" class="route-button active" data-route-button="quick" aria-current="true"><strong>先建立总体认识</strong><span>查看五个项目分别处理了什么</span></a>
-        <a href="/?route=deep#projects" class="route-button" data-route-button="deep"><strong>在首页展开项目过程</strong><span>继续查看问题来源与方案变化</span></a>
+        <a href={sitePath('/?route=quick#projects')} class="route-button active" data-route-button="quick" aria-current="true"><strong>先建立总体认识</strong><span>查看五个项目分别处理了什么</span></a>
+        <a href={sitePath('/?route=deep#projects')} class="route-button" data-route-button="deep"><strong>在首页展开项目过程</strong><span>继续查看问题来源与方案变化</span></a>
       </div>
       <p class="route-feedback" data-route-feedback aria-live="polite"><strong>当前显示总体介绍。</strong>每个项目的完整内容仍然保留在独立页面。</p>
       <div class="button-row">
         <a class="button primary" href="#projects">从项目开始 ↓</a>
-        <a class="button quiet" href="/downloads/Tomme_经营分析商业分析_展示版.pdf" download>下载简历 PDF</a>
+        <a class="button quiet" href={sitePath('/downloads/Tomme_经营分析商业分析_展示版.pdf')} download>下载简历 PDF</a>
       </div>
     </div>
     <div class="hero-map" aria-label="Tomme的项目与思考轨迹">
-      <div class="portrait-layer"><img src="/assets/portrait.png" alt="Tomme个人头像" /></div>
+      <div class="portrait-layer"><img src={sitePath('/assets/portrait.png')} alt="Tomme个人头像" /></div>
       <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
-      <a href="/projects/citibike/" class="map-node node-1">模型被质疑</a>
-      <a href="/projects/workbench/" class="map-node node-2">让结论可审查</a>
-      <a href="/projects/adventureworks/" class="map-node node-3">从总览向下钻</a>
-      <a href="/projects/qingdao-transit/" class="map-node node-4">把城市连成网络</a>
-      <a href="/projects/rnd-patent/" class="map-node node-5">让异构数据有秩序</a>
+      <a href={sitePath('/projects/citibike/')} class="map-node node-1">模型被质疑</a>
+      <a href={sitePath('/projects/workbench/')} class="map-node node-2">让结论可审查</a>
+      <a href={sitePath('/projects/adventureworks/')} class="map-node node-3">从总览向下钻</a>
+      <a href={sitePath('/projects/qingdao-transit/')} class="map-node node-4">把城市连成网络</a>
+      <a href={sitePath('/projects/rnd-patent/')} class="map-node node-5">让异构数据有秩序</a>
       <p class="map-note">五个项目解决的事情并不相同，<br />但我总会反复确认：<br /><strong>现在解决的，还是原来的问题吗？</strong></p>
     </div>
   </section>
@@ -63,9 +64,9 @@ const traits = [
               </div>
             </div>
             <div class="story-meta"><span>{project.ai}</span><span>{project.year} · 个人项目</span></div>
-            <div class="button-row"><a class="button primary" href={`/projects/${project.slug}/`}>进入完整项目</a>{project.links[0] && <a class="button quiet" href={project.links[0].href}>GitHub ↗</a>}</div>
+            <div class="button-row"><a class="button primary" href={sitePath(`/projects/${project.slug}/`)}>进入完整项目</a>{project.links[0] && <a class="button quiet" href={project.links[0].href}>GitHub ↗</a>}</div>
           </div>
-          <a class="story-image" href={`/projects/${project.slug}/`} aria-label={`查看${project.name}`}>
+          <a class="story-image" href={sitePath(`/projects/${project.slug}/`)} aria-label={`查看${project.name}`}>
             {project.images[0] ? <img src={project.images[0].src} alt={project.images[0].alt} loading="lazy" /> : <div class="no-image"><span>公司 × 年份</span><strong>把数据损失也留下记录</strong></div>}
             <div class="image-caption"><span>{project.numbers[0].value}<small>{project.numbers[0].label}</small></span><span>{project.numbers[1].value}<small>{project.numbers[1].label}</small></span></div>
           </a>
@@ -86,7 +87,7 @@ const traits = [
         </div>
         <div class="thought-result" aria-live="polite"><h3>{traits[0].title}</h3><p>{traits[0].text}</p></div>
         <div class="project-constellation">
-          {projects.map((project) => <a href={`/projects/${project.slug}/`} data-constellation-project={project.slug} class:list={[traits[0].projects.includes(project.slug) && 'active']}><span></span>{project.shortName}</a>)}
+          {projects.map((project) => <a href={sitePath(`/projects/${project.slug}/`)} data-constellation-project={project.slug} class:list={[traits[0].projects.includes(project.slug) && 'active']}><span></span>{project.shortName}</a>)}
         </div>
       </div>
     </div>
@@ -96,7 +97,7 @@ const traits = [
     <div>
       <h2 class="section-heading">经营分析从需求开始，并用证据推动决策</h2>
       <p>我会先判断需求属于谁、发生在什么场景、用户为什么愿意改变选择，以及企业能否以合理成本触达和交付。进入数据分析以后，再按“结—证—因—策—界”整理答案，让事实、原因、建议和限制保持清楚。</p>
-      <a class="text-link" href="/method/">查看需求思维与“结—证—因—策—界” →</a>
+      <a class="text-link" href={sitePath('/method/')}>查看需求思维与“结—证—因—策—界” →</a>
     </div>
     <ol class="method-path">
       <li><strong>结</strong><span>发生了什么</span></li><li><strong>证</strong><span>凭什么这样说</span></li><li><strong>因</strong><span>原因是否验证</span></li><li><strong>策</strong><span>下一步怎样做</span></li><li><strong>界</strong><span>现在不能证明什么</span></li>
@@ -106,7 +107,7 @@ const traits = [
   <section class="ai-preview">
     <div class="page-shell ai-grid">
       <div><h2>我怎样使用AI，也怎样检查AI产生的结果</h2></div>
-      <div><p>我长期使用ChatGPT、Codex、Claude Code、DeepSeek Pro与Trae，也会根据任务调用和定制Skill。项目通常经历参考项目调研、上下文组织、方案选择、阶段实施、测试审查和人工确认。</p><p class="serif">完整信息决定AI输出的下限，完整审视决定AI能力能够到达的位置，执行边界决定哪些结果可以采用。</p><a class="button" href="/ai-collaboration/">查看完整AI协作方法</a></div>
+      <div><p>我长期使用ChatGPT、Codex、Claude Code、DeepSeek Pro与Trae，也会根据任务调用和定制Skill。项目通常经历参考项目调研、上下文组织、方案选择、阶段实施、测试审查和人工确认。</p><p class="serif">完整信息决定AI输出的下限，完整审视决定AI能力能够到达的位置，执行边界决定哪些结果可以采用。</p><a class="button" href={sitePath('/ai-collaboration/')}>查看完整AI协作方法</a></div>
     </div>
   </section>
 
@@ -114,7 +115,7 @@ const traits = [
     <p class="serif">工作当然要完成任务，但我希望自己最后留下的不只是“完成”。</p>
     <h2>我想知道自己的判断<br />究竟改变了什么。</h2>
     <p>可能是让一个经营问题更清楚，让一份报告少说一句没有证据的话，也可能只是让下一版项目减少已经识别的问题。影响不一定很大，但应该能够被看见。</p>
-    <div class="button-row"><a class="button primary" href="/about/">继续认识我</a><a class="button quiet" href="mailto:1877916299@qq.com">和我聊聊</a></div>
+    <div class="button-row"><a class="button primary" href={sitePath('/about/')}>继续认识我</a><a class="button quiet" href="mailto:1877916299@qq.com">和我聊聊</a></div>
   </section>
 
   <script>

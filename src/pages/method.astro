@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { sitePath } from '../utils/sitePath';
 ---
 <BaseLayout title="分析方法｜Tomme" description="事实靠数据，原因靠验证，决策看结果：Tomme的经营分析方法。">
   <article class="method-page">
@@ -14,7 +15,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <article><b>界</b><div><h3>主动说出这次分析到哪里为止</h3><p>一年数据不能确认季节性，毛利不等于净利润，相关关系也不能直接证明因果。说明边界能够减少证据不足时产生的错误决策。</p></div></article>
     </div></section>
     <section class="mistake-section"><div class="page-shell mistake-grid"><div><h2>我现在会主动问哪些问题</h2><ol><li>一行数据代表什么？</li><li>指标口径是否统一？</li><li>当前结果应该和谁比较？</li><li>问题集中在哪些位置，平均值隐藏了哪些差异？</li><li>这是事实、假设，还是验证过的原因？</li><li>做完决定以后，什么变化才算有效？</li></ol></div><div><h2>哪些情况下需要暂时停止下结论</h2><ul><li>没有基准时，不轻易评价“健康”。</li><li>总体正常时，继续检查品类、渠道和用户之间的差异。</li><li>相关关系再明显，也需要其他证据才能解释原因。</li><li>没有观察指标和停止条件的建议，暂时不发布。</li></ul></div></div></section>
-    <footer class="method-end page-shell"><p class="serif">经验 → 从经验中总结出的经验 → 能够在下一次问题里使用的经验。</p><p>这套顺序把经营问题整理为事实、证据、原因、行动和限制。需求思维提醒我继续追问用户为什么选择、企业能否交付，以及执行以后是否产生预期变化；工作台则用相同原则检查结论依据和发布范围。</p><div class="button-row"><a class="button primary" href="/projects/adventureworks/">看AdventureWorks如何下钻</a><a class="button" href="/projects/workbench/">看工作台如何审查</a></div></footer>
+    <footer class="method-end page-shell"><p class="serif">经验 → 从经验中总结出的经验 → 能够在下一次问题里使用的经验。</p><p>这套顺序把经营问题整理为事实、证据、原因、行动和限制。需求思维提醒我继续追问用户为什么选择、企业能否交付，以及执行以后是否产生预期变化；工作台则用相同原则检查结论依据和发布范围。</p><div class="button-row"><a class="button primary" href={sitePath('/projects/adventureworks/')}>看AdventureWorks如何下钻</a><a class="button" href={sitePath('/projects/workbench/')}>看工作台如何审查</a></div></footer>
   </article>
 </BaseLayout>
 <style>

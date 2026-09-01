@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import AmbientDataField from '../components/AmbientDataField.astro';
+import { sitePath } from '../utils/sitePath';
 interface Props { title?: string; description?: string; ambient?: boolean; ambientScope?: string; image?: string; robots?: string; }
 const {
   title = 'Tomme｜数据、判断与AI协作',
@@ -11,7 +12,7 @@ const {
   robots = 'index, follow',
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
-const shareImage = new URL(image, Astro.site ?? Astro.url.origin);
+const shareImage = new URL(sitePath(image), Astro.site ?? Astro.url.origin);
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -22,7 +23,7 @@ const shareImage = new URL(image, Astro.site ?? Astro.url.origin);
     <meta name="robots" content={robots} />
     <meta name="theme-color" content="#f4f7fb" />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={sitePath('/favicon.svg')} />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tomme｜作品与判断" />
@@ -51,28 +52,28 @@ const shareImage = new URL(image, Astro.site ?? Astro.url.origin);
     {ambient && <AmbientDataField scope={ambientScope} />}
     <a class="skip-link" href="#main">跳到主要内容</a>
     <aside class="site-rail" aria-label="网站目录">
-      <a class="brand" href="/" aria-label="返回Tomme首页">Tomme<span>／作品与判断</span></a>
+      <a class="brand" href={sitePath('/')} aria-label="返回Tomme首页">Tomme<span>／作品与判断</span></a>
       <nav aria-label="主要导航">
-        <a href="/">首页</a><a href="/#projects">项目</a><a href="/method/">分析方法</a><a href="/ai-collaboration/">AI协作</a><a href="/about/">关于我</a>
+        <a href={sitePath('/')}>首页</a><a href={sitePath('/#projects')}>项目</a><a href={sitePath('/method/')}>分析方法</a><a href={sitePath('/ai-collaboration/')}>AI协作</a><a href={sitePath('/about/')}>关于我</a>
       </nav>
       <div class="rail-projects" aria-label="项目快捷入口">
         <span>从作品进入</span>
-        <a href="/projects/citibike/">CitiBike</a><a href="/projects/adventureworks/">AdventureWorks</a><a href="/projects/workbench/">可信分析工作台</a><a href="/projects/qingdao-transit/">青岛公交网络</a><a href="/projects/rnd-patent/">研发与专利整合</a>
+        <a href={sitePath('/projects/citibike/')}>CitiBike</a><a href={sitePath('/projects/adventureworks/')}>AdventureWorks</a><a href={sitePath('/projects/workbench/')}>可信分析工作台</a><a href={sitePath('/projects/qingdao-transit/')}>青岛公交网络</a><a href={sitePath('/projects/rnd-patent/')}>研发与专利整合</a>
       </div>
       <div class="rail-actions">
-        <a class="resume-link" href="/downloads/Tomme_经营分析商业分析_展示版.pdf" download>下载简历 PDF ↗</a>
+        <a class="resume-link" href={sitePath('/downloads/Tomme_经营分析商业分析_展示版.pdf')} download>下载简历 PDF ↗</a>
         <a href="mailto:1877916299@qq.com">1877916299@qq.com</a>
         <span class="contact-label">微信：ccsjt0924</span>
       </div>
     </aside>
     <header class="mobile-header">
-      <a class="brand" href="/">Tomme</a>
-      <details><summary>目录</summary><nav><a href="/">首页</a><a href="/#projects">项目</a><a href="/method/">方法</a><a href="/ai-collaboration/">AI协作</a><a href="/about/">关于我</a></nav></details>
+      <a class="brand" href={sitePath('/')}>Tomme</a>
+      <details><summary>目录</summary><nav><a href={sitePath('/')}>首页</a><a href={sitePath('/#projects')}>项目</a><a href={sitePath('/method/')}>方法</a><a href={sitePath('/ai-collaboration/')}>AI协作</a><a href={sitePath('/about/')}>关于我</a></nav></details>
     </header>
     <main id="main"><slot /></main>
     <footer class="site-footer">
       <p><strong>Tomme</strong><span>我希望数据帮助人看清事实，也希望AI扩大人的选择。最终判断与现实责任仍然由人承担。</span></p>
-      <div><a href="mailto:1877916299@qq.com">邮箱</a><span class="contact-label">微信：ccsjt0924</span><a href="https://github.com/mfj0924-lab">GitHub</a><a href="/downloads/Tomme_经营分析商业分析_展示版.pdf" download>简历PDF</a></div>
+      <div><a href="mailto:1877916299@qq.com">邮箱</a><span class="contact-label">微信：ccsjt0924</span><a href="https://github.com/mfj0924-lab">GitHub</a><a href={sitePath('/downloads/Tomme_经营分析商业分析_展示版.pdf')} download>简历PDF</a></div>
     </footer>
     <script>
       const dialog = document.querySelector('#image-dialog');

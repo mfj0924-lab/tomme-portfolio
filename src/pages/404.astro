@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { sitePath } from '../utils/sitePath';
 ---
 <BaseLayout
   title="页面没有找到｜Tomme"
@@ -12,15 +13,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <h1>这个地址没有对应页面。</h1>
       <p>链接可能已经变化，或者地址输入不完整。你可以返回首页了解整体内容，也可以直接进入五个项目。</p>
       <div class="button-row">
-        <a class="button primary" href="/">返回首页</a>
-        <a class="button" href="/#projects">查看项目</a>
+        <a class="button primary" href={sitePath('/')}>返回首页</a>
+        <a class="button" href={sitePath('/#projects')}>查看项目</a>
       </div>
     </div>
     <aside aria-label="网站主要内容">
       <strong>网站仍然可以继续阅读</strong>
-      <a href="/method/">分析方法</a>
-      <a href="/ai-collaboration/">AI协作</a>
-      <a href="/about/">关于我</a>
+      <a href={sitePath('/method/')}>分析方法</a>
+      <a href={sitePath('/ai-collaboration/')}>AI协作</a>
+      <a href={sitePath('/about/')}>关于我</a>
     </aside>
   </section>
 </BaseLayout>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { projects } from '../../data/projects';
+import { sitePath } from '../../utils/sitePath';
 export function getStaticPaths() { return projects.map((project) => ({ params: { slug: project.slug }, props: { project } })); }
 const { project } = Astro.props;
 const currentIndex = projects.findIndex((item) => item.slug === project.slug);
@@ -9,7 +10,7 @@ const nextProject = projects[(currentIndex + 1) % projects.length];
 <BaseLayout title={`${project.name}｜Tomme`} description={project.summary}>
   <article class="project-page">
     <header class="project-hero page-shell">
-      <div class="hero-copy"><a class="back-link" href="/#projects">← 返回全部项目</a><h1>{project.name}</h1><p class="question">{project.question}</p><p class="project-type">{project.type}</p><div class="button-row">{project.links.slice(0,2).map((link) => <a class:list={['button',link.kind==='primary'&&'primary']} href={link.href}>{link.label}</a>)}</div></div>
+      <div class="hero-copy"><a class="back-link" href={sitePath('/#projects')}>← 返回全部项目</a><h1>{project.name}</h1><p class="question">{project.question}</p><p class="project-type">{project.type}</p><div class="button-row">{project.links.slice(0,2).map((link) => <a class:list={['button',link.kind==='primary'&&'primary']} href={link.href}>{link.label}</a>)}</div></div>
       <aside class="hero-context"><p>{project.belief}</p><div class="context-meta"><span>{project.year} · 个人项目</span><small>{project.ai}</small></div></aside>
     </header>
 
@@ -31,9 +32,9 @@ const nextProject = projects[(currentIndex + 1) % projects.length];
 
     <section class="tools-section"><div class="page-shell tools-grid"><div><h2>项目使用了哪些工具</h2><ul class="tag-list">{project.tools.map((tool)=><li>{tool}</li>)}</ul></div><div><h2>可以继续查看哪些材料</h2><div class="button-row">{project.links.map((link)=><a class:list={['button','small',link.kind==='primary'&&'primary']} href={link.href}>{link.label}</a>)}</div></div></div></section>
 
-    <nav class="next-project page-shell" aria-label="下一个项目"><span>下一条路径</span><a href={`/projects/${nextProject.slug}/`}><strong>{nextProject.name}</strong><em>继续 →</em></a></nav>
+    <nav class="next-project page-shell" aria-label="下一个项目"><span>下一条路径</span><a href={sitePath(`/projects/${nextProject.slug}/`)}><strong>{nextProject.name}</strong><em>继续 →</em></a></nav>
   </article>
-  <dialog id="image-dialog"><button class="dialog-close" type="button" data-close-dialog aria-label="关闭大图">×</button><figure><img src="/assets/portrait.png" alt="项目证据大图" /><figcaption></figcaption></figure></dialog>
+  <dialog id="image-dialog"><button class="dialog-close" type="button" data-close-dialog aria-label="关闭大图">×</button><figure><img src={sitePath('/assets/portrait.png')} alt="项目证据大图" /><figcaption></figcaption></figure></dialog>
 </BaseLayout>
 
 <style>

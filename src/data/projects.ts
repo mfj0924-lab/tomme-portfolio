@@ -1,3 +1,5 @@
+import { sitePath } from '../utils/sitePath';
+
 export type Project = {
   slug: string;
   name: string;
@@ -22,7 +24,7 @@ export type Project = {
   links: { label: string; href: string; kind?: 'primary' | 'download' }[];
 };
 
-export const projects: Project[] = [
+const projectDefinitions: Project[] = [
   {
     slug: 'citibike',
     name: 'CitiBike 需求预测与动态定价',
@@ -304,5 +306,11 @@ export const projects: Project[] = [
     ],
   },
 ];
+
+export const projects: Project[] = projectDefinitions.map((project) => ({
+  ...project,
+  images: project.images.map((image) => ({ ...image, src: sitePath(image.src) })),
+  links: project.links.map((link) => ({ ...link, href: sitePath(link.href) })),
+}));
 
 export const getProject = (slug: string) => projects.find((project) => project.slug === slug);
