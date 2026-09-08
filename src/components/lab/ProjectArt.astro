@@ -1,0 +1,54 @@
+---
+const { kind = 'bike' } = Astro.props;
+---
+<svg class={`project-art art-${kind}`} viewBox="0 0 480 340" fill="none" aria-hidden="true">
+  {kind === 'bike' && <>
+    <path d="M30 279H451M30 244H451M30 209H451" stroke="currentColor" opacity=".09" />
+    <g class="art-route" stroke="currentColor" stroke-width="2" stroke-dasharray="5 7"><path d="M49 193C118 196 133 49 252 72S354 229 435 133" /></g>
+    <circle cx="250" cy="72" r="20" fill="var(--spot)"/><circle cx="250" cy="72" r="6" fill="var(--ink)"/>
+    <g class="bike-wheel" style="transform-origin:133px 232px" stroke="currentColor"><circle cx="133" cy="232" r="66" stroke-width="11"/><circle cx="133" cy="232" r="54" stroke-width="1"/><path d="M133 178V286M79 232H187M95 194L171 270M95 270L171 194" opacity=".3"/></g>
+    <g class="bike-wheel" style="transform-origin:353px 232px" stroke="currentColor"><circle cx="353" cy="232" r="66" stroke-width="11"/><circle cx="353" cy="232" r="54"/><path d="M353 178V286M299 232H407M315 194L391 270M315 270L391 194" opacity=".3"/></g>
+    <path d="M133 232L194 130L248 232H133L318 150L353 232M248 232L199 115M318 150L302 105H336" stroke="var(--spot)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M179 111H216" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="248" cy="232" r="13" fill="currentColor"/><path d="M248 232L274 248H291" stroke="currentColor" stroke-width="5"/>
+    <rect x="42" y="62" width="106" height="42" rx="21" fill="currentColor"/><text x="95" y="89" text-anchor="middle" fill="var(--card)" font-size="17">A → B</text>
+    <g class="art-satellite"><circle cx="402" cy="61" r="32" stroke="currentColor" opacity=".25"/><path d="M389 63L399 73L417 49" stroke="currentColor" stroke-width="3"/></g>
+  </>}
+  {kind === 'business' && <>
+    <path d="M56 269L191 326L438 207" stroke="currentColor" opacity=".25"/>
+    {[{x:73,y:174,h:80},{x:160,y:113,h:141},{x:247,y:52,h:202}].map((b,i)=><g class="art-bar" style={`--bar:${i}`}>
+      <path d={`M${b.x} ${b.y}l57 -27 42 22 -57 28z`} fill="var(--spot)"/>
+      <path d={`M${b.x} ${b.y}l42 23v${b.h}l-42 -23z`} fill="currentColor" opacity=".92"/>
+      <path d={`M${b.x+42} ${b.y+23}l57 -28v${b.h}l-57 28z`} fill="currentColor" opacity=".62"/>
+    </g>)}
+    <g class="art-satellite"><circle cx="386" cy="106" r="42" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M386 67V106L418 126" stroke="var(--spot)" stroke-width="13"/><path d="M418 126L438 144" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></g>
+    <path d="M47 120L112 89L163 102L251 39" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5"/>
+  </>}
+  {kind === 'agent' && <>
+    <path class="art-route" d="M103 96H241V236H377M103 236H241V96H377" stroke="currentColor" stroke-width="3" stroke-dasharray="7 8" opacity=".4"/>
+    {[{x:51,y:46,t:'输入'},{x:323,y:46,t:'检查'},{x:51,y:190,t:'解释'},{x:323,y:190,t:'确认'}].map((n,i)=><g class="art-module" style={`--bar:${i}`}>
+      <rect x={n.x+6} y={n.y+7} width="104" height="94" rx="20" fill="currentColor" opacity=".12"/>
+      <rect x={n.x} y={n.y} width="104" height="94" rx="20" fill="var(--card)" stroke="currentColor" stroke-width="2"/>
+      <circle cx={n.x+28} cy={n.y+28} r="7" fill="var(--spot)"/><text x={n.x+52} y={n.y+69} text-anchor="middle" fill="currentColor" font-size="20">{n.t}</text>
+    </g>)}
+    <rect x="195" y="122" width="92" height="92" rx="26" fill="currentColor"/><path d="M218 168L234 184L265 150" stroke="var(--spot)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="240" cy="168" r="62" stroke="currentColor" opacity=".17"/>
+  </>}
+  {kind === 'transit' && <>
+    <path d="M22 268L99 191V82H194L262 150H369L450 68M39 72L144 178H278L369 269H453M48 307L156 200V270H268L337 201V75" stroke="currentColor" stroke-width="2" opacity=".12"/>
+    <path class="transit-line" d="M34 268H111L184 195H300L418 77" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="transit-line" d="M92 65V123L183 214H337V288" stroke="var(--spot)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    {[[92,65],[92,123],[34,268],[111,268],[337,288],[418,77],[300,195],[337,214]].map(([x,y])=><circle cx={x} cy={y} r="8" fill="var(--card)" stroke="currentColor" stroke-width="3"/>)}
+    <circle cx="184" cy="195" r="27" fill="var(--card)" stroke="currentColor" stroke-width="5"/><circle cx="184" cy="195" r="13" fill="var(--spot)"/>
+    <rect x="241" y="65" width="119" height="40" rx="20" fill="currentColor"/><text x="300" y="91" text-anchor="middle" fill="var(--card)" font-size="16">换乘关系</text>
+  </>}
+  {kind === 'patent' && <>
+    {[0,1,2].map((i)=><g class="art-sheet" style={`--bar:${i}`} transform={`translate(${i*57} ${i*-25})`}>
+      <path d="M93 105H237L272 140V303H93Z" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M237 105V140H272" stroke="currentColor" stroke-width="2"/>
+      <path d="M117 171H236M117 194H220M117 217H236M117 240H204" stroke="currentColor" stroke-width="4" opacity=".23"/>
+      <rect x="117" y="263" width="48" height="13" rx="6" fill="var(--spot)"/>
+    </g>)}
+    <circle cx="352" cy="237" r="47" fill="var(--spot)"/><path d="M330 237H374M352 215V259" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+    <path d="M50 75H96M73 52V98" stroke="currentColor" stroke-width="2"/>
+  </>}
+</svg>

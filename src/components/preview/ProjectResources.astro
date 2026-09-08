@@ -1,0 +1,13 @@
+---
+type Resource={label:string;href:string;kind?:'primary'|'download'};
+const {links}=Astro.props as {links:Resource[]};
+const primary=links.find(link=>link.kind==='primary')||links[0];
+const secondary=links.filter(link=>link!==primary);
+---
+<div class="resource-links project-actions">
+ {primary&&<a class="primary resource-primary" href={primary.href} target="_blank" rel="noreferrer">
+  {primary.href.startsWith('https://github.com/')&&<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.08c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1 1.73 2.63 1.23 3.27.94.1-.73.4-1.23.71-1.51-2.5-.28-5.13-1.25-5.13-5.54 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.08 1.15a10.67 10.67 0 0 1 5.6 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.3-2.64 5.26-5.15 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/></svg>}
+  <span>{primary.label}</span><span aria-hidden="true">↗</span>
+ </a>}
+ {secondary.length>0&&<div class="resource-secondary">{secondary.map(link=><a class="resource-link" href={link.href} target="_blank" rel="noreferrer"><span>{link.label}</span><span aria-hidden="true">↗</span></a>)}</div>}
+</div>

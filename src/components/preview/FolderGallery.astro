@@ -1,0 +1,17 @@
+---
+import ProjectArt from '../lab/ProjectArt.astro';
+const {project:p}=Astro.props;
+---
+{p.images.length>0 && <div class="project-gallery" data-gallery-root>
+ <div class="gallery-stage"><div class="gallery-view folder-view">
+ <div class="folder" id="folder" style={`--folder-count:${p.images.length}`}>
+ <div class="folder-back"></div>
+ {p.images.map((image,i)=><button class="folder-document" data-doc={i} style={`--i:${i};--offset:${i-(p.images.length-1)/2}`} data-image={image.src} data-title={image.alt} data-caption={image.caption} aria-label={`放大：${image.alt}`}><img src={image.src} alt={image.alt} loading="lazy"/><span>{image.alt}</span></button>)}
+ <button class="folder-front" id="folder-toggle" aria-expanded="false" aria-label={`打开${p.shortName}项目材料`}><span class="folder-title">{p.shortName}<span>项目材料 · {p.images.length} 份</span></span><span class="folder-sticker" aria-hidden="true"><ProjectArt kind={p.visual.kind}/></span><span class="folder-plus">＋</span></button>
+ </div><p class="folder-hint">点击文件夹展开，再点击图片放大。</p>
+ </div></div>
+ <div class="gallery-selection"><label for="gallery-select">选择图片</label><select id="gallery-select">{p.images.map((image,i)=><option value={i}>{image.alt}</option>)}</select><button class="primary" id="gallery-open">放大原图 ↗</button></div>
+ <p class="image-description" id="gallery-description">{p.images[0].caption}</p>
+ <script type="application/json" class="gallery-data" set:html={JSON.stringify(p.images).replace(/</g,'\\u003c')}></script>
+ <noscript><ul class="gallery-fallback">{p.images.map(image=><li><a href={image.src} target="_blank" rel="noreferrer">{image.alt} ↗</a><p>{image.caption}</p></li>)}</ul></noscript>
+ </div>}

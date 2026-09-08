@@ -1,0 +1,12 @@
+---
+import ProjectArt from '../lab/ProjectArt.astro';
+import {portfolioProjects,previewPath} from '../../data/preview';
+---
+<div class="project-stage" data-layout="fan"><div class="project-cards">
+{portfolioProjects.map((p,i)=><div class="project-position" data-index={i} style={`--card:${p.visual.color};--ink:${p.visual.ink};--spot:${p.visual.spot}`}>
+<a class="project-card" data-card={i} href={previewPath('projects/'+p.slug+'/')} aria-label={p.name} draggable="false">
+<div class="card-face"><div class="card-top"><span>{p.visual.tags}</span><span class="card-arrow">↗</span></div><ProjectArt kind={p.visual.kind}/><div class="card-title"><h2>{p.visual.name}</h2><p>{p.visual.title}</p></div><div class="card-bottom"><span>{p.visual.label}</span><span>阅读完整项目 ↗</span></div></div>
+</a></div>)}
+</div></div>
+<div class="arc-controls"><button data-arc="prev" aria-label="选择上一个项目">←</button><p>滑动或选择项目名称，点击卡片阅读全文。</p><button data-arc="next" aria-label="选择下一个项目">→</button></div>
+<div class="project-picker" aria-label="选择项目">{portfolioProjects.map((p,i)=><button data-pick={i} aria-pressed={i===0}><i style={`background:${p.visual.spot}`}></i>{p.shortName}</button>)}</div>

@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/PreviewLayout.astro';
+import CapabilityScene from '../../components/preview/CapabilityScene.astro';
+import Entrance from '../../components/preview/Entrance.astro';
+import Contacts from '../../components/preview/Contacts.astro';
+import {previewPath} from '../../data/preview';
+---
+<Layout>
+ <Entrance/>
+ <section class="home-cover page-width" aria-labelledby="home-title">
+  <div class="home-composition">
+   <div class="home-copy">
+    <h1 id="home-title" class="particle-name" aria-label="Tomme"><span class="particle-name-fallback">Tomme</span><canvas id="name-particles" aria-hidden="true"></canvas></h1>
+    <p class="home-lead" data-reveal>业务理解、数据分析与 AI 协作。</p>
+    <div class="capabilities" aria-label="选择一项能力，查看图中的关联">
+     <button class="capability active" data-capability="business" aria-pressed="true"><span class="capability-mark" aria-hidden="true">↗</span><span><strong>业务理解</strong><small>从需求出发，确定指标与分析问题。</small></span><span class="capability-arrow" aria-hidden="true">↗</span></button>
+     <button class="capability" data-capability="data" aria-pressed="false"><span class="capability-mark" aria-hidden="true">⌘</span><span><strong>数据分析</strong><small>SQL · Power BI · Python · 数据处理与展示</small></span><span class="capability-arrow" aria-hidden="true">↗</span></button>
+     <button class="capability" data-capability="ai" aria-pressed="false"><span class="capability-mark" aria-hidden="true">✳</span><span><strong>AI 协作</strong><small>需求讨论、代码实现、结果检查与工具连接。</small></span><span class="capability-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div class="home-actions" data-reveal><a class="primary" href={previewPath('projects/')}>查看项目 <span>↗</span></a><a class="text-button" href={previewPath('method/')}>阅读方法论 <span>→</span></a></div>
+   </div>
+   <CapabilityScene/>
+  </div>
+  <section class="home-contacts" id="contact" aria-label="联系 Tomme">
+   <div class="home-contact-heading"><h2>联系我</h2><a href="mailto:1877916299@qq.com">1877916299@qq.com ↗</a></div>
+   <Contacts/>
+  </section>
+ </section>
+</Layout>

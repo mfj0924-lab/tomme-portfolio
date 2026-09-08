@@ -1,0 +1,13 @@
+---
+import {sitePath} from '../../utils/sitePath';
+import {previewPath} from '../../data/preview';
+---
+     <div class="portrait-scene">
+      <svg class="scene-connections" viewBox="0 0 700 650" aria-hidden="true"><path d="M20 200C200 200 90 75 300 100S410 205 670 145M15 450C270 570 280 370 420 490S620 560 690 450"/></svg>
+      <div class="particle-frame"><canvas id="portrait-particles" aria-label="根据 Tomme 原头像组成的互动粒子肖像"></canvas><img class="portrait-fallback" src={sitePath('/assets/portrait.png')} alt="Tomme 原头像" /></div>
+      <nav class="portrait-projects" aria-label="粒子封面的项目入口">
+       <a class="scene-project scene-bike" href={previewPath("projects/citibike/")}><svg viewBox="0 0 32 24" aria-hidden="true"><circle cx="7" cy="17" r="5"/><circle cx="25" cy="17" r="5"/><path d="M7 17l6-11 5 11H7L23 8l2 9M10 5h6M23 8l-2-5h5"/></svg>CitiBike<span>↗</span></a>
+       <a class="scene-project scene-agent" href={previewPath("projects/workbench/")}><svg viewBox="0 0 32 24" aria-hidden="true"><rect x="12" y="8" width="8" height="8" rx="2"/><path d="M4 4h12v4M4 20h12v-4M20 12h8"/><circle cx="4" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="28" cy="12" r="2"/></svg>AI 工作台<span>↗</span></a>
+      </nav>
+      <div class="portrait-tools"><button id="portrait-replay"><span aria-hidden="true">↻</span>重新聚合</button><button id="portrait-pause" aria-pressed="false"><span class="pause-symbol" aria-hidden="true"></span><span class="portrait-control-label">暂停流动</span></button></div>
+     </div>

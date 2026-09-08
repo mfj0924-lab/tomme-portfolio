@@ -1,0 +1,11 @@
+---
+import {sitePath} from '../../utils/sitePath';
+---
+<dialog id="site-entrance" class="site-entrance identity-entrance" aria-labelledby="entrance-title">
+ <canvas id="entry-stream" aria-hidden="true"></canvas>
+ <div class="entry-content">
+  <div class="entry-portrait" role="img" aria-label="由原头像组成的 Tomme 粒子肖像"><img id="entry-portrait-source" src={sitePath('/assets/portrait.png')} alt="" decoding="async"/></div>
+  <h2 id="entrance-title">Tomme</h2><p>业务理解 · 数据分析 · AI 协作</p><button id="enter-site">进入网站 <span aria-hidden="true">↗</span></button>
+ </div>
+ <button id="skip-entrance">跳过动画 →</button>
+</dialog>

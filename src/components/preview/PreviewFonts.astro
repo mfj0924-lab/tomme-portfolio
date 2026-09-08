@@ -1,0 +1,13 @@
+---
+import {sitePath} from '../../utils/sitePath';
+const {chineseHeading=true}=Astro.props;
+const faces=[
+ {family:'Tomme Fraunces',file:'fraunces-700.woff2',style:'normal'},
+ {family:'Tomme Signature',file:'fraunces-signature-700.woff2',style:'italic'},
+ {family:'Tomme Song',file:'noto-serif-sc-700.woff2',style:'normal'},
+];
+const fontRules=faces.map(f=>`@font-face{font-family:'${f.family}';src:url('${sitePath('/fonts/'+f.file)}') format('woff2');font-weight:700;font-style:${f.style};font-display:swap}`).join('\n');
+---
+<link rel="preload" href={sitePath('/fonts/fraunces-700.woff2')} as="font" type="font/woff2" crossorigin/>
+{chineseHeading&&<link rel="preload" href={sitePath('/fonts/noto-serif-sc-700.woff2')} as="font" type="font/woff2" crossorigin/>}
+<style is:inline set:html={fontRules}/>

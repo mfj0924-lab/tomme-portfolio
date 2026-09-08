@@ -1,0 +1,16 @@
+---
+import ProjectArt from '../lab/ProjectArt.astro';
+---
+<div class="capability-scene" data-scene-focus="business" role="img" aria-label="能力关联图：业务问题连接经营判断，数据处理连接预测与网络分析，AI协作连接实现与结果检查。">
+ <div class="scene-surface"><span>Tomme / 作品与方法</span><span aria-hidden="true">↗</span></div>
+ <div class="capability-diagram">
+  <svg class="capability-lines" viewBox="0 0 720 560" preserveAspectRatio="none" aria-hidden="true"><path data-link="business" d="M195 157C275 157 235 282 355 282S437 120 535 120"/><path data-link="data" d="M195 407C290 407 235 282 355 282S430 433 535 433"/><path data-link="ai" d="M355 282C448 282 445 282 552 282"/><g class="connection-ports"><circle cx="355" cy="282" r="8"/><circle cx="535" cy="120" r="5"/><circle cx="535" cy="433" r="5"/></g></svg>
+  <div class="cap-node business-node" data-scene-node="business"><span>业务问题</span><strong>需求 · 指标 · 判断</strong><div class="mini-chart" aria-hidden="true"><i></i><i></i><i></i><span>↗</span></div></div>
+  <div class="cap-node data-node" data-scene-node="data"><span>数据处理</span><strong>SQL / Python</strong><div class="data-table-icon" aria-hidden="true">{Array.from({length:12},(_,i)=><i class:list={{filled:i===4||i===8||i===10}}></i>)}</div></div>
+  <div class="cap-center" aria-hidden="true"><span>观察</span><strong>✳</strong><span>判断与验证</span></div>
+  <div class="cap-art cap-bike" data-scene-node="business data" style="--card:#d9e8ee;--ink:#173a4a;--spot:#ed754c"><ProjectArt kind="bike"/><span>需求预测与策略</span></div>
+  <div class="cap-node ai-node" data-scene-node="ai"><span>AI 协作</span><strong>实现 → 检查</strong><span class="ai-check" aria-hidden="true">✓</span></div>
+  <div class="cap-art cap-network" data-scene-node="data ai" style="--card:#deddeb;--ink:#493c68;--spot:#a295cb"><ProjectArt kind="transit"/><span>网络与流程关系</span></div>
+ </div>
+ <div class="scene-caption"><span class="scene-indicator" aria-hidden="true"></span><p id="scene-caption">从需求出发，确定要回答的问题。</p><span class="scene-caption-arrow" aria-hidden="true">↗</span></div>
+</div>

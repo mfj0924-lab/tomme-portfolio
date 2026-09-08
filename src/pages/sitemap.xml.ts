@@ -4,9 +4,8 @@ export const prerender = true;
 
 const paths = [
   '',
+  'projects/',
   'method/',
-  'ai-collaboration/',
-  'about/',
   'projects/citibike/',
   'projects/adventureworks/',
   'projects/workbench/',

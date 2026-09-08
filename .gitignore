@@ -6,7 +6,10 @@ dist/
 
 # Local QA and temporary artifacts
 tmp/
+output/
 review/
+artifacts/design-lab-v3/
+artifacts/preview-revision/
 *.log
 
 # Local design-working files

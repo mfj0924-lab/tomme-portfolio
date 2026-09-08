@@ -1,0 +1,19 @@
+---
+import type {ProcessStep} from '../../data/preview-processes';
+const {step}=Astro.props as {step:ProcessStep};
+---
+<div class="process-body">
+ <p>{step.text}</p>
+ <details class="process-details" data-process-step={step.id}>
+  <summary><span class="process-toggle-sign" aria-hidden="true"></span><span class="process-open-label">展开技术细节</span><span class="process-close-label">收起技术细节</span></summary>
+  <div class="process-expanded">
+   {step.paragraphs.map(text=><p>{text}</p>)}
+   {step.example&&<figure class="process-example"><figcaption>{step.example.label}</figcaption><pre>{step.example.text}</pre></figure>}
+   <p class="process-output"><strong>这一步的结果：</strong>{step.output}</p>
+   <p class="process-tools"><strong>使用工具与方法：</strong>{step.tools.join(' · ')}</p>
+   <ul class="process-evidence" aria-label="这一步的代码与资料">
+    {step.evidence.map(item=><li><a href={item.href} target="_blank" rel="noreferrer">{item.label}<span aria-hidden="true"> ↗</span></a></li>)}
+   </ul>
+  </div>
+ </details>
+</div>

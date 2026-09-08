@@ -1,0 +1,51 @@
+---
+import '../styles/design-lab-v2.css';
+import '../styles/design-lab-v3.css';
+import '../styles/preview.css';
+import '../styles/preview-revision.css';
+import '../styles/preview-type.css';
+import PreviewFonts from '../components/preview/PreviewFonts.astro';
+import ImageViewer from '../components/preview/ImageViewer.astro';
+import Atmosphere from '../components/preview/Atmosphere.astro';
+import {previewPath} from '../data/preview';
+import {sitePath} from '../utils/sitePath';
+const {title='Tomme · 作品与方法',description='Tomme 的项目、方法论与个人表达。',active='home',theme=active}=Astro.props;
+const nav=[['home','首页',''],['projects','项目','projects/'],['method','方法论','method/']];
+const isPreview=Astro.url.pathname.includes('/preview/');
+const canonical=new URL(Astro.url.pathname.replace('/preview/','/'),Astro.site??Astro.url.origin);
+const shareImage=new URL(sitePath('/og-image.png'),Astro.site??Astro.url.origin);
+---
+<!doctype html>
+<html lang="zh-CN" class="preview-document">
+<head>
+ <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+ <meta name="description" content={description}/><meta name="robots" content={isPreview?'noindex,follow':'index,follow'}/>
+ <meta name="theme-color" content="#f7f8f2"/><link rel="canonical" href={canonical}/>
+ <meta property="og:locale" content="zh_CN"/><meta property="og:type" content="website"/>
+ <meta property="og:site_name" content="Tomme · 作品与方法"/><meta property="og:title" content={title}/>
+ <meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:image" content={shareImage}/>
+ <meta name="twitter:card" content="summary_large_image"/>
+ <link rel="icon" href={sitePath('/favicon.svg')}/><PreviewFonts chineseHeading={active!=='home'}/><title>{title}</title>
+</head>
+<body class="portfolio-preview" data-page={active} data-theme={theme}>
+<Atmosphere/>
+<!-- THESIS: Tomme's work and complete personal writing are explored across independent pages.
+OWN-WORLD: Approved cream/sage surfaces, five illustrated project identities, folder galleries and connected capability diagrams.
+STORY: Enter through data flow, understand capabilities, choose a project, explore the complete methodology and contact.
+FIRST VIEWPORT: Three-page navigation; the home cover contains skills, a capability diagram and contact controls.
+FORM: Arc-only project display, folder-only gallery, per-project reading defaults; the original copy remains intact.
+FINISH: Browser and motion checks are recorded in PREVIEW.md and artifacts/preview-revision. -->
+<a class="skip" href="#main">跳到主要内容</a>
+<header class="site-header">
+ <a class="brand" href={previewPath()} aria-label="Tomme 首页"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8H28M16 8V28M5 20L16 8L27 20"/></svg>Tomme</a>
+ <nav aria-label="主要导航">{nav.map(([key,label,path])=><a href={previewPath(path)} aria-current={active===key?'page':undefined}>{label}</a>)}</nav>
+ <div class="header-utilities"><a class="header-contact" href={previewPath('#contact')}>联系我 ↗</a><button id="motion" class="motion-toggle" aria-pressed="false">动效已开启</button></div>
+</header>
+<main id="main"><slot/></main>
+<footer class="site-footer page-width">
+ <div><strong>Tomme</strong><a href={sitePath('/downloads/Tomme_经营分析商业分析_展示版.pdf')} download>下载展示版简历 ↗</a><a href={sitePath('/downloads/Tomme_经营商业数据分析_AI应用岗_ATS版.pdf')} download>下载 ATS 简历 ↗</a></div>
+ <div><details class="footer-credits" id="credits"><summary>设计参考与署名</summary><p>设计与实现参考 OpenDesign frontend-design、Impeccable，以及 <a href="https://github.com/esthersjw/esther-design-system" target="_blank" rel="noreferrer">ESTHER不二 / Esther Design System</a>。Esther 相关组件改编按 CC BY-NC-SA 4.0 分享；项目资料和个人文案的授权保持不变。</p></details></div>
+</footer>
+<ImageViewer/>
+<script>import '../scripts/preview';</script>
+</body></html>

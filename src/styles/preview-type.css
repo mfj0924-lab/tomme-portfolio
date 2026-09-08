@@ -1,0 +1,57 @@
+/* Display fonts belong to the preview only; body copy retains its reading face. */
+/* PreviewFonts.astro resolves font URLs using the same base-path helper as the rest of the site. */
+body.portfolio-preview{
+ --font-reading:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;
+ --font-display:'Tomme Fraunces','Tomme Song',Georgia,'Songti SC',serif;
+ --font-heading:'Tomme Song','Tomme Fraunces','Songti SC',SimSun,serif;
+ --font-signature:'Tomme Signature',Georgia,serif;
+ font-family:var(--font-reading);
+}
+.portfolio-preview .site-header .brand,.portfolio-preview .site-footer strong,.portfolio-preview .identity-entrance .entry-content h2{
+ font-family:var(--font-signature);font-style:italic;font-weight:700;letter-spacing:-.025em;line-height:1.2;
+}
+.portfolio-preview .site-header .brand{font-size:34px;gap:11px}
+.portfolio-preview .site-footer strong{font-size:28px}
+.portfolio-preview .identity-entrance .entry-content h2{font-size:clamp(30px,3vw,38px)}
+.portfolio-preview .home-copy h1{font-family:var(--font-display);font-weight:700;letter-spacing:-.035em;line-height:1.14}
+.portfolio-preview .page-heading h1{font-family:var(--font-heading);font-weight:700;letter-spacing:.025em;line-height:1.3}
+.portfolio-preview .project-heading h1{font-family:var(--font-heading);font-weight:700;font-size:clamp(32px,3.3vw,50px);line-height:1.42;letter-spacing:.015em}
+.portfolio-preview .project-heading h1>.project-name{font-family:var(--font-display);font-size:clamp(42px,5.1vw,80px);font-weight:700;letter-spacing:-.025em;line-height:1.2;margin-bottom:18px}
+.portfolio-preview .project-heading h1>.project-name[data-long]{font-size:clamp(34px,4.5vw,68px);letter-spacing:-.035em}
+.portfolio-preview .project-stage .card-title h2{font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;line-height:1.3}
+.portfolio-preview .detail-section>h2,.portfolio-preview .method-root h2,.portfolio-preview .method-branch>summary h2{
+ font-family:var(--font-heading);font-weight:700;letter-spacing:.015em;line-height:1.5;
+}
+/* Subheadings, controls and all reading copy keep the sans-serif family. */
+.portfolio-preview .project-actions{gap:16px;align-items:center}
+.portfolio-preview .project-actions .resource-primary{
+ display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:52px;
+ padding:13px 24px;border:1px solid #304b39;border-radius:9px;background:#304b39;color:#f7f8ef;
+ font-size:17px;font-weight:600;line-height:1.5;white-space:nowrap;
+ transition:background .16s,color .16s;
+}
+.resource-primary svg{width:21px;height:21px;fill:currentColor;flex-shrink:0}
+.portfolio-preview .resource-secondary{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.portfolio-preview .project-actions .resource-link{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 12px;
+ min-height:48px;border:1px solid transparent;border-radius:8px;background:transparent;
+ font-size:16px;font-weight:400;line-height:1.5;color:#435740;
+ transition:background .16s,border-color .16s,color .16s;
+}
+.resource-secondary .resource-link span:first-child{text-decoration:underline;text-decoration-color:#a1ad96;text-underline-offset:5px;text-decoration-thickness:1px}
+@media(hover:hover) and (pointer:fine){
+ .portfolio-preview .project-actions .resource-primary:hover{background:#233b2b;border-color:#233b2b}
+ .portfolio-preview .project-actions .resource-link:hover{background:#e8eddf;border-color:#c8d3be;color:#24342d}
+}
+@media(max-width:760px){
+ .portfolio-preview .site-header .brand{font-size:30px}
+ .portfolio-preview .project-heading h1{font-size:clamp(29px,7.8vw,36px);line-height:1.45}
+ .portfolio-preview .project-heading h1>.project-name{font-size:clamp(37px,10.7vw,50px)}
+ .portfolio-preview .project-heading h1>.project-name[data-long]{font-size:clamp(27px,8vw,40px)}
+ .portfolio-preview .project-actions{align-items:flex-start;flex-direction:column;gap:12px}
+ .portfolio-preview .project-actions .resource-primary{min-height:50px}
+ .portfolio-preview .resource-secondary{column-gap:7px;row-gap:4px}
+ .portfolio-preview .project-actions .resource-link{padding:10px 7px;font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.portfolio-preview .project-actions a{transition:none}}
+html[data-reduce] .portfolio-preview .project-actions a{transition:none}

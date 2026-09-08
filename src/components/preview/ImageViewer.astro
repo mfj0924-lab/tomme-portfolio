@@ -1,0 +1,7 @@
+<dialog class="image-dialog window-shell" id="image-dialog" aria-label="项目图片查看器">
+ <div class="window-titlebar"><div class="window-dots"><button data-window="close" title="关闭窗口" aria-label="关闭窗口">×</button><button data-window="minimize" title="收起窗口" aria-label="收起窗口">−</button><button data-window="maximize" title="切换全屏尺寸" aria-label="切换全屏尺寸">↗</button></div><strong id="viewer-title">项目截图</strong><a id="viewer-original" target="_blank" rel="noreferrer">打开原文件 ↗</a></div>
+ <div class="viewer-description"><p id="full-caption" aria-live="polite"></p><output id="image-position" aria-label="当前图片"></output></div>
+ <div class="viewer-toolbar"><button data-image-zoom="fit">适合窗口</button><button data-image-zoom="native">原始尺寸</button><button data-image-zoom="out" aria-label="缩小图片">−</button><output id="image-zoom-value">100%</output><button data-image-zoom="in" aria-label="放大图片">＋</button><span>滚轮缩放 · 拖动查看</span></div>
+ <div class="viewer-stage"><div class="image-viewport"><img id="full-image" alt="" draggable="false"/></div><button class="image-nav image-prev" data-image-direction="-1" aria-label="上一张图片">←</button><button class="image-nav image-next" data-image-direction="1" aria-label="下一张图片">→</button></div>
+</dialog>
+<div class="window-shelf" hidden><button id="restore-window">恢复图片窗口 ↗</button></div>
