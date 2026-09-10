@@ -7,7 +7,10 @@ import ProjectResources from '../../../components/preview/ProjectResources.astro
 import {portfolioProjects,previewPath} from '../../../data/preview';
 export function getStaticPaths(){return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}))}
 const {project:p}=Astro.props;
-const nav=[['overview','项目介绍'],['process','项目过程'],...(p.images.length?[['materials','图片与材料']]:[]),['results','分析结果'],['collaboration','AI 协作'],['references','参考与说明']];
+const processTitle=p.slug==='workbench'?'工作台流程':'项目过程';
+const resultsTitle=p.slug==='workbench'?'项目结果':p.slug==='rnd-patent'?'结果':'分析结果';
+const judgmentTitle=p.slug==='citibike'?'复核与修复记录':p.slug==='rnd-patent'?'数据处理中的判断与操作':'分析中的判断与处理';
+const nav=[['overview','项目介绍'],['process',processTitle],...(p.images.length?[['materials','图片与材料']]:[]),['results',resultsTitle],['collaboration','AI 协作'],['references','参考与说明']];
 const next=portfolioProjects[(portfolioProjects.findIndex(x=>x.slug===p.slug)+1)%portfolioProjects.length];
 ---
 <Layout title={p.name+'｜Tomme'} description={p.summary} active="projects" theme={p.slug}>
@@ -19,9 +22,9 @@ const next=portfolioProjects[(portfolioProjects.findIndex(x=>x.slug===p.slug)+1)
  <aside class="detail-nav"><nav aria-label="项目目录">{nav.map(([id,label])=><a href={'#'+id}>{label}</a>)}</nav><a class="text-button" href={previewPath('projects/')}>← 全部项目</a></aside>
  <article class="project-content">
   <section id="overview" class="detail-section"><h2>项目介绍</h2><p>{p.story}</p><div class="project-numbers">{p.numbers.map(n=><div><strong>{n.value}</strong><span>{n.label}</span></div>)}</div><div class="project-tools">{p.tools.map(t=><span>{t}</span>)}</div></section>
-  <section id="process" class="detail-section"><h2>项目过程</h2><Workflow steps={p.process} slug={p.slug}/></section>
+  <section id="process" class="detail-section"><h2>{processTitle}</h2><Workflow steps={p.process} slug={p.slug}/></section>
   {p.images.length>0 && <section id="materials" class="detail-section"><h2>图片与材料</h2><FolderGallery project={p}/></section>}
-  <section id="results" class="detail-section"><h2>分析结果</h2><ol class="finding-list">{p.findings.map((finding,i)=><li><span>{String(i+1).padStart(2,'0')}</span><p>{finding}</p></li>)}</ol><details class="reading-disclosure" open><summary>{p.slug==='citibike'?'复核与修复记录':'分析中的判断与处理'}</summary><p>{p.shift}</p></details></section>
+  <section id="results" class="detail-section"><h2>{resultsTitle}</h2><ol class="finding-list">{p.findings.map((finding,i)=><li><span>{String(i+1).padStart(2,'0')}</span><p>{finding}</p></li>)}</ol><details class="reading-disclosure" open><summary>{judgmentTitle}</summary><p>{p.shift}</p></details></section>
   <section id="collaboration" class="detail-section"><h2>我与 AI 如何完成项目</h2><p class="ai-tools">{p.ai}</p><p>{p.role}</p><div class="collaboration-steps">{p.aiCollaboration.map(item=><article><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
   <section id="references" class="detail-section"><h2>参考与使用说明</h2><div class="reference-list">{p.references.map(r=><article><h3>{r.href?<a href={r.href} target="_blank" rel="noreferrer">{r.name} ↗</a>:r.name}</h3><p>{r.relation}</p></article>)}</div><details class="reading-disclosure" open><summary>结果适用范围</summary><ul class="boundary-list">{p.boundaries.map(b=><li>{b}</li>)}</ul></details><ProjectResources links={p.links}/></section>
   <a class="next-project" href={previewPath('projects/'+next.slug+'/')}><span>下一个项目</span><strong>{next.name}</strong><span aria-hidden="true">→</span></a>

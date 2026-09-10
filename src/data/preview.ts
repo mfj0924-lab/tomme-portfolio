@@ -2,7 +2,7 @@ import { projects } from './projects';
 import { sitePath } from '../utils/sitePath';
 import { projectProcesses } from './preview-processes';
 export const projectVisuals = [
- {name:'CitiBike',title:'需求预测与动态定价',kind:'bike',color:'#d9e8ee',ink:'#173a4a',spot:'#fa693d',label:'从骑行记录，到下一小时的需求。',tags:'数据处理 / 预测模型 / API',image:'citibike/legacy-dashboard.png',href:'citibike'},
+ {name:'CitiBike',title:'需求预测与动态定价',kind:'bike',color:'#d9e8ee',ink:'#173a4a',spot:'#fa693d',label:'从骑行记录，到站点供需与定价建议。',tags:'数据处理 / 预测模型 / API',image:'citibike/legacy-dashboard.png',href:'citibike'},
  {name:'AdventureWorks',title:'经营分析',kind:'business',color:'#f3dfce',ink:'#593d2f',spot:'#e88446',label:'销售规模之外，继续看盈利质量。',tags:'SQL / Power BI / 商业判断',image:'adventureworks/overview.png',href:'adventureworks'},
  {name:'AI 工作台',title:'可信数据分析',kind:'agent',color:'#dfe5cf',ink:'#34462c',spot:'#b2c65a',label:'让任务、检查与判断都有据可查。',tags:'Agent / 数据产品 / 结果审查',image:'workbench/home.png',href:'workbench'},
  {name:'青岛公交',title:'线路与换乘网络',kind:'transit',color:'#e2dff0',ink:'#493c68',spot:'#a295cb',label:'沿着站点，理解线路之间的关系。',tags:'API 采集 / 地图 / NetworkX',image:'qingdao/network.png',href:'qingdao-transit'},
