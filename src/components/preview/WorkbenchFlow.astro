@@ -1,0 +1,96 @@
+---
+import { workbenchStages as stages } from '../../data/illustrated-stages';
+import { projectProcesses } from '../../data/preview-processes';
+import IllustratedStep from './IllustratedStep.astro';
+import '../../styles/illustrated-projects.css';
+const labels = ['提交数据', '确认计划', '质量检查', '数据分析', '结果审查', '生成报告', '确认与导出'];
+const aiEvidence = projectProcesses.workbench.find(step => step.id === 'explain')!.evidence;
+---
+<div class="project-explainer workbench-explainer">
+  <p class="ex-intro">工作台接收整理好的表格，按约定规则检查数据、计算指标、审查结论，再生成报告。下面展示一次使用流程；AI 可以在审查之后按需解释已有结果。</p>
+  <nav class="ex-route wb-route" aria-label="跳转到工作台流程">
+    {stages.map((stage, index) => <a href={`#wb-${stage.id}`}><span>{index + 1}</span><strong>{labels[index]}</strong></a>)}
+    <a class="wb-ai-link" href="#wb-explain"><span>可选</span><strong>AI 解释</strong></a>
+  </nav>
+  <div class="wb-responsibility"><strong>程序计算与检查 → 人确认用途与发布</strong><p>质量检查、数据分析、结果审查和报告生成均可由程序独立执行。AI 解释有单独入口与记录。</p></div>
+  {stages.map((stage, index) => <>
+    <IllustratedStep stage={stage} number={index + 1} prefix="wb" flow>
+      {stage.id === 'input' && <figure class="ex-figure">
+        <div class="ex-flow">
+          <div class="ex-stacked"><div><strong>整理好的表格</strong><span>订单表 / 站点小时表</span></div><div><strong>本次任务说明</strong><span>问题、字段、单位、用途</span></div></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node"><strong>检查输入结构</strong><span>选择对应案例<br/>确认字段要求</span></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node ex-highlight"><strong>保存本次输入</strong><span>文件副本<br/>任务与版本记录</span></div>
+        </div>
+        <figcaption>AdventureWorks 使用订单汇总表，CitiBike 使用 Silver 站点小时表。两类数据分别进入对应的计算流程。</figcaption>
+      </figure>}
+      {stage.id === 'mode' && <figure class="ex-figure">
+        <table class="ex-table wb-mode-table"><thead><tr><th scope="col">结果给谁用</th><th scope="col">采用的模式</th><th scope="col">发布要求</th></tr></thead><tbody>
+          <tr><td>个人初步探索</td><th scope="row">探索</th><td>保留待验证草稿</td></tr>
+          <tr><td>团队内部报告</td><th scope="row">标准</th><td>发布前人工批准</td></tr>
+          <tr><td>预测、对外或高风险任务</td><th scope="row">治理</th><td>先确认任务，再批准发布</td></tr>
+        </tbody></table>
+        <figcaption>自动选择依据真实用途与风险，用户可以提高检查要求。文件规模另外用于估算执行方式与资源。</figcaption>
+      </figure>}
+      {stage.id === 'quality' && <figure class="ex-figure">
+        <div class="wb-three-checks">
+          <div><span>字段</span><strong>需要的列齐全吗？</strong><p>编号、日期、金额等<br/>符合当前任务要求</p></div>
+          <div><span>记录</span><strong>数据有异常吗？</strong><p>统计空值、重复<br/>及规则规定的异常</p></div>
+          <div><span>预测案例另查</span><strong>信息在当时可知吗？</strong><p>检查字段、时间范围<br/>及数据划分规则</p></div>
+        </div>
+        <figcaption>规则来自任务说明和已有检查程序。CitiBike 的禁止字段由外部复核发现后传入，工作台据此检查。</figcaption>
+      </figure>}
+      {stage.id === 'analysis' && <figure class="ex-figure">
+        <div class="ex-flow">
+          <div class="ex-node"><strong>输入三张订单</strong><span>收入：100、200、150</span></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node"><strong>执行收入求和</strong><span>100 ＋ 200 ＋ 150</span></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node ex-highlight"><strong>收入合计 450</strong><span>保存查询和结果</span></div>
+        </div>
+        <div class="ex-caption-rule"><strong>普通经营数据：</strong>按公式汇总，再看月份与业务分组。<br/><strong>CitiBike 数据：</strong>用历史均值等参考方法预测，再计算误差。</div>
+        <figcaption>三张订单及金额均为假设，单位相同，用来说明程序计算方式。实际运行读取本次输入的完整数据。</figcaption>
+      </figure>}
+      {stage.id === 'audit' && <figure class="ex-figure">
+        <div class="wb-audit-pair"><div><span>待审查的结论</span><strong>收入合计为 450</strong></div><span class="wb-compare" aria-hidden="true">↔</span><div><span>本次保存的计算结果</span><strong>收入合计为 450</strong></div></div>
+        <div class="wb-audit-check">同时核对：输入版本 · 文件内容 · 结论引用位置 · 任务规则</div>
+        <figcaption>继续使用上一步的假设金额。数值相同还需要其他检查满足；引用旧文件或违反预测字段规则时，结论仍可能不通过。</figcaption>
+      </figure>}
+      {stage.id === 'report' && <figure class="ex-figure">
+        <div class="wb-report-source"><span>质量检查记录</span><span>分析结果</span><span>审查状态</span></div>
+        <div class="wb-report-arrow" aria-hidden="true">↓</div>
+        <div class="wb-report-sheet"><span>本次分析报告</span><strong>结果是什么？依据在哪里？</strong><p>任务范围与数据来源<br/>主要结果与检查状态<br/>尚存问题与适用限制</p></div>
+        <figcaption>报告模板组织已有结果。报告生成完成与人工批准发布分别记录。</figcaption>
+      </figure>}
+      {stage.id === 'publish' && <figure class="ex-figure">
+        <div class="ex-flow">
+          <div class="ex-node"><strong>读取当前报告</strong><span>确认模式<br/>检查问题与限制</span></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node"><strong>用户批准发布</strong><span>标准 / 治理模式<br/>记录具体报告版本</span></div>
+          <span class="ex-arrow" aria-hidden="true">→</span>
+          <div class="ex-node ex-highlight"><strong>正式导出</strong><span>HTML 报告<br/>经营分析 BI 数据包</span></div>
+        </div>
+        <figcaption>探索模式保留待验证草稿。修改输入后，需要重新检查和批准新报告；AI 解释不能代替批准。</figcaption>
+      </figure>}
+    </IllustratedStep>
+    {stage.id === 'audit' && <aside class="ex-optional" id="wb-explain" aria-labelledby="wb-explain-title">
+      <span class="ex-optional-label">审查之后可以单独使用</span>
+      <h3 id="wb-explain-title">可选：让 AI 解释已有结果</h3>
+      <p>用户触发后，程序把任务说明、结果摘要和已经核对的结论交给 AI，生成解释与建议稿。没有启用这项功能，也可以继续生成固定报告。</p>
+      <ol class="wb-ai-roles"><li><strong>规划</strong><span>安排解释内容</span></li><li><strong>分析</strong><span>解释已有结论</span></li><li><strong>复核</strong><span>检查过度推断</span></li><li><strong>报告</strong><span>整理建议稿</span></li></ol>
+      <p><strong>AI 的范围：</strong>解释需要关联已有结论；调用记录单独保存。AI 不能替代数据计算、改变程序审查状态或批准发布。</p>
+      <div class="wb-ai-evidence">{aiEvidence.map(item => <a href={item.href} target="_blank" rel="noreferrer">{item.label} ↗</a>)}</div>
+    </aside>}
+  </>)}
+  <a class="ex-back" href="#process">返回工作台流程目录 ↑</a>
+</div>
+<style>
+ .wb-route{grid-template-columns:repeat(4,minmax(0,1fr))}.wb-ai-link{border-left:1px dashed var(--ex-line)}
+ .wb-responsibility{border-left:3px solid #86996b;padding:3px 0 3px 19px;margin-bottom:32px;font-size:17px;line-height:1.8}.wb-responsibility p{font-size:15px;line-height:1.85;margin-top:8px;color:var(--ex-muted)}
+ .wb-three-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.wb-three-checks>div{display:flex;flex-direction:column;gap:10px;font-size:16px;line-height:1.8}.wb-three-checks>div>span{font-size:13px;color:var(--ex-muted)}.wb-three-checks strong{font-size:18px}.wb-three-checks p{font-size:15px}
+ .wb-audit-pair{display:grid;grid-template-columns:1fr 28px 1fr;align-items:center;gap:14px}.wb-audit-pair>div{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;font-size:14px;line-height:1.8}.wb-audit-pair strong{font-size:22px;font-weight:650}.wb-compare{font-size:26px;text-align:center}.wb-audit-check{font-size:15px;text-align:center;line-height:1.85;border-top:1px solid var(--ex-line);padding-top:20px;margin-top:24px}
+ .wb-report-source{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;font-size:16px}.wb-report-source>span{padding:8px 12px;border:1px solid var(--ex-line);border-radius:5px}.wb-report-arrow{text-align:center;font-size:26px;margin:14px 0}.wb-report-sheet{max-width:460px;margin:0 auto;border:1px solid var(--ex-line);border-top:4px solid #86996b;background:#fafbf7;padding:24px;display:flex;flex-direction:column;gap:14px;font-size:16px;line-height:1.85}.wb-report-sheet>span{font-size:13px;color:var(--ex-muted)}.wb-report-sheet strong{font-size:19px}
+ .wb-ai-roles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:25px;list-style:none;margin:22px 0;padding:0}.wb-ai-roles li{position:relative;display:flex;flex-direction:column;gap:5px;font-size:16px;line-height:1.8}.wb-ai-roles li:not(:last-child):after{content:'→';position:absolute;right:-18px;top:0;color:var(--ex-muted)}.wb-ai-roles span{font-size:14px;color:var(--ex-muted)}.wb-ai-evidence{display:flex;flex-wrap:wrap;gap:4px 22px;margin-top:12px}
+ @media(max-width:600px){.wb-route{grid-template-columns:repeat(2,minmax(0,1fr))}.wb-three-checks{grid-template-columns:1fr;gap:18px}.wb-three-checks>div{gap:5px}.wb-three-checks>div+div{border-top:1px solid var(--ex-line);padding-top:16px}.wb-audit-pair{grid-template-columns:1fr;gap:12px}.wb-compare{transform:rotate(90deg)}.wb-audit-pair strong{font-size:20px}.wb-ai-roles{grid-template-columns:1fr;gap:29px}.wb-ai-roles li{flex-direction:row;gap:16px;align-items:baseline}.wb-ai-roles li:not(:last-child):after{content:'↓';left:10px;top:auto;bottom:-26px}.wb-report-sheet{padding:20px 16px}.wb-report-sheet strong{font-size:18px}.wb-mode-table th,.wb-mode-table td{padding-inline:5px}}
+</style>

@@ -2,8 +2,10 @@
 import {flowFor} from '../../data/preview-flows';
 import ProcessDetail from './ProcessDetail.astro';
 import CitiBikeStages from './CitiBikeStages.astro';
+import AdventureWorksStages from './AdventureWorksStages.astro';
+import WorkbenchFlow from './WorkbenchFlow.astro';
 const {steps,slug=''}=Astro.props;
-const hasIllustrations=slug==='citibike';
+const hasIllustrations=['citibike','adventureworks','workbench'].includes(slug);
 const graph=flowFor(slug,steps);
 const isCanvas=graph.defaultView==='canvas';
 const isRead=graph.defaultView==='read';
@@ -11,13 +13,13 @@ const isIllustrated=graph.defaultView==='illustrated';
 const pathFor=(edge)=>{const a=graph.nodes.find(n=>n.id===edge.from),b=graph.nodes.find(n=>n.id===edge.to);if(b.x<=a.x&&b.y>a.y)return `M${a.x+115} ${a.y+122} C${a.x+115} ${a.y+177},${b.x+115} ${b.y-55},${b.x+115} ${b.y}`;const ax=a.x+230,ay=a.y+61,bx=b.x,by=b.y+61;return `M${ax} ${ay} C${ax+65} ${ay},${bx-65} ${by},${bx} ${by}`};
 ---
 <div class:list={['workflow',{'workflow-with-illustrations':hasIllustrations}]} data-workflow data-default-view={graph.defaultView}>
- <div class="workflow-controls"><div class="segmented" role="group" aria-label="流程展示方式"><button class:list={{active:isRead}} data-flow-view="read" aria-pressed={isRead}>顺序阅读</button><button class:list={{active:isCanvas}} data-flow-view="canvas" aria-pressed={isCanvas}>缩放流程图</button>{hasIllustrations&&<button class:list={{active:isIllustrated}} data-flow-view="illustrated" aria-pressed={isIllustrated} aria-controls="workflow-illustrated">图解阶段</button>}</div><div class="workflow-zoom" hidden={!isCanvas}><button data-flow-zoom="out" aria-label="缩小流程图">−</button><button data-flow-zoom="fit">适合窗口</button><button data-flow-zoom="in" aria-label="放大流程图">＋</button><button id="trace-flow">沿流程查看 →</button></div></div>
+ <div class="workflow-controls"><div class="segmented" role="group" aria-label="流程展示方式"><button class:list={{active:isRead}} data-flow-view="read" aria-pressed={isRead}>顺序阅读</button><button class:list={{active:isCanvas}} data-flow-view="canvas" aria-pressed={isCanvas}>缩放流程图</button>{hasIllustrations&&<button class:list={{active:isIllustrated}} data-flow-view="illustrated" aria-pressed={isIllustrated} aria-controls="workflow-illustrated">{slug==='workbench'?'图解流程':'图解阶段'}</button>}</div><div class="workflow-zoom" hidden={!isCanvas}><button data-flow-zoom="out" aria-label="缩小流程图">−</button><button data-flow-zoom="fit">适合窗口</button><button data-flow-zoom="in" aria-label="放大流程图">＋</button><button id="trace-flow">沿流程查看 →</button></div></div>
  <ol class="workflow-reading" hidden={!isRead}>{steps.map((step,i)=><li data-step-id={step.id}><span class="step-marker">{String(i+1).padStart(2,'0')}</span><div><h3>{step.title}</h3><ProcessDetail step={step}/></div></li>)}</ol>
  <div class="workflow-canvas" hidden={!isCanvas} tabindex="0" aria-label="项目流程图，滚轮缩放，拖动空白处移动">
  <div class="workflow-world" style={`width:${graph.width}px;height:${graph.height}px`}><svg aria-hidden="true" width={graph.width} height={graph.height}>{graph.edges.map(edge=><path d={pathFor(edge)} class:list={{support:edge.kind==='support'}} data-edge-from={edge.from} data-edge-to={edge.to}/>)}</svg>{graph.nodes.map((node,i)=><button class:list={['workflow-node',{selected:i===0}]} data-flow-step={i} data-node-id={node.id} style={`left:${node.x}px;top:${node.y}px`} aria-pressed={i===0}>{node.group&&<span>{node.group}</span>}<strong>{node.title}</strong><i aria-hidden="true">↗</i></button>)}</div>
  </div>
  <div class="workflow-selected" hidden={!isCanvas}><p class="canvas-instruction">滚轮缩放 · 拖动空白处移动 · 点击节点阅读{slug==='workbench'?' · 虚线表示审查后可选的 AI 解释，实线表示主要流程':''}</p><h3 id="workflow-title">{steps.find(step=>step.id===graph.nodes[0]?.stepId)?.title}</h3><div id="workflow-text"><ProcessDetail step={steps.find(step=>step.id===graph.nodes[0]?.stepId)}/></div></div>
- {hasIllustrations&&<div id="workflow-illustrated" class="workflow-illustrated" hidden={!isIllustrated}><CitiBikeStages/></div>}
+ {hasIllustrations&&<div id="workflow-illustrated" class="workflow-illustrated" hidden={!isIllustrated}>{slug==='citibike'?<CitiBikeStages/>:slug==='adventureworks'?<AdventureWorksStages/>:<WorkbenchFlow/>}</div>}
  <noscript><style>.workflow-reading[hidden]{display:grid!important}.workflow-illustrated[hidden]{display:block!important}.workflow-canvas,.workflow-selected,.workflow-controls{display:none!important}</style></noscript>
  <script type="application/json" class="workflow-data" set:html={JSON.stringify(graph).replace(/</g,'\\u003c')}></script>
 </div>

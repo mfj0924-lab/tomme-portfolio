@@ -1,0 +1,81 @@
+---
+import { adventureWorksStages as stages } from '../../data/illustrated-stages';
+import IllustratedStep from './IllustratedStep.astro';
+import '../../styles/illustrated-projects.css';
+const labels = ['合并记录', '检查数据', '连接表格', '计算指标', '看图分析', '对照结果'];
+const shares = [{ label: '经销商收入占比', value: 73.26 }, { label: '经销商估算毛利占比', value: 3.75 }];
+---
+<div class="project-explainer adventureworks-explainer">
+  <p class="ex-intro">这个项目先把两个销售渠道放在一起比较，再逐步查看收入与估算毛利的差异。沿着六个阶段，可以看到数据怎样变成三页经营看板。</p>
+  <nav class="ex-route" aria-label="跳转到 AdventureWorks 项目阶段">
+    {stages.map((stage, index) => <a href={`#aw-${stage.id}`}><span>{index + 1}</span><strong>{labels[index]}</strong></a>)}
+  </nav>
+  {stages.map((stage, index) => <IllustratedStep stage={stage} number={index + 1} prefix="aw">
+    {stage.id === 'unify' && <figure class="ex-figure">
+      <p class="ex-center-note">官方数据库备份 → 在本地 SQL Server 中还原</p>
+      <div class="ex-flow">
+        <div class="ex-stacked"><div><strong>网络直销</strong><span>Internet 销售表</span></div><div><strong>经销商</strong><span>Reseller 销售表</span></div></div>
+        <span class="ex-arrow" aria-hidden="true">→</span>
+        <div class="ex-node"><strong>统一字段与编号</strong><span>保留渠道信息<br/>合并全部商品行</span></div>
+        <span class="ex-arrow" aria-hidden="true">→</span>
+        <div class="ex-node ex-highlight"><strong>121,253 条明细</strong><span>一行＝一张订单<br/>中的一行商品</span></div>
+      </div>
+      <figcaption>合并保留原来的商品记录；按订单汇总的数据在后续单独生成。</figcaption>
+    </figure>}
+    {stage.id === 'quality' && <figure class="ex-figure">
+      <table class="ex-table"><thead><tr><th scope="col">检查对象</th><th scope="col">怎样判断</th></tr></thead><tbody>
+        <tr><th scope="row">行数与金额</th><td>两张源表相加 ＝ 统一销售表</td></tr>
+        <tr><th scope="row">明细编号</th><td>每个编号出现次数 ＝ 1</td></tr>
+        <tr><th scope="row">关键字段与关联</th><td>必要信息不缺失，编号能找到对应表</td></tr>
+        <tr><th scope="row">日期范围</th><td>记下各渠道覆盖到哪一天</td></tr>
+      </tbody></table>
+      <figcaption>这些是检查规则。SQL 保存具体计数，Power Query 用于查看整表质量与字段类型。</figcaption>
+    </figure>}
+    {stage.id === 'model' && <figure class="ex-figure">
+      <div class="aw-star" aria-label="日期、产品、地区、促销四张表分别单向筛选销售明细表">
+        <div class="aw-dimension aw-date"><strong>日期表</strong><span>哪年、哪月、哪天</span></div>
+        <span class="aw-star-arrow aw-top" aria-hidden="true">↓</span>
+        <div class="aw-dimension aw-product"><strong>产品表</strong><span>品类、具体产品</span></div>
+        <span class="aw-star-arrow aw-left" aria-hidden="true">→</span>
+        <div class="aw-fact"><strong>销售明细表</strong><span>收入 · 成本 · 数量</span></div>
+        <span class="aw-star-arrow aw-right" aria-hidden="true">←</span>
+        <div class="aw-dimension aw-region"><strong>地区表</strong><span>国家、销售区域</span></div>
+        <span class="aw-star-arrow aw-bottom" aria-hidden="true">↑</span>
+        <div class="aw-dimension aw-promotion"><strong>促销表</strong><span>促销活动与类型</span></div>
+        <span class="aw-mobile-link" aria-hidden="true">分别按编号筛选 ↓</span>
+      </div>
+      <figcaption>例如选择“2013 年”和“自行车”，Power BI 就筛出同时满足条件的销售明细，再计算对应指标。</figcaption>
+    </figure>}
+    {stage.id === 'metrics' && <figure class="ex-figure">
+      <div class="ex-equations">
+        <div class="ex-equation"><div><span>销售收入</span><strong>100</strong></div><span>−</span><div><span>样例产品成本</span><strong>60</strong></div><span>＝</span><div><span>估算毛利</span><strong>40</strong></div></div>
+        <div class="ex-equation"><div><span>估算毛利</span><strong>40</strong></div><span>÷</span><div><span>销售收入</span><strong>100</strong></div><span>＝</span><div><span>估算毛利率</span><strong>40%</strong></div></div>
+      </div>
+      <div class="ex-caption-rule"><strong>订单数：</strong>统计不重复的订单编号。<br/><strong>销售件数：</strong>把每行购买数量相加。</div>
+      <figcaption>100、60 和 40 为假设金额，使用相同单位，仅用于说明公式。页面实际金额来自样例销售数据。</figcaption>
+    </figure>}
+    {stage.id === 'diagnose' && <figure class="ex-figure">
+      <div class="aw-shares">{shares.map(share => <div><div class="aw-share-label"><strong>{share.label}</strong><span>{share.value.toFixed(2)}%</span></div><div class="aw-track" aria-hidden="true"><span style={`width:${share.value}%`}></span></div></div>)}</div>
+      <ol class="aw-investigation"><li>经营总览</li><li>经销商渠道</li><li>年份与品类</li><li>具体产品</li></ol>
+      <figcaption>两条横条均按 0—100% 绘制，分别以总收入和总估算毛利为分母。项目据此继续调查经销商的产品、折扣与地区构成。</figcaption>
+    </figure>}
+    {stage.id === 'reconcile' && <figure class="ex-figure">
+      <div class="aw-deliveries">
+        <div><strong>销售明细用于 Power BI</strong><p>121,253 条商品明细</p><span aria-hidden="true">↓</span><p>SQL 计算 ↔ Power BI 指标</p><small>按同一日期、渠道与公式对照</small></div>
+        <div><strong>订单汇总用于工作台</strong><p>31,455 张订单</p><span aria-hidden="true">↓</span><p>质量检查 → 分析 → 审查 → 报告</p><small>保存检查记录与发布批准</small></div>
+      </div>
+      <figcaption>两条路径的记录单位不同。工作台审查订单数据与结论，Power BI 表关系、具体商品分析和页面筛选分别核对。</figcaption>
+    </figure>}
+  </IllustratedStep>)}
+  <a class="ex-back" href="#process">返回项目阶段目录 ↑</a>
+</div>
+<style>
+ .aw-star{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(0,1.35fr) 26px minmax(0,1fr);grid-template-rows:auto 28px auto 28px auto;gap:6px;align-items:center;text-align:center}
+ .aw-dimension{font-size:16px;line-height:1.8;display:flex;flex-direction:column;padding:8px 0}.aw-dimension span{font-size:13px;color:var(--ex-muted)}
+ .aw-date{grid-column:3;grid-row:1}.aw-top{grid-column:3;grid-row:2}.aw-product{grid-column:1;grid-row:3}.aw-left{grid-column:2;grid-row:3}.aw-fact{grid-column:3;grid-row:3;background:var(--ex-fill);border:1px solid var(--ex-line);border-radius:8px;padding:20px 8px;display:flex;flex-direction:column;gap:8px;font-size:18px}.aw-fact span{font-size:14px}.aw-right{grid-column:4;grid-row:3}.aw-region{grid-column:5;grid-row:3}.aw-bottom{grid-column:3;grid-row:4}.aw-promotion{grid-column:3;grid-row:5}.aw-star-arrow{font-size:25px;color:var(--ex-muted)}
+ .aw-shares{display:grid;gap:22px}.aw-share-label{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;font-size:16px;margin-bottom:10px}.aw-share-label strong{font-weight:600}.aw-share-label>span{font-variant-numeric:tabular-nums;font-size:19px;font-weight:650}.aw-track{height:22px;background:#e4dcd1;border-radius:3px;overflow:hidden}.aw-track span{display:block;height:100%;background:#916344}
+ .aw-investigation{display:flex;flex-wrap:wrap;gap:12px 27px;list-style:none;padding:22px 0 0;margin:24px 0 0;border-top:1px solid var(--ex-line);font-size:15px}.aw-investigation li{position:relative}.aw-investigation li:not(:last-child):after{content:'→';position:absolute;right:-21px;color:var(--ex-muted)}
+ .aw-deliveries{display:grid;grid-template-columns:1fr 1fr;gap:26px}.aw-deliveries>div{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;font-size:16px;line-height:1.8}.aw-deliveries>div+div{border-left:1px solid var(--ex-line);padding-left:26px}.aw-deliveries strong{font-size:18px}.aw-deliveries small{font-size:14px;color:var(--ex-muted)}.aw-deliveries>div>span{font-size:24px}
+ .aw-mobile-link{display:none}
+ @media(max-width:600px){.aw-star{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto auto auto;gap:18px 14px}.aw-dimension{font-size:16px;padding:0}.aw-dimension span{font-size:13px}.aw-date{grid-column:1;grid-row:1}.aw-product{grid-column:2;grid-row:1}.aw-region{grid-column:1;grid-row:2}.aw-promotion{grid-column:2;grid-row:2}.aw-star-arrow{display:none}.aw-mobile-link{display:block;grid-column:1/-1;grid-row:3;font-size:14px;color:var(--ex-muted)}.aw-fact{grid-column:1/-1;grid-row:4;font-size:18px}.aw-deliveries{grid-template-columns:1fr;gap:24px}.aw-deliveries>div+div{border-left:0;border-top:1px solid var(--ex-line);padding:24px 0 0}.aw-share-label{font-size:15px}}
+</style>

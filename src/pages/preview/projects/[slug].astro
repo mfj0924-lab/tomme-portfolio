@@ -7,7 +7,7 @@ import ProjectResources from '../../../components/preview/ProjectResources.astro
 import {portfolioProjects,previewPath} from '../../../data/preview';
 export function getStaticPaths(){return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}))}
 const {project:p}=Astro.props;
-const processTitle=p.slug==='workbench'?'工作台流程':p.slug==='citibike'?'项目阶段':'项目过程';
+const processTitle=p.slug==='workbench'?'工作台流程':['citibike','adventureworks'].includes(p.slug)?'项目阶段':'项目过程';
 const resultsTitle=p.slug==='workbench'?'项目结果':p.slug==='rnd-patent'?'结果':'分析结果';
 const judgmentTitle=p.slug==='citibike'?'复核与修复记录':p.slug==='rnd-patent'?'数据处理中的判断与操作':'分析中的判断与处理';
 const nav=[['overview','项目介绍'],['process',processTitle],...(p.images.length?[['materials','图片与材料']]:[]),['results',resultsTitle],['collaboration','AI 协作'],['references','参考与说明']];
