@@ -32,7 +32,7 @@ const projectDefinitions: Project[] = [
     type: '端到端数据科学 × 可信复核',
     year: '2026',
     ai: '首版：Claude Code + DeepSeek Pro｜复核修复：Codex + ChatGPT-sol',
-    question: '如何把千万级骑行记录转成可执行的站点供需判断与定价建议，同时诚实验证模型到底靠不靠谱？',
+    question: '这是一个共享单车需求预测与价格建议项目：尝试预测某个站点在指定小时的借出量和还入量，并给出价格调整建议。',
     belief: '工作台复核改变了我对旧版高分的理解，也促使项目增加了一条更接近未来预测场景的验证分支。',
     story: '项目使用2026年1—5月约1,453万条CitiBike官方骑行记录。我把单次骑行整理为约438.8万条站点—小时供需记录，补充时间、天气和站点信息，并比较随机森林与梯度提升树对借出量、还入量的预测结果。第一版同时完成动态定价规则、FastAPI演示、可视化看板和答辩展示。离线模型与接口演示分别实现，当前接口读取已有数据并使用时段均值或规则提供需求参考。项目完成后，我使用工作台复核整理后的小时数据，再回到代码检查字段来源与训练方式。',
     shift: '复核发现，电动车比例、会员比例和平均骑行时长取自目标小时的完整骑行统计，第一版又采用随机切分，因此原指标只能按该实验条件解释。修复分支删除这三个字段，改按时间切分，并完成2.4万行三组冒烟测试。全量模型重训和旧接口、看板更新尚未完成；保留的天气字段还需核对预测时刻是否可取得。',
@@ -41,7 +41,7 @@ const projectDefinitions: Project[] = [
     aiCollaboration: [
       { title: '首版方案怎样形成', text: '我先把课程要求和动态定价想法交给Claude Code与DeepSeek Pro，再让AI查找需求预测、站点供需和价格激励的已有项目。方案经过讨论后被拆成数据整理、特征工程、模型训练、策略计算、API和展示页面。' },
       { title: 'AI在实施阶段负责什么', text: 'ai主要生成PySpark、Pandas、scikit-learn、FastAPI和可视化代码，并参与方案讨论与解释。我逐阶段阅读输出、运行程序、检查文件和指标，并决定是否进入下一阶段。' },
-      { title: '使用工作台对数据进行复核', text: '项目完成后，我把清洗、聚合并补充特征后的Silver小时表交给可信分析工作台。工作台先检查输入数据，再计算参考预测结果并审查对应依据；我结合旧版报告与源代码继续核对预测时点、字段来源和切分方式。' },
+      { title: '使用工作台对数据进行复核', text: 'Codex 在旧项目代码中识别出三个依赖目标小时统计的风险字段，工作台按配置清单检查 Silver 小时表，再计算参考预测并审查依据。这次工作台运行没有调用内置 AI；字段判断、代码修复和结果解释由外部代码核对与后续讨论完成。' },
       { title: '我怎样决定停止位置', text: '修复版完成了安全字段筛选、时间切分和冒烟测试以后，我保留了三组比较结果及修复记录。全量重训、天气字段可用时间的核对，以及旧API与看板更新仍列为后续工作，当前展示明确说明已完成的范围。' },
     ],
     references: [
@@ -51,15 +51,15 @@ const projectDefinitions: Project[] = [
     tools: ['Python', 'PySpark', 'Pandas', 'Parquet', 'scikit-learn', 'FastAPI', 'Pyecharts', 'Codex'],
     numbers: [
       { value: '1,453万', label: '原始骑行记录' },
-      { value: '438万', label: '站点—小时聚合记录' },
+      { value: '438.8万', label: '站点—小时聚合记录' },
       { value: '99.3%', label: '站点容量匹配率' },
-      { value: '3项', label: '复核识别的高风险字段' },
+      { value: '3项', label: '代码复核识别的风险字段' },
     ],
     process: [
       { title: '采集与存储', text: '整理2026年1—5月16个CSV文件，使用Parquet分层保存，避免每次从头读取约2.7GB原始数据。' },
       { title: '清洗与聚合', text: '统一字段、处理异常记录，再把单次骑行聚合到“站点—小时”，形成可建模的供需表。' },
-      { title: '特征与建模', text: '组合时间、天气、容量和历史行为特征，训练借车量与还车量模型，并通过FastAPI提供策略演示。' },
-      { title: '可信复核', text: '工作台发现3个同小时结果字段和随机切分风险；移除风险字段并改用时间切分，完成2.4万行三组对照验证。' },
+      { title: '特征与建模', text: '补充时间、天气和站点信息，从 Silver 中选择字段训练借车量与还车量模型，另用 FastAPI 提供已有数据与策略的演示。' },
+      { title: '可信复核', text: '代码复核识别三个同小时统计字段与随机切分风险，工作台按配置检查数据与结果；后续删除风险字段、改用时间切分，完成 2.4 万行三组冒烟测试。' },
       { title: '记录修正范围', text: '将旧R² 0.644标记为课程版结果，并把2.4万行的新结果说明为最小运行验证，避免读者把它理解成千万级完整重训成绩。' },
     ],
     findings: [
@@ -75,8 +75,8 @@ const projectDefinitions: Project[] = [
     ],
     images: [
       { src: '/assets/citibike/legacy-dashboard.png', alt: 'CitiBike旧版可视化看板', caption: '旧版产品看板：保留完整业务演示，但明确标注为Legacy课程版。' },
-      { src: '/assets/citibike/api-demo.png', alt: 'CitiBike API交互页面', caption: 'FastAPI交互演示：把预测与策略能力包装成可调用接口。' },
-      { src: '/assets/citibike/api-overview.png', alt: 'CitiBike动态定价API接口总览', caption: 'FastAPI接口总览：展示单次预测、站点预测、热点识别和页面入口，说明模型结果已经封装为可调用服务。' },
+      { src: '/assets/citibike/api-demo.png', alt: 'CitiBike API交互页面', caption: 'FastAPI 交互演示：提交站点、时间和供给数量，查看需求参考与价格建议；需求来自已有数据、时段均值或规则。' },
+      { src: '/assets/citibike/api-overview.png', alt: 'CitiBike动态定价API接口总览', caption: 'FastAPI 接口总览：保留单次预测、站点逐时需求、热点和页面入口；当前演示未接入离线训练的 Spark 模型。' },
       { src: '/assets/citibike/workbench-audit.png', alt: '工作台审查CitiBike结果', caption: '工作台审查：把“暂不发布”的原因拆成可定位、可修改的问题。' },
       { src: '/assets/citibike/repair-record.png', alt: 'CitiBike时间切分修复记录', caption: '修复记录：移除高风险字段、改为时间切分，并保留前后对照。' },
     ],

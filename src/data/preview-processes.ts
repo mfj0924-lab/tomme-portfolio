@@ -1,4 +1,4 @@
-// Expanded, source-backed process copy for /preview only. The legacy site is unchanged.
+// Source-backed process copy shared by public and compatible preview pages.
 export type ProcessEvidence={label:string;repo:string;path:string;href:string};
 export type ProcessStep={
  id:string;title:string;text:string;paragraphs:string[];tools:string[];output:string;

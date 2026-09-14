@@ -20,7 +20,23 @@ export function initWorkflow(){
   one('#workflow-text').replaceChildren(original.querySelector('.process-body')!.cloneNode(true));
   if(move)focus(index);
  }
- function changeView(view:string){const useCanvas=view==='canvas';host.dataset.view=view;canvas.hidden=!useCanvas;one('.workflow-reading').hidden=useCanvas;one('.workflow-selected').hidden=!useCanvas;one('.workflow-zoom').hidden=!useCanvas;all('[data-flow-view]').forEach(b=>{const active=b.dataset.flowView===view;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});if(useCanvas)requestAnimationFrame(()=>innerWidth<761?focus(selected):fit())}
+ const illustrated=host.querySelector<HTMLElement>('.workflow-illustrated');
+ function changeView(view:string){
+  if(!['read','canvas','illustrated'].includes(view)||(view==='illustrated'&&!illustrated))return;
+  const useCanvas=view==='canvas';host.dataset.view=view;canvas.hidden=!useCanvas;
+  one('.workflow-reading').hidden=view!=='read';one('.workflow-selected').hidden=!useCanvas;one('.workflow-zoom').hidden=!useCanvas;
+  if(illustrated)illustrated.hidden=view!=='illustrated';
+  all('[data-flow-view]').forEach(b=>{const active=b.dataset.flowView===view;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+  if(useCanvas)requestAnimationFrame(()=>innerWidth<761?focus(selected):fit());
+ }
+ // A shared link to a diagram must reveal its view before scrolling to the target.
+ function revealDiagramHash(){
+  if(!illustrated||!location.hash)return false;
+  const target=document.getElementById(location.hash.slice(1));
+  if(!target||!illustrated.contains(target))return false;
+  changeView('illustrated');requestAnimationFrame(()=>target.scrollIntoView({block:'start',behavior:'instant'}));return true;
+ }
+ window.addEventListener('hashchange',revealDiagramHash);
  // Remember each step's disclosure while switching views or returning to a graph node.
  // Native details/summary still works when JavaScript is unavailable.
  host.addEventListener('toggle',event=>{
@@ -42,5 +58,5 @@ export function initWorkflow(){
  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>canvas.addEventListener(type,e=>pointers.delete((e as PointerEvent).pointerId)));
  canvas.addEventListener('keydown',e=>{if(e.target!==canvas)return;if(['+','=','-','0','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))e.preventDefault();if(e.key==='+'||e.key==='=')zoom(1.2);if(e.key==='-')zoom(1/1.2);if(e.key==='0')fit();if(e.key.startsWith('Arrow')){x+=e.key==='ArrowLeft'?40:e.key==='ArrowRight'?-40:0;y+=e.key==='ArrowUp'?40:e.key==='ArrowDown'?-40:0;paint()}});
  new ResizeObserver(()=>{if(!canvas.hidden)innerWidth<761?focus(selected):fit()}).observe(canvas);
- select(0);changeView(graph.defaultView);
+ select(0);if(!revealDiagramHash())changeView(graph.defaultView);
 }

@@ -1,0 +1,207 @@
+---
+import { citibikeStages as stages } from '../../data/citibike-stages';
+const routes = [
+  { id: 'data', number: '1—3', text: '整理数据' },
+  { id: 'train', number: '4', text: '训练模型' },
+  { id: 'pricing', number: '5', text: '计算价格' },
+  { id: 'api', number: '6', text: '接口与看板' },
+  { id: 'review', number: '7', text: '复核与修复' },
+];
+const partitions = [
+  { name: '训练集', size: '约 351 万条', use: '模型从这些记录中学习。' },
+  { name: '验证集', size: '约 44 万条', use: '检查训练后的表现，供比较与选择。' },
+  { name: '测试集', size: '约 44 万条', use: '保留到评估时，检查预测误差。' },
+];
+---
+
+<div class="citibike-stages">
+  <p class="stage-intro">先看数据怎样变化，再看模型、价格与展示。每个阶段都列出输入、输出和具体任务；计算规则与 AI 协作可以按需展开。</p>
+  <nav class="stage-route" aria-label="跳转到 CitiBike 项目阶段">
+    {routes.map(route => <a href={`#citibike-${route.id}`}><span>{route.number}</span><strong>{route.text}</strong><span class="route-arrow" aria-hidden="true">↓</span></a>)}
+  </nav>
+
+  <section class="data-overview" id="citibike-data" aria-labelledby="data-overview-title">
+    <h3 id="data-overview-title">阶段一至三：将骑行记录整理成模型输入</h3>
+    <figure class="pipeline-figure">
+      <div class="pipeline-layout">
+        <div class="data-tiers" aria-label="Raw、Bronze、Silver 的处理顺序">
+          <div class="data-tier tier-raw"><strong>Raw · 原始记录</strong><span>约 1,453 万条骑行</span></div>
+          <span class="tier-action">统一时间、去重、提取站点 <span aria-hidden="true">↓</span></span>
+          <div class="data-tier tier-bronze"><strong>Bronze · 清洗后</strong><span>一行仍是一次骑行</span></div>
+          <span class="tier-action">拆分借还事件，按站点和小时汇总 <span aria-hidden="true">↓</span></span>
+          <div class="data-tier tier-silver"><strong>Silver · 站点小时表</strong><span>约 438.8 万条站点小时记录</span></div>
+          <a class="training-route" href="#citibike-train"><span aria-hidden="true">↓</span><strong>实际训练从 Silver 读取</strong><span>继续看阶段四 →</span></a>
+        </div>
+        <div class="pipeline-explanation">
+          <p><strong>数据怎样保存？</strong><br/>参考 Medallion 方法，按处理程度分别保存数据。前一步的文件可以继续用于后面的实验。</p>
+          <p><strong>Silver 补充了什么？</strong><br/>时间、天气、站点容量，以及该小时的电动车比例、会员比例和平均骑行时长。训练入口再选择要使用的字段。</p>
+          <div class="gold-branch">
+            <span class="branch-label">Silver 的另一项处理</span>
+            <strong>标准化 ＋ PCA → Gold</strong>
+            <p>调整数值尺度，再生成 5 个综合变量。</p>
+            <span class="gold-status">已生成 · 未接入最终训练</span>
+            <a href="#citibike-features">查看阶段三的说明 ↓</a>
+          </div>
+        </div>
+      </div>
+      <figcaption>行数按不同统计单位计数；图形宽度不表示行数比例。Gold 改变的是特征表示，训练数据量的减少来自后面的分组。</figcaption>
+    </figure>
+  </section>
+
+  {stages.map((stage, index) => (
+    <section class="cb-stage" id={`citibike-${stage.id}`} aria-labelledby={`title-${stage.id}`}>
+      <h3 id={`title-${stage.id}`}><span class="stage-number">{index + 1}</span><span>{stage.title}</span></h3>
+
+      {stage.id === 'aggregate' && <figure class="stage-figure trip-figure">
+        <div class="trip-title">一次骑行，分别计入两个站点小时</div>
+        <div class="trip-events">
+          <div><strong>A 站 · 08:50 借车</strong><span aria-hidden="true">↓</span><p>A 站 08—09 点<br/><b>借出量 ＋1</b></p></div>
+          <span class="trip-connection" aria-hidden="true">→</span>
+          <div><strong>B 站 · 09:10 还车</strong><span aria-hidden="true">↓</span><p>B 站 09—10 点<br/><b>还入量 ＋1</b></p></div>
+        </div>
+        <figcaption>A、B 站和时间均为说明用的假设，展示同一次骑行怎样进入不同小时。</figcaption>
+      </figure>}
+
+      {stage.id === 'train' && <figure class="stage-figure split-figure">
+        <div class="split-origin"><strong>Silver · 约 438.8 万条记录</strong><span>按整行随机分组 <span aria-hidden="true">↓</span></span></div>
+        <div class="split-bar" aria-label="80% 训练、10% 验证、10% 测试"><span>80%</span><span>10%</span><span>10%</span></div>
+        <div class="partition-grid">{partitions.map(part => <div><strong>{part.name}</strong><span>{part.size}</span><p>{part.use}</p></div>)}</div>
+        <figcaption>原展示中的“350 万训练数据”指第一组。随机分组实际行数略有浮动；每条记录的特征与实际需求一起分配。</figcaption>
+      </figure>}
+
+      {stage.id === 'pricing' && <figure class="stage-figure price-figure">
+        <div class="supply-pair"><span>当前可用 <strong>10 辆</strong></span><span>预计借出 <strong>20 辆</strong></span></div>
+        <div class="price-flow">
+          <div><span>车辆供需差</span><strong>−10 辆</strong><small>10 − 20</small></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div><span>价格倍率</span><strong>1.5 倍</strong><small>应用缺车规则与上限</small></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div><span>建议价格</span><strong>$6.74</strong><small>$4.49 × 1.5</small></div>
+        </div>
+        <figcaption>假设输入：另有 20 个空车位、预计还入 5 辆。基础价格取自项目代码，金额用于说明规则。</figcaption>
+      </figure>}
+
+      {stage.id === 'api' && <figure class="stage-figure api-figure">
+        <div class="api-flow">
+          <div><strong>提交请求</strong><span>站点、时间<br/>车辆数、空车位数</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="api-center"><strong>API 接口</strong><span>取得需求参考<br/>计算价格建议</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div><strong>返回结果</strong><span>借出量、还入量<br/>价格、倍率与理由</span></div>
+        </div>
+        <div class="api-data-source"><strong>接口使用的数据：</strong>已有 CSV 记录 → 时段均值或规则补充</div>
+        <figcaption>当前接口演示与离线模型训练分别实现；看板展示已有的需求分布和策略结果。</figcaption>
+      </figure>}
+
+      {stage.id === 'review' && <figure class="stage-figure review-figure">
+        <ol class="review-route">
+          <li><strong>工作台复核</strong><p>检查 Silver<br/>计算参考预测<br/>审查结果依据</p></li>
+          <li><strong>修改训练代码</strong><p>删除三个风险字段<br/>按时间分组<br/>保留三组对照</p></li>
+          <li><strong>冒烟测试</strong><p>使用 2.4 万行样本<br/>运行训练和评估<br/>保存比较结果</p></li>
+        </ol>
+        <figcaption>这些是原项目完成后的补充工作。工作台按程序规则复核，代码修复和冒烟测试另外执行。</figcaption>
+      </figure>}
+
+      <dl class="stage-facts">
+        <div><dt>输入：</dt><dd>{stage.input}</dd></div>
+        <div><dt>输出：</dt><dd>{stage.output}</dd></div>
+        <div><dt>阶段任务：</dt><dd>{stage.task}</dd></div>
+        <div><dt>工具与方法：</dt><dd>{stage.tools.join('；')}。</dd></div>
+        <div><dt>结果与检查：</dt><dd>{stage.check}</dd></div>
+      </dl>
+      <details class="stage-technical">
+        <summary><span class="technical-open">展开技术细节与 AI 协作</span><span class="technical-close">收起技术细节与 AI 协作</span><span class="technical-sign" aria-hidden="true">＋</span></summary>
+        <dl class="stage-facts technical-facts">
+          {stage.details.map(detail => <div><dt>{detail.label}：</dt><dd>{detail.text}</dd></div>)}
+          <div><dt>AI 协作：</dt><dd>{stage.ai}</dd></div>
+        </dl>
+        <ul class="stage-evidence" aria-label={`${stage.title}的代码与记录`}>
+          {stage.evidence.map(item => <li><a href={item.href} target="_blank" rel="noreferrer">{item.label}<span aria-hidden="true"> ↗</span></a></li>)}
+        </ul>
+      </details>
+    </section>
+  ))}
+  <a class="return-to-stages" href="#process">返回项目阶段目录 ↑</a>
+</div>
+
+<style>
+  .citibike-stages{--cb-ink:#173a4a;--cb-blue:#d9e8ee;--cb-line:#b8cbd2;--cb-warm:#f0e9da;--cb-secondary:#465e67;color:var(--cb-ink)}
+  .citibike-stages p{margin:0}
+  .citibike-stages .stage-intro{font-size:18px;max-width:68ch;line-height:1.85;margin:0 0 26px}
+  .stage-route{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-block:1px solid var(--cb-line);margin-bottom:44px}
+  .stage-route a{padding:18px 12px;display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;font-size:16px;min-height:70px}
+  .stage-route a>span:first-child{color:var(--cb-secondary);font-variant-numeric:tabular-nums}
+  .stage-route strong{font-weight:650}.route-arrow{margin-left:auto}
+  .stage-route a:hover{background:var(--cb-blue)}
+  .data-overview,.cb-stage{scroll-margin-top:120px}
+  .citibike-stages .data-overview h3{font-size:24px;margin:0 0 22px}
+  .pipeline-figure{margin:0 0 44px;padding:26px;background:#eef3f3;border:1px solid var(--cb-line);border-radius:14px}
+  .pipeline-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;align-items:start}
+  .data-tiers{display:flex;align-items:center;flex-direction:column;min-width:0}
+  .data-tier{position:relative;text-align:center;min-height:90px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;isolation:isolate;width:100%}
+  .data-tier:before{content:'';position:absolute;inset:0;background:var(--cb-blue);clip-path:polygon(0 0,100% 0,93% 100%,7% 100%);z-index:-1}
+  .data-tier strong{font-size:19px;font-weight:700}.data-tier span{font-size:15px;margin-top:5px}
+  .tier-bronze{width:87%}.tier-bronze:before{background:#c5dbe3}.tier-silver{width:76%}.tier-silver:before{background:#adcbd7}
+  .tier-action{display:flex;gap:8px;align-items:center;justify-content:center;padding:12px 0;font-size:13px;color:var(--cb-secondary);line-height:1.6;text-align:center}
+  .tier-action>span{font-size:20px}
+  .training-route{display:flex;align-items:center;flex-direction:column;font-size:16px;gap:4px;text-align:center;min-height:90px;padding:12px 0 0}
+  .training-route>span:first-child{font-size:24px}.training-route>span:last-child{font-size:14px;text-decoration:underline;text-underline-offset:4px}
+  .pipeline-explanation{display:grid;gap:20px}.pipeline-explanation>p{font-size:16px;line-height:1.85}
+  .pipeline-explanation strong{font-weight:700}
+  .gold-branch{border-top:1px dashed #8a8069;padding-top:18px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+  .branch-label{font-size:13px;color:var(--cb-secondary)}.gold-branch>strong{font-size:19px}
+  .gold-branch p{font-size:15px}.gold-status{background:var(--cb-warm);padding:3px 9px;font-size:14px;color:#604b2a}
+  .gold-branch a{font-size:14px;text-decoration:underline;text-underline-offset:4px;padding-block:5px;min-height:36px}
+  .citibike-stages figcaption{font-size:14px;line-height:1.75;color:var(--cb-secondary);margin-top:22px}
+  .cb-stage{padding:36px 0;border-top:1px solid var(--cb-line)}
+  .citibike-stages .cb-stage>h3{display:flex;gap:16px;align-items:baseline;font-size:25px;margin:0 0 24px;line-height:1.5;font-weight:650}
+  .stage-number{font-size:20px;font-weight:500;color:var(--cb-secondary);font-variant-numeric:tabular-nums;min-width:20px}
+  .stage-facts{margin:0;display:grid;gap:13px;font-size:17px;line-height:1.9;max-width:75ch}
+  .stage-facts>div{display:block}.stage-facts dt{display:inline;font-weight:700}.stage-facts dd{display:inline;margin:0}
+  .stage-technical{margin-top:23px;border-block:1px solid var(--cb-line)}
+  .stage-technical summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;min-height:52px;cursor:pointer;list-style:none;font-size:16px;font-weight:600}
+  .stage-technical summary::-webkit-details-marker{display:none}
+  .stage-technical summary:hover{color:#315e72}
+  .technical-sign{font-size:23px;line-height:1;font-weight:400}.technical-close{display:none}
+  .stage-technical[open] .technical-open{display:none}.stage-technical[open] .technical-close{display:inline}
+  .stage-technical[open] .technical-sign{transform:rotate(45deg)}
+  .technical-facts{padding:6px 0 18px;font-size:16px;gap:16px}
+  .stage-evidence{display:flex;flex-wrap:wrap;gap:10px 20px;padding:0 0 20px;margin:0;list-style:none}
+  .stage-evidence a{display:inline-block;text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--cb-line);font-size:14px;padding:6px 0;min-height:36px}
+  .stage-figure{margin:0 0 25px;padding:25px;background:#eef3f3;border-radius:12px}
+  .trip-title{font-size:17px;font-weight:600;margin-bottom:20px}
+  .trip-events{display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:14px}
+  .trip-events>div{display:flex;flex-direction:column;gap:7px;text-align:center;font-size:16px}
+  .trip-events>div>span{font-size:22px}.trip-events p{line-height:1.7}.trip-connection{font-size:25px;text-align:center}
+  .split-origin{display:flex;align-items:center;flex-direction:column;gap:7px;font-size:18px;margin-bottom:20px}
+  .split-origin>span{font-size:14px;color:var(--cb-secondary)}
+  .split-bar{display:grid;grid-template-columns:8fr 1fr 1fr;gap:3px;height:43px;font-variant-numeric:tabular-nums}
+  .split-bar span{display:flex;align-items:center;justify-content:center;background:#365c70;color:#fff;font-size:16px;font-weight:650}
+  .split-bar span:nth-child(2){background:#bed5df;color:var(--cb-ink)}.split-bar span:nth-child(3){background:#ded8c6;color:#493e27}
+  .partition-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:21px}
+  .partition-grid>div{display:flex;flex-direction:column;gap:3px;font-size:16px}.partition-grid>div>span{font-size:14px;color:var(--cb-secondary)}
+  .partition-grid p{font-size:15px;margin-top:5px;line-height:1.75}
+  .supply-pair{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;font-size:16px;padding-bottom:22px;border-bottom:1px solid var(--cb-line)}
+  .supply-pair strong{font-size:21px;margin-left:6px}
+  .price-flow,.api-flow{display:grid;grid-template-columns:1fr 22px 1fr 22px 1fr;gap:15px;align-items:center}
+  .price-flow{margin-top:24px}.price-flow>div,.api-flow>div{display:flex;align-items:center;flex-direction:column;gap:5px;text-align:center;min-width:0}
+  .price-flow strong{font-size:29px;line-height:1.5;font-weight:650;font-variant-numeric:tabular-nums}
+  .price-flow>div>span{font-size:15px}.price-flow small{font-size:13px;color:var(--cb-secondary);line-height:1.7}
+  .flow-arrow{font-size:25px;line-height:1;text-align:center;color:var(--cb-secondary)}
+  .api-flow strong{font-size:19px}.api-flow>div>span{font-size:15px;line-height:1.9}.api-center{background:var(--cb-blue);padding:18px 8px;border-radius:10px}
+  .api-data-source{font-size:15px;line-height:1.8;border-top:1px solid var(--cb-line);padding-top:18px;margin-top:22px;text-align:center}
+  .review-route{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:35px}
+  .review-route li{position:relative;font-size:16px}.review-route strong{font-size:18px}.review-route p{margin-top:12px;font-size:15px;line-height:1.85}
+  .review-route li:not(:last-child):after{content:'→';position:absolute;right:-25px;top:0;font-size:23px;color:var(--cb-secondary)}
+  .return-to-stages{display:inline-block;padding:12px 0;font-size:16px;text-decoration:underline!important;text-underline-offset:5px}
+  @media(max-width:1100px){.pipeline-layout{gap:24px}.pipeline-figure{padding:22px}.stage-route{grid-template-columns:repeat(3,minmax(0,1fr))}.tier-silver{width:85%}.tier-bronze{width:92%}.price-flow,.api-flow{gap:10px}}
+  @media(max-width:600px){
+    .citibike-stages .stage-intro{font-size:17px}.stage-route{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:32px}.stage-route a{min-height:56px;padding:10px 7px;font-size:15px}.stage-route a:last-child{grid-column:1/-1}
+    .citibike-stages .data-overview h3{font-size:22px}.pipeline-layout{grid-template-columns:minmax(0,1fr);gap:24px}.pipeline-figure{padding:19px 16px;margin-bottom:30px}
+    .data-tier{max-width:370px}.tier-bronze{width:89%}.tier-silver{width:80%}.data-tier strong{font-size:17px}.data-tier span{font-size:13px}.tier-action{font-size:12px}.pipeline-explanation{border-top:1px solid var(--cb-line);padding-top:21px}
+    .cb-stage{padding:28px 0}.citibike-stages .cb-stage>h3{font-size:22px;gap:12px}.stage-facts{font-size:17px;gap:14px}.stage-facts dt,.stage-facts dd{overflow-wrap:anywhere}
+    .technical-facts{font-size:16px}.stage-technical summary{font-size:15px}.stage-evidence{gap:3px 17px}
+    .stage-figure{padding:20px 16px}.citibike-stages figcaption{font-size:13px;margin-top:19px}.trip-events{gap:8px;grid-template-columns:1fr 20px 1fr}.trip-events>div{font-size:14px}.trip-title{font-size:16px}
+    .split-origin{font-size:16px}.split-bar{gap:2px}.split-bar span{font-size:12px}.split-bar span:first-child{font-size:16px}.partition-grid{grid-template-columns:1fr;gap:15px}.partition-grid>div{display:grid;grid-template-columns:76px 1fr;gap:3px 10px}.partition-grid p{grid-column:2;margin:0}.partition-grid>div>span{align-self:center}
+    .supply-pair{gap:12px 20px;font-size:14px}.supply-pair strong{font-size:18px}.price-flow{gap:5px;grid-template-columns:1fr 12px 1fr 12px 1fr}.price-flow strong{font-size:24px}.price-flow>div>span{font-size:13px}.price-flow small{font-size:12px}.flow-arrow{font-size:20px}
+    .api-flow{grid-template-columns:1fr;gap:13px}.api-flow>.flow-arrow{transform:rotate(90deg)}.api-flow>div{width:100%;padding:10px}.api-flow strong{font-size:18px}.api-data-source{text-align:left;font-size:14px}
+    .review-route{grid-template-columns:1fr;gap:30px}.review-route li{display:grid;grid-template-columns:125px minmax(0,1fr);align-items:start;gap:8px}.review-route strong{font-size:16px}.review-route p{margin:0;font-size:14px}.review-route li:not(:last-child):after{content:'↓';left:4px;right:auto;top:auto;bottom:-28px;font-size:20px}
+  }
+  @media(max-width:360px){.price-flow{grid-template-columns:1fr;gap:10px}.price-flow>.flow-arrow{transform:rotate(90deg)}.price-flow>div{gap:0}.trip-events{grid-template-columns:1fr}.trip-connection{transform:rotate(90deg)}.review-route li{grid-template-columns:110px minmax(0,1fr)}}
+</style>
