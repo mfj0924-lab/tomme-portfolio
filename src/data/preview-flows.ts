@@ -11,7 +11,7 @@ export function flowFor(slug:string,steps:ProcessStep[]){
  let nodes:FlowNode[]=steps.map((s,i)=>node(s.id,32+i*300,74));
  let edges:FlowEdge[]=steps.slice(1).map((s,i)=>({from:steps[i].id,to:s.id}));
  let width=steps.length*300+24,height=330;
- const defaultView=['workbench','rnd-patent'].includes(slug)?'canvas':'read';
+ const defaultView=slug==='citibike'?'illustrated':['workbench','rnd-patent'].includes(slug)?'canvas':'read';
  if(slug==='workbench'){
   nodes=[
    node('input',32,35,'运行准备',undefined,'确认任务说明'),
