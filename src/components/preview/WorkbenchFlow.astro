@@ -37,9 +37,9 @@ const aiEvidence = projectProcesses.workbench.find(step => step.id === 'explain'
         <div class="wb-three-checks">
           <div><span>字段</span><strong>需要的列齐全吗？</strong><p>编号、日期、金额等<br/>符合当前任务要求</p></div>
           <div><span>记录</span><strong>数据有异常吗？</strong><p>统计空值、重复<br/>及规则规定的异常</p></div>
-          <div><span>预测案例另查</span><strong>信息在当时可知吗？</strong><p>检查字段、时间范围<br/>及数据划分规则</p></div>
+          <div><span>预测案例另查</span><strong>是否违反已提供的预测限制？</strong><p>按配置核对字段限制<br/>与时间划分要求</p></div>
         </div>
-        <figcaption>规则来自任务说明和已有检查程序。CitiBike 的禁止字段由外部复核发现后传入，工作台据此检查。</figcaption>
+        <figcaption>规则来自分析输入合同、预测任务配置和程序内置检查。CitiBike 的禁止字段由工作台之外的 AI 编程助手阅读项目代码后提出，再通过配置传入。上传数据不会触发源代码复核，工作台也不会自行生成这份清单。</figcaption>
       </figure>}
       {stage.id === 'analysis' && <figure class="ex-figure">
         <div class="ex-flow">
