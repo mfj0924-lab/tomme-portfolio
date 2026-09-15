@@ -105,7 +105,7 @@ export const workbenchStages: IllustratedStage[] = [
   {
     id: 'input', title: '提交整理好的数据，说明要解决的问题',
     input: '符合当前任务字段要求的 CSV 或 Parquet 表格，以及分析问题、记录单位、时间和金额定义。',
-    output: '本次任务说明、输入文件副本与运行记录。',
+    output: '分析输入合同、输入文件副本与运行记录。',
     task: '先确认一行代表什么、哪些字段用来计算，再保存本次实际读取的数据，方便之后追查。',
     tools: 'FastAPI 是接收网页请求的 Python 库；SQLite 是本地数据库，保存任务和状态；文件另行保存。',
     check: '经营案例要求一行一张订单；CitiBike 案例读取站点小时数据。表格需要符合对应案例的字段规则。',
