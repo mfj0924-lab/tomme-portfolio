@@ -3,7 +3,7 @@ import { workbenchStages as stages } from '../../data/illustrated-stages';
 import { projectProcesses } from '../../data/preview-processes';
 import IllustratedStep from './IllustratedStep.astro';
 import '../../styles/illustrated-projects.css';
-const labels = ['提交数据', '确认计划', '质量检查', '数据分析', '结果审查', '生成报告', '确认与导出'];
+const labels = ['提交数据', '确认计划', '质量检查', '计算数据结果', '结果审查', '生成报告', '确认与导出'];
 const aiEvidence = projectProcesses.workbench.find(step => step.id === 'explain')!.evidence;
 ---
 <div class="project-explainer workbench-explainer">
@@ -12,7 +12,7 @@ const aiEvidence = projectProcesses.workbench.find(step => step.id === 'explain'
     {stages.map((stage, index) => <a href={`#wb-${stage.id}`}><span>{index + 1}</span><strong>{labels[index]}</strong></a>)}
     <a class="wb-ai-link" href="#wb-explain"><span>可选</span><strong>AI 解释</strong></a>
   </nav>
-  <div class="wb-responsibility"><strong>程序计算与检查 → 人确认用途与发布</strong><p>质量检查、数据分析、结果审查和报告生成均可由程序独立执行。AI 解释有单独入口与记录。</p></div>
+  <div class="wb-responsibility"><strong>程序计算与检查 → 人确认用途与发布</strong><p>质量检查、计算数据结果、结果审查和报告生成均可由程序独立执行。AI 解释有单独入口与记录。</p></div>
   {stages.map((stage, index) => <>
     <IllustratedStep stage={stage} number={index + 1} prefix="wb" flow>
       {stage.id === 'input' && <figure class="ex-figure">

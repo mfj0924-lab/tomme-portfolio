@@ -17,7 +17,7 @@ export function flowFor(slug:string,steps:ProcessStep[]){
    node('input',32,35,'运行准备',undefined,'确认任务说明'),
    node('mode',332,35,'运行准备',undefined,'选择任务分档'),
    node('quality',32,255,'主要阶段',undefined,'质量检查'),
-   node('analysis',332,255,'主要阶段',undefined,'数据分析'),
+   node('analysis',332,255,'主要阶段',undefined,'计算数据结果'),
    node('audit',632,255,'主要阶段',undefined,'结果审查'),
    node('report',932,255,'主要阶段',undefined,'生成报告'),
    node('publish',1232,255,'按规则确认',undefined,'批准与导出'),
