@@ -1,5 +1,5 @@
 // Transcribed from 手写文案.doc. Editorial questions stay separate from public copy.
-export const introduction = '我的背景横跨经管、数据和AI协作，这让我能在业务问题与技术实现之间来回走。遇到不会的部分，我通常不会马上回避，也不会假装已经懂了；我会先弄清它是否影响结果，再决定学到什么程度。';
+export const introduction = '我的背景横跨经管、数据和AI协作，这让我能在业务问题与技术实现之间来回走。我会先和 AI 讨论一个想法具体要解决什么问题，再找参考项目，把任务拆成可以逐步完成的阶段。代码实现主要由 AI 协助，我负责补充资料、提出要求、试用结果，并根据发现的问题继续修改。现在的这些项目里，我做过多表整理、SQL 与 Power BI 经营分析，也和 AI 一起完成了需求预测、公交网络和数据检查工具。我希望把这些实践用于实际业务：把数据整理好，把问题分析清楚，再做成别人能看懂、能使用的结果。';
 export const methodology = [
  {title:'分析头脑',sections:[
   {title:'需求',paragraphs:[

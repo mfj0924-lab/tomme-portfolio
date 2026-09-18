@@ -1,3 +1,4 @@
+import {extraData} from './visual-flow-extra-content';
 type Stage={name:string;title:string;summary:string;caption:string;limit:string;tools:string};
 export const data:Record<string,{type:string;title:string;question:string;outcome:string;stages:Stage[]}>={
 citibike:{type:'骑行数据 → 站点需求 → 价格建议',title:'CitiBike',question:'一个站点在某个小时会借出、还入多少车？这些数量怎样转成价格建议？',outcome:'离线预测实验 ＋ 价格规则演示',stages:[
@@ -20,3 +21,5 @@ data.citibike.stages[3].tools='演示直接对应 pricing_engine.py 的车辆短
 data.adventureworks.stages[0].caption='真实销售明细按渠道上下追加，保留每条记录。';
 data.adventureworks.stages[1].limit='动画展示检查类型、缺失、重复与金额的步骤；完整数据检查结果保存在项目 SQL 证据中。';
 data.citibike.stages.splice(3,0,{name:'训练与评估',title:'从训练记录，到模型评估结果',summary:'模型学习训练集，再分别检查验证集与测试集。',caption:'动画解释训练过程；分支不代表保存模型的真实阈值。指标来自原版训练记录。',limit:'R²＝0.644 对应原版随机切分及旧字段，不代表修复后的成绩，也不是准确率。',tools:'PySpark MLlib 随机森林回归；训练集调用 fit，验证与测试集调用 transform，再计算指标。'});
+
+Object.assign(data,extraData);

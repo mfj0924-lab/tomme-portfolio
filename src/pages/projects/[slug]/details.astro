@@ -1,6 +1,6 @@
 ---
 import Project from '../../preview/projects/[slug].astro';
 import {portfolioProjects} from '../../../data/preview';
-export function getStaticPaths(){return portfolioProjects.filter(p=>['citibike','adventureworks'].includes(p.slug)).map(project=>({params:{slug:project.slug},props:{project}}));}
+export function getStaticPaths(){return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}));}
 ---
 <Project {...Astro.props}/>

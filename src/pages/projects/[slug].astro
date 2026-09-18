@@ -1,9 +1,8 @@
 ---
 import VisualProjectPage from '../../components/VisualProjectPage.astro';
-import Project from '../preview/projects/[slug].astro';
 import {portfolioProjects} from '../../data/preview';
 export function getStaticPaths(){
  return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}));
 }
 ---
-{['citibike','adventureworks'].includes(Astro.props.project.slug)?<VisualProjectPage formal project={Astro.props.project.slug}/>:<Project {...Astro.props}/>} 
+<VisualProjectPage formal project={Astro.props.project.slug}/>

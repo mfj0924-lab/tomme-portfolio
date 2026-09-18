@@ -1,3 +1,5 @@
+import {extraCopy} from '../data/visual-flow-extra-content';
+import {mountExtra} from './visual-flow-extra';
 import { data } from '../data/visual-flow-content';
 import samples from '../data/visual-project-samples.json';
 
@@ -10,7 +12,7 @@ const esc=(s:unknown)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let direct=motionQuery.matches;
 const formal=root.dataset.formal==='true';
-let project=formal?root.dataset.initialProject!:location.hash==='#adventureworks'?'adventureworks':'citibike';
+let project=formal?root.dataset.initialProject!:(data[location.hash.slice(1)]?location.hash.slice(1):'citibike');
 let sections:HTMLElement[]=[];
 let animations:Array<(p:number)=>void>=[];
 let lastProgress:number[]=[];
@@ -24,6 +26,7 @@ let currentPoint={x:0,y:0};
 let sectionGeometry:Array<{top:number;height:number;sceneTop:number}>=[];
 
 const copy={
+ ...extraCopy,
  citibike:[
   ['从一条骑行记录开始。','读取时间，检查起终点，按编号去重。','PySpark','Raw → Bronze'],
   ['骑行转换成借与还。','按站点与小时汇总骑行数据，再加入时间、业务和天气字段。','PySpark','Bronze → Silver'],
@@ -51,15 +54,16 @@ function $<T extends Element=HTMLElement>(node:ParentNode,selector:string){retur
 function render(){
  const p=data[project];
  root.dataset.project=project;
- document.documentElement.style.setProperty('--accent',project==='citibike'?'#087d78':'#98613b');
- document.documentElement.style.setProperty('--soft',project==='citibike'?'#e2efea':'#f2e8db');
+ const colors:Record<string,string[]>={citibike:['#087d78','#e2efea'],adventureworks:['#98613b','#f2e8db'],workbench:['#587243','#e8efdd'],'qingdao-transit':['#706093','#ece7f3'],'rnd-patent':['#977432','#f3ead5']};
+ document.documentElement.style.setProperty('--accent',colors[project][0]);
+ document.documentElement.style.setProperty('--soft',colors[project][1]);
  for(const [id,value]of Object.entries({'project-type':p.type,'project-title':p.title,'project-question':p.question,'project-outcome':p.outcome}))document.getElementById(id)!.textContent=value;
  document.querySelectorAll<HTMLButtonElement>('[data-project]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.project===project)));
  document.getElementById('journey')!.innerHTML=p.stages.map((s,i)=>`<button data-stage="${i}"><span>0${i+1}</span>${s.name}</button>`).join('');
  const text=copy[project as keyof typeof copy];
- stories.innerHTML=`<svg class="flow-route" aria-hidden="true"><path class="route-base"/><path class="route-ink"/><g class="route-connectors"></g><g class="route-dots"></g></svg><div class="flow-carrier" aria-hidden="true"><div class="carrier-glyph">${'<i></i>'.repeat(9)}</div><span></span></div>${text.map(([title,summary,tool,method],i)=>`<section class="flow-section ${i%2?'reverse':''}" id="flow-${i}" aria-labelledby="flow-title-${i}"><div class="flow-copy"><span class="chapter-number">0${i+1}</span><p class="chapter-name">${p.stages[i].name}</p><h2 id="flow-title-${i}">${title}</h2><p class="chapter-summary">${summary}</p><div class="method-tags"><span>${tool}</span><span>${method}</span></div><details class="flow-details"><summary>方法与依据</summary><p>${p.stages[i].tools}</p><p>${p.stages[i].limit}</p><a href="${base}/projects/${project}/details/">完整项目介绍 ↗</a></details></div><div class="flow-visual"><div class="flow-scene"></div><div class="flow-actions"></div><p class="figure-note"></p></div><div class="handoff-label"></div></section>`).join('')}<div class="flow-finish"><span>●</span><h2>${project==='citibike'?'离线实验、产品演示与复核，分别有据可查。':'从销售数据，到可以继续追问的经营结果。'}</h2><a href="${base}/projects/${project}/details/">查看完整介绍与项目材料 ↗</a></div>`;
+ stories.innerHTML=`<svg class="flow-route" aria-hidden="true"><path class="route-base"/><path class="route-ink"/><g class="route-connectors"></g><g class="route-dots"></g></svg><div class="flow-carrier" aria-hidden="true"><div class="carrier-glyph">${'<i></i>'.repeat(9)}</div><span></span></div>${text.map(([title,summary,tool,method],i)=>`<section class="flow-section ${i%2?'reverse':''}" id="flow-${i}" aria-labelledby="flow-title-${i}"><div class="flow-copy"><span class="chapter-number">0${i+1}</span><p class="chapter-name">${p.stages[i].name}</p><h2 id="flow-title-${i}">${title}</h2><p class="chapter-summary">${summary}</p><div class="method-tags"><span>${tool}</span><span>${method}</span></div><details class="flow-details"><summary>方法与依据</summary><p>${p.stages[i].tools}</p><p>${p.stages[i].limit}</p><a href="${base}/projects/${project}/details/">完整项目介绍 ↗</a></details></div><div class="flow-visual"><div class="flow-scene"></div><div class="flow-actions"></div><p class="figure-note"></p></div><div class="handoff-label"></div></section>`).join('')}<div class="flow-finish"><span>●</span><h2>${({citibike:'离线实验、产品演示与复核，分别有据可查。',adventureworks:'从销售数据，到可以继续追问的经营结果。',workbench:'每项结果，保留对应的依据与限制。','qingdao-transit':'看清线路的位置，也看清线路之间的关系。','rnd-patent':'资料整理完成，后续研究有了共同的数据基础。'} as Record<string,string>)[project]}</h2><a href="${base}/projects/${project}/details/">查看完整介绍与项目材料 ↗</a></div>`;
  sections=Array.from(stories.querySelectorAll('.flow-section'));
- animations=sections.map((section,i)=>project==='citibike'?mountBike(section,i):mountAdventure(section,i));
+ animations=sections.map((section,i)=>project==='citibike'?mountBike(section,i):project==='adventureworks'?mountAdventure(section,i):mountExtra(section,i,project,{base,layout,tableShape,reveal,smooth}));
  carrier=$<HTMLElement>(stories,'.flow-carrier');path=$<SVGPathElement>(stories,'.route-ink');
  lastMode='';lastProgress=[];
  sections.forEach(s=>s.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',layout)));
@@ -196,7 +200,8 @@ const shapes:Record<string,number[][]>={
 function carrierMode(index:number,p:number){
  const bike=[['raw','骑行记录'],['clean','清洗后的记录'],['hour','站点小时'],['split','训练数据'],['model','离线模型'],['price','价格结果'],['report','页面结果'],['checked','复核记录']];
  const aw=[['tables','两张销售表'],['table','销售明细'],['clean','检查后的明细'],['linked','关联后的明细'],['metrics','经营指标'],['focus','定位差异'],['report','经营看板']];
- const modes=project==='citibike'?bike:aw;
+ const extras:Record<string,string[][]>={workbench:[['tables','数据与合同'],['table','任务输入'],['linked','运行规则'],['checked','检查记录'],['metrics','计算结果'],['checked','结论依据'],['report','任务报告']],'qingdao-transit':[['raw','线路编号'],['csv','接口资料'],['tables','整理后的表'],['linked','线路连接'],['focus','网络结果'],['report','地图与网络']],'rnd-patent':[['tables','年度文件'],['raw','读入的表'],['clean','统一表头'],['linked','公司与年份'],['table','合并结果'],['checked','核验与导出']]};
+ const modes=project==='citibike'?bike:project==='adventureworks'?aw:extras[project];
  const entering=project==='citibike'&&index===4?['csv','CSV 参考']:modes[index];
  const leaving=modes[index+1];
  const t=smooth((p-.24)/.48);
