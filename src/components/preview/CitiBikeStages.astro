@@ -1,4 +1,6 @@
 ---
+import narratives from '../../data/stage-narratives.json';
+import '../../styles/project-navigation.css';
 import { citibikeStages as stages } from '../../data/citibike-stages';
 const routes = [
   { id: 'data', number: '1—3', text: '整理数据' },
@@ -15,7 +17,7 @@ const partitions = [
 ---
 
 <div class="citibike-stages">
-  <p class="stage-intro">先看数据怎样变化，再看模型、价格与展示。每个阶段都列出输入、输出和具体任务；计算规则与 AI 协作可以按需展开。</p>
+  <p class="stage-intro">先看数据怎样变化，再看模型、价格与展示。图形展示主要变化，处理方法和代码依据可以按需展开。</p>
   <nav class="stage-route" aria-label="跳转到 CitiBike 项目阶段">
     {routes.map(route => <a href={`#citibike-${route.id}`}><span>{route.number}</span><strong>{route.text}</strong><span class="route-arrow" aria-hidden="true">↓</span></a>)}
   </nav>
@@ -98,18 +100,12 @@ const partitions = [
         <figcaption>这些是原项目完成后的补充工作。工作台按程序规则复核，代码修复和冒烟测试另外执行。</figcaption>
       </figure>}
 
-      <dl class="stage-facts">
-        <div><dt>输入：</dt><dd>{stage.input}</dd></div>
-        <div><dt>输出：</dt><dd>{stage.output}</dd></div>
-        <div><dt>阶段任务：</dt><dd>{stage.task}</dd></div>
-        <div><dt>工具与方法：</dt><dd>{stage.tools.join('；')}。</dd></div>
-        <div><dt>结果与检查：</dt><dd>{stage.check}</dd></div>
-      </dl>
+      <p class="stage-narrative">{narratives.citibike[stage.id]}</p><p class="stage-method">{stage.tools.join(' · ')}</p>
       <details class="stage-technical">
-        <summary><span class="technical-open">展开技术细节与 AI 协作</span><span class="technical-close">收起技术细节与 AI 协作</span><span class="technical-sign" aria-hidden="true">＋</span></summary>
+        <summary><span class="technical-open">查看处理方法与依据</span><span class="technical-close">收起处理方法与依据</span><span class="technical-sign" aria-hidden="true">＋</span></summary>
         <dl class="stage-facts technical-facts">
           {stage.details.map(detail => <div><dt>{detail.label}：</dt><dd>{detail.text}</dd></div>)}
-          <div><dt>AI 协作：</dt><dd>{stage.ai}</dd></div>
+          
         </dl>
         <ul class="stage-evidence" aria-label={`${stage.title}的代码与记录`}>
           {stage.evidence.map(item => <li><a href={item.href} target="_blank" rel="noreferrer">{item.label}<span aria-hidden="true"> ↗</span></a></li>)}

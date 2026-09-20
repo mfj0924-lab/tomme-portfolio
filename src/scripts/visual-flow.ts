@@ -28,21 +28,21 @@ let sectionGeometry:Array<{top:number;height:number;sceneTop:number}>=[];
 const copy={
  ...extraCopy,
  citibike:[
-  ['从一条骑行记录开始。','读取时间，检查起终点，按编号去重。','PySpark','Raw → Bronze'],
-  ['骑行转换成借与还。','按站点与小时汇总骑行数据，再加入时间、业务和天气字段。','PySpark','Bronze → Silver'],
-  ['这份小时数据，分成三组。','训练用来学习，验证用于比较，测试集用于最终评估。','randomSplit','80% / 10% / 10%'],
-  ['从记录中学习，再看预测表现。','多棵树分别学习，合并预测后检查误差。','PySpark MLlib','随机森林'],
-  ['把供需数量，转换成价格建议。','现有产品读取 CSV 的需求参考，再按规则计算价格。','Python','供需差 → 价格规则'],
-  ['把价格结果，交给页面。','选择站点和时间，经过接口查询，显示建议价。','FastAPI','CSV → 规则 → 看板'],
-  ['最后回头检查：结果可靠吗？','复核字段是否提前可得，并用时间切分做冒烟测试。','工作台 + 训练脚本','复核 → 修复 → 验证'],
+  ['先检查每条骑行记录','读取时间，检查起终点，按编号去重。','PySpark','Raw → Bronze'],
+  ['按站点和小时统计借出与还入','按站点与小时汇总骑行数据，再加入时间、业务和天气字段。','PySpark','Bronze → Silver'],
+  ['分别留出训练、验证和测试数据','训练用来学习，验证用于比较，测试集用于最终评估。','randomSplit','80% / 10% / 10%'],
+  ['训练模型，再评估预测误差','多棵树分别学习，合并预测后检查误差。','PySpark MLlib','随机森林'],
+  ['按供需差计算建议价格','现有产品读取 CSV 的需求参考，再按规则计算价格。','Python','供需差 → 价格规则'],
+  ['通过接口查询需求和价格','选择站点和时间，经过接口查询，显示建议价。','FastAPI','CSV → 规则 → 看板'],
+  ['检查预测时能否取得这些字段','复核字段是否提前可得，并用时间切分做冒烟测试。','工作台 + 训练脚本','复核 → 修复 → 验证'],
  ],
  adventureworks:[
-  ['两张销售表，合成一张。','直销与经销商使用相同字段，记录上下追加。','SQL Server','UNION ALL'],
-  ['先把这张表检查清楚。','核对类型、缺失、重复和金额，确认明细可以继续使用。','SQL / Power Query','检查与整理'],
-  ['各表连接销售明细中枢表','日期、产品、地区、促销通过编号关联到销售明细。','Power BI','一对多关系'],
-  ['同一张表，算出经营指标。','筛选范围改变，公式保持一致。','DAX','求和 · 去重计数 · 比率'],
-  ['从整体差异，逐步缩小范围。','经销商 → 年份 → 产品，定位值得继续核查的部分。','Power BI','筛选与下钻'],
-  ['把发现，放进经营看板。','三页展示结果；另按订单汇总后交给工作台检查。','Power BI / SQL','展示与复核'],
+  ['合并直销与经销商销售明细','直销与经销商使用相同字段，记录上下追加。','SQL Server','UNION ALL'],
+  ['检查记录和金额是否一致','核对类型、缺失、重复和金额，确认明细可以继续使用。','SQL / Power Query','检查与整理'],
+  ['将日期、产品等资料关联到销售明细','日期、产品、地区、促销通过编号关联到销售明细。','Power BI','一对多关系'],
+  ['按所选范围计算收入与估算毛利','筛选范围改变，公式保持一致。','DAX','求和 · 去重计数 · 比率'],
+  ['从渠道差异继续查到具体商品','经销商 → 年份 → 产品，定位值得继续核查的部分。','Power BI','筛选与下钻'],
+  ['用三页看板展示分析结果','三页展示结果；另按订单汇总后交给工作台检查。','Power BI / SQL','展示与复核'],
  ]
 };
 
@@ -68,6 +68,7 @@ function render(){
  lastMode='';lastProgress=[];
  sections.forEach(s=>s.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',layout)));
  document.querySelectorAll<HTMLButtonElement>('[data-stage]').forEach(b=>b.onclick=()=>sections[Number(b.dataset.stage)].scrollIntoView({behavior:direct?'instant':'smooth',block:'start'}));
+ if(formal&&['citibike','adventureworks'].includes(project))stories.querySelector('.flow-finish')?.classList.add('flow-finish-quiet');
  layout();
 }
 

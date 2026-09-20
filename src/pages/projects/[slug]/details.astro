@@ -1,6 +1,12 @@
 ---
 import Project from '../../preview/projects/[slug].astro';
 import {portfolioProjects} from '../../../data/preview';
+import articles from '../../../data/project-articles.json';
+import '../../../styles/project-reading.css';
 export function getStaticPaths(){return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}));}
+const original=Astro.props.project;
+const article=articles[original.slug];
+const project=article?{...original,story:article.intro.join('\n\n')}:original;
 ---
-<Project {...Astro.props}/>
+<Project project={project}/>
+<script>import '../../../scripts/project-transition';</script>

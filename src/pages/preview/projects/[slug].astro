@@ -1,4 +1,5 @@
 ---
+import '../../../styles/project-navigation.css';
 import Layout from '../../../layouts/PreviewLayout.astro';
 import ProjectArt from '../../../components/lab/ProjectArt.astro';
 import FolderGallery from '../../../components/preview/FolderGallery.astro';
@@ -15,7 +16,7 @@ const next=portfolioProjects[(portfolioProjects.findIndex(x=>x.slug===p.slug)+1)
 ---
 <Layout title={p.name+'｜Tomme'} description={p.summary} active="projects" theme={p.slug}>
  <header class="page-width project-heading" style={`--card:${p.visual.color};--ink:${p.visual.ink};--spot:${p.visual.spot}`}>
-  <div><a class="back-link" href={previewPath('projects/')}>← 全部项目</a><h1><span class="project-name" data-long={/^[A-Za-z]{13,}$/.test(p.visual.name)||undefined}>{p.visual.name}</span>{p.visual.title}</h1><p class="project-question">{p.question}</p>{<p><a class="text-button" href={previewPath(`projects/${p.slug}/`)}>查看项目动画图解 ↗</a></p>}<ProjectResources links={p.links}/></div>
+  <div><a class="back-link" href={previewPath('projects/')}>← 全部项目</a><h1><span class="project-name" data-long={/^[A-Za-z]{13,}$/.test(p.visual.name)||undefined}>{p.visual.name}</span>{p.visual.title}</h1><p class="project-question">{p.question}</p><a class="diagram-entry" href={previewPath(`projects/${p.slug}/`)}><span class="diagram-entry-symbol" aria-hidden="true"><i></i><i></i><i></i></span><span><strong>跟着图解看项目怎么完成</strong><small>从数据到结果，逐步查看处理过程</small></span><span class="diagram-entry-arrow" aria-hidden="true">↗</span></a><ProjectResources links={p.links}/></div>
   <div class="project-heading-art"><ProjectArt kind={p.visual.kind}/><span>{p.year} · {p.shortName}</span></div>
  </header>
  <div class="page-width detail-layout">

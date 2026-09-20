@@ -1,4 +1,6 @@
 ---
+import narratives from '../../data/stage-narratives.json';
+import '../../styles/project-navigation.css';
 import type { IllustratedStage } from '../../data/illustrated-stages';
 interface Props { stage: IllustratedStage; number: number; prefix: string; flow?: boolean }
 const { stage, number, prefix, flow = false } = Astro.props;
@@ -6,18 +8,18 @@ const { stage, number, prefix, flow = false } = Astro.props;
 <section class="explained-step" id={`${prefix}-${stage.id}`} aria-labelledby={`${prefix}-${stage.id}-title`}>
   <h3 id={`${prefix}-${stage.id}-title`}><span class="ex-step-number">{number}</span><span>{stage.title}</span></h3>
   <slot />
-  <dl class="ex-facts">
+  {prefix==='aw'?<p class="stage-narrative">{narratives.adventureworks[stage.id]}</p>:<dl class="ex-facts">
     <div><dt>输入：</dt><dd>{stage.input}</dd></div>
     <div><dt>输出：</dt><dd>{stage.output}</dd></div>
     <div><dt>{flow ? '流程任务：' : '阶段任务：'}</dt><dd>{stage.task}</dd></div>
     <div><dt>工具与方法：</dt><dd>{stage.tools}</dd></div>
     <div><dt>结果与检查：</dt><dd>{stage.check}</dd></div>
-  </dl>
+  </dl>}
   <details class="ex-technical">
-    <summary><span class="ex-open">展开技术细节与 AI 协作</span><span class="ex-close">收起技术细节与 AI 协作</span><span class="ex-sign" aria-hidden="true">＋</span></summary>
+    <summary><span class="ex-open">{prefix==='aw'?'查看处理方法与依据':'展开技术细节与 AI 协作'}</span><span class="ex-close">{prefix==='aw'?'收起处理方法与依据':'收起技术细节与 AI 协作'}</span><span class="ex-sign" aria-hidden="true">＋</span></summary>
     <dl class="ex-facts">
       {stage.details.map(detail => <div><dt>{detail.label}：</dt><dd>{detail.text}</dd></div>)}
-      <div><dt>AI 协作：</dt><dd>{stage.ai}</dd></div>
+      {prefix!=='aw'&&<div><dt>AI 协作：</dt><dd>{stage.ai}</dd></div>}
     </dl>
     <ul class="ex-evidence" aria-label={`${stage.title}的代码与记录`}>
       {stage.evidence.map(item => <li><a href={item.href} target="_blank" rel="noreferrer">{item.label} ↗</a></li>)}

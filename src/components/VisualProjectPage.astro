@@ -1,21 +1,25 @@
 ---
 import '../styles/visual-flow.css';
+import '../styles/project-navigation.css';
+import '../styles/project-reading.css';
 import '../styles/visual-flow-extra.css';
 import {data} from '../data/visual-flow-content';
 const {formal=false,project='citibike'}=Astro.props;
 const content=data[project];
+const cards={citibike:['骑行数据与价格建议','↗','#087f80','#e2f0ea'],adventureworks:['销售整理与经营分析','▥','#946638','#f1e9d9'],workbench:['数据检查与报告','✓','#557440','#e6edd9'],'qingdao-transit':['线路地图与换乘关系','⌁','#726391','#ebe7f2'],'rnd-patent':['多表匹配与数据合并','⊞','#947638','#f1ead6']};
 const base=import.meta.env.BASE_URL.replace(/\/$/,'');
 ---
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>{!formal&&<meta name="robots" content="noindex"/>}<meta name="description" content={content.question}/>{formal&&<link rel="canonical" href={new URL(`${base}/projects/${project}/`,Astro.site)}/>}<title>{formal?`${content.title}｜Tomme`:'看见数据怎样变化 · 项目表达预览'}</title></head>
 <body>
-<header class="vp-header"><a href={`${base}/projects/`}>Tomme<span>{formal?(project==='workbench'?'图解流程':'项目图解'):'项目表达实验'}</span></a><nav aria-label="切换项目">{Object.entries(data).map(([slug,item])=><button data-project={slug} aria-pressed={String(slug===project)}>{item.title}</button>)}</nav><span class="preview-label">{formal?<a href={`${base}/projects/${project}/details/`}>完整项目介绍 ↗</a>:'独立预览 · 未替换正式页'}</span></header>
+<header class="vp-header"><a href={`${base}/projects/`}>Tomme<span>{formal?(project==='workbench'?'图解流程':'项目图解'):'项目表达实验'}</span></a><nav class="project-switch-cards" aria-label="切换项目">{Object.entries(data).map(([slug,item])=><button data-project={slug} aria-pressed={String(slug===project)} style={`--switch-ink:${cards[slug][2]};--switch-bg:${cards[slug][3]}`}><span class="switch-symbol" aria-hidden="true">{cards[slug][1]}</span><span class="switch-label"><strong>{item.title}</strong><small>{cards[slug][0]}</small></span><span class="switch-arrow" aria-hidden="true">↗</span></button>)}</nav><span class="preview-label">{formal?<a href={`${base}/projects/${project}/details/`}>完整项目介绍 ↗</a>:'独立预览 · 未替换正式页'}</span></header>
 <main id="visual-project" data-base={base} data-formal={String(formal)} data-initial-project={project}>
   <section class="vp-heading"><div><p id="project-type">{content.type}</p><h1 id="project-title">{content.title}</h1><p id="project-question">{content.question}</p></div><div class="vp-outcome"><span>最终得到</span><strong id="project-outcome">{content.outcome}</strong></div></section>
   <nav id="journey" aria-label="项目完整流程"></nav>
   <div class="flow-invitation"><span>沿着这条线，往下看。</span><small>滚动推进 · 向上回看</small><button id="motion-toggle" aria-pressed="false">直接看完整结果</button><i>↓</i></div>
   <div id="stories"></div>
+  {formal&&['citibike','adventureworks'].includes(project)&&<><section class="reading-entry"><p>继续了解具体做法与结果依据</p><a data-project-transition href={`${base}/projects/${project}/details/`}>阅读完整项目介绍 ↗</a></section></>}
   <noscript><p>交互演示需要 JavaScript。<a href={`${base}/projects/${project}/details/`}>查看完整静态介绍与材料</a>。</p></noscript>
 </main>
-<script>import '../scripts/visual-flow';</script>
+<script>import '../scripts/visual-flow';import '../scripts/project-transition';</script>
 </body></html>
