@@ -17,7 +17,7 @@ adventureworks:{type:'两张销售表 → 经营指标 → 问题定位',title:'
 {name:'展示与复核',title:'把发现放进看板，把订单交给工作台',summary:'同一份销售数据，分别用于展示与订单级检查。',caption:'Power BI 使用商品明细；工作台使用按订单汇总的 31,455 行数据。',limit:'工作台检查通过，不代表整份 Power BI 文件已经完成独立审计；项目使用虚构企业样例。',tools:'经营总览、盈利诊断、区域分析三页 Power BI 看板。SQL 按渠道与订单编号汇总后导出工作台数据，AI 辅助实现查询、页面与说明。'}]}};
 data.citibike.stages[0].limit='实际输入约 1,453 万次骑行、16 个 CSV。当前展示其中一条真实记录，保留原始编号。';
 data.citibike.stages[1].title='把骑行事件，汇总成站点小时记录';
-data.citibike.stages[3].tools='演示直接对应 pricing_engine.py 的车辆短缺、双余量折扣与正常价格分支。固定需求为借出 19、还入 11，固定空桩 29；滑块调整可用车辆。4.49 美元是项目代码的基础价。';
+data.citibike.stages[3].tools='接口用历史借还量或相同时段均值作为需求参考，尚未调用已训练模型。演示使用明确标注的假设数据，按 pricing_engine.py 的阈值、分支顺序与倍率公式计算。横纵轴分别为车辆、空车位差值除以当前数量；4.49 美元为项目基准价。价格规则由代码预设，未通过模型学习。';
 data.adventureworks.stages[0].caption='真实销售明细按渠道上下追加，保留每条记录。';
 data.adventureworks.stages[1].limit='动画展示检查类型、缺失、重复与金额的步骤；完整数据检查结果保存在项目 SQL 证据中。';
 data.citibike.stages.splice(3,0,{name:'训练与评估',title:'从训练记录，到模型评估结果',summary:'模型学习训练集，再分别检查验证集与测试集。',caption:'动画解释训练过程；分支不代表保存模型的真实阈值。指标来自原版训练记录。',limit:'R²＝0.644 对应原版随机切分及旧字段，不代表修复后的成绩，也不是准确率。',tools:'PySpark MLlib 随机森林回归；训练集调用 fit，验证与测试集调用 transform，再计算指标。'});

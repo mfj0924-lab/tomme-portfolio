@@ -1,3 +1,4 @@
+import {mountPricingPlane} from './pricing-plane';
 import {extraCopy} from '../data/visual-flow-extra-content';
 import {mountExtra} from './visual-flow-extra';
 import { data } from '../data/visual-flow-content';
@@ -105,13 +106,7 @@ function mountBike(section:HTMLElement,i:number){
   note.textContent='树的分支为学习原理示意，指标取自训练记录。R² 不是准确率。';handoff.innerHTML='<strong>离线模型保存在这里。</strong><span>下方继续介绍已有 CSV 驱动的产品演示。</span>';
   return p=>{scene.querySelectorAll<HTMLElement>('.tree-art').forEach((e,j)=>{reveal(e,smooth((p-.05-j*.1)*4));e.style.setProperty('--draw',String(smooth((p-.1-j*.08)*3)));});reveal($<HTMLElement>(scene,'.combine-predictions'),smooth((p-.35)*4));reveal($<HTMLElement>(scene,'.score'),smooth((p-.52)*4));reveal($<HTMLElement>(scene,'.model-stop'),smooth((p-.78)*5));};
  }
- if(i===4){
-  scene.innerHTML='<div class="csv-entry"><small>实际产品输入 · pricing_analysis.csv</small><strong>站点 6535.04 · 17 点</strong><span>借出需求 19 · 还入需求 11</span></div><div class="vertical-calculation"><div><span>可用车辆</span><b data-available>28</b></div><i>↓ 按供需差计算</i><div><span>规则倍率</span><b data-multiplier>1.00</b></div><i>↓ × $4.49</i><div class="final-price"><span>建议价</span><b data-price>$4.49</b></div></div>';
-  actions.innerHTML='<label for="flow-supply">调整可用车辆</label><input id="flow-supply" type="range" min="5" max="40" value="28"/><button data-reset>恢复原始值</button>';
-  const input=$<HTMLInputElement>(actions,'input');const calc=()=>{const n=Number(input.value),br=(n-19)/Math.max(n,1),dr=18/29;let m=1;if(br<-.3)m=Math.min(1+Math.abs(br)*.6,1.5);else if(br>.5&&dr>.5)m=Math.max(1-Math.min(br,dr)*.25,.7);m=Math.round(m*100)/100;$<HTMLElement>(scene,'[data-available]').textContent=String(n);$<HTMLElement>(scene,'[data-multiplier]').textContent=m.toFixed(2);$<HTMLElement>(scene,'[data-price]').textContent='$'+(4.49*m).toFixed(2);};input.oninput=calc;actions.querySelector('button')!.onclick=()=>{input.value='28';calc();};
-  note.textContent='原始 CSV 建议价为 $4.49；滑块仅改变可用车辆，空桩固定为 29。';handoff.textContent='规则计算的结果，继续交给接口与页面';
-  return p=>scene.querySelectorAll<HTMLElement>('.vertical-calculation>div').forEach((e,j)=>reveal(e,smooth((p-j*.23)*3),10));
- }
+ if(i===4) return mountPricingPlane(section);
  if(i===5){
   scene.innerHTML=`<div class="api-stack"><div class="api-request"><small>页面发起请求</small><strong>6535.04 · 2026-01-20 17 点</strong></div><i>↓</i><div class="api-engine">读取 CSV <span>→</span> 计算规则</div><i>↓</i><div class="mini-dashboard"><div class="window-bar"><i></i><i></i><i></i><span>站点价格建议</span></div><small>6535.04 · 17 点</small><strong>$4.49</strong><span>示例响应</span><div class="mini-chart">${[30,48,67,55,82,63,38,46].map(h=>`<i style="height:${h}%"></i>`).join('')}</div></div></div>`;
   actions.innerHTML=`<a href="${base}/demos/citibike/dashboard.html" target="_blank">打开现有看板 ↗</a>`;note.textContent='按真实代码路径展示。此页面不调用后端，离线 Spark 模型尚未接入。';handoff.textContent='页面可以展示结果；随后复核数据与模型的限制';
