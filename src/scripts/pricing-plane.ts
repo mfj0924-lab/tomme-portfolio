@@ -38,6 +38,15 @@ export function mountPricingPlane(section:HTMLElement){
  section.querySelector<HTMLElement>('.figure-note')!.textContent='示例数量用于演示；价格按项目原公式计算。四区表示调整方向，实际调整还需达到阈值。';
  section.querySelector<HTMLElement>('.handoff-label')!.textContent='历史需求参考 → 预设价格规则 → 接口返回建议价';
  const point=scene.querySelector<HTMLButtonElement>('.price-point')!,details=scene.querySelector<HTMLDetailsElement>('.price-point-details')!;
+ const popup=document.createElement('div');
+ popup.className='price-point-popup';popup.id='price-point-popup';popup.setAttribute('role','tooltip');popup.hidden=true;
+ scene.querySelector('.price-plane')!.append(popup);
+ popup.append(scene.querySelector('.price-inputs')!,scene.querySelector('[data-gap]')!,scene.querySelector('.price-reason')!,scene.querySelector('[data-price-detail]')!);
+ details.remove();point.setAttribute('aria-describedby',popup.id);
+ scene.querySelector('.price-example-nav small')!.textContent='切换示例 · 指向圆点查看详情';
+ section.querySelector<HTMLElement>('.figure-note')!.textContent='演示数据 · 按项目原规则计算';
+ let pinned=false;
+ const showPopup=(show:boolean)=>{popup.hidden=!show;point.setAttribute('aria-expanded',String(show));};
  const set=(selector:string,value:string)=>{scene.querySelector<HTMLElement>(selector)!.textContent=value;};
  const phase=(p:number,start:number,end:number)=>{const v=Math.min(1,Math.max(0,(p-start)/(end-start)));return v*v*(3-2*v);};
  const draw=()=>{
@@ -53,6 +62,7 @@ export function mountPricingPlane(section:HTMLElement){
   scene.style.setProperty('--price-total',String(phase(p,.7,.98)));
   // These examples fit -100%..100%; point position expresses normalized gaps.
   const x=50+r.b*42*t,y=50-r.d*42*t;
+  popup.style.top=y>50?'0':'auto';popup.style.bottom=y>50?'auto':'0';
   scene.querySelector<HTMLElement>('.price-point-position')!.style.transform=`translate(${x}%,${y}%)`;
   scene.querySelector('.point-guide')!.setAttribute('d',`M50 ${y}H${x}V50`);
   const active=r.m===1?'':r.b<0&&r.d<0?'q-both':r.b<0?'q-bike':r.d<0?'q-dock':'q-discount';
@@ -63,12 +73,15 @@ export function mountPricingPlane(section:HTMLElement){
   set('[data-gap]',`车辆${gap(current.bikes-current.borrow,'辆')} · 空车位${gap(current.docks-current.returns,'个')}`);
   set('[data-factor]',r.m.toFixed(2)+'×');set('[data-price]','$'+(4.49*r.m).toFixed(2));set('.price-reason',r.reason);
   set('[data-price-detail]',`车辆差值：${current.bikes} − ${current.borrow} = ${current.bikes-current.borrow}，占当前车辆数 ${(r.b*100).toFixed(0)}%。空车位差值：${current.docks} − ${current.returns} = ${current.docks-current.returns}，占当前空车位数 ${(r.d*100).toFixed(0)}%。倍率按代码公式计算并保留两位小数。`);
-  point.title=`${r.reason}建议价格 $${(4.49*r.m).toFixed(2)}。点击查看依据。`;
+  popup.querySelector('[data-price-detail]')!.textContent=`不足或剩余比例：车辆 ${(r.b*100).toFixed(0)}%，空车位 ${(r.d*100).toFixed(0)}%。`;
   point.setAttribute('aria-label',`车辆供需差 ${(r.b*100).toFixed(0)}%，空车位供需差 ${(r.d*100).toFixed(0)}%。点击查看计算详情`);
  };
- point.onclick=()=>{details.open=!details.open;};
- details.addEventListener('toggle',()=>{point.setAttribute('aria-expanded',String(details.open));window.dispatchEvent(new Event('resize'));});
- const change=(step:number)=>{current=examples[(examples.indexOf(current)+step+examples.length)%examples.length];interacted=true;scene.classList.add('price-interacting');draw();};
+ point.onpointerenter=e=>{if(e.pointerType==='mouse')showPopup(true);};
+ point.onpointerleave=e=>{if(e.pointerType==='mouse'&&!pinned)showPopup(false);};
+ point.onfocus=()=>showPopup(true);point.onblur=()=>{pinned=false;showPopup(false);};
+ point.onclick=()=>{pinned=!pinned;showPopup(pinned);};
+ point.onkeydown=e=>{if(e.key==='Escape'){pinned=false;showPopup(false);}};
+ const change=(step:number)=>{pinned=false;showPopup(false);current=examples[(examples.indexOf(current)+step+examples.length)%examples.length];interacted=true;scene.classList.add('price-interacting');draw();};
  scene.querySelector<HTMLButtonElement>('[data-price-prev]')!.onclick=()=>change(-1);
  scene.querySelector<HTMLButtonElement>('[data-price-next]')!.onclick=()=>change(1);
  draw();return (p:number)=>{progress=p;draw();};
