@@ -68,7 +68,7 @@ function initCards(){
    p.style.zIndex=String(active?40:20-Math.abs(d));p.classList.toggle('selected',active);
   });
   pickers.forEach((b,i)=>{b.classList.toggle('active',i===selected);b.setAttribute('aria-pressed',String(i===selected))});
-  const themes=['citibike','adventureworks','workbench','qingdao-transit','rnd-patent'];
+  const themes=['powerbi-internship','citibike','adventureworks','workbench','qingdao-transit','rnd-patent'];
   document.body.dataset.theme=themes[hover??selected];
  }
  function choose(i:number){selected=(i+cards.length)%cards.length;hover=null;render()}

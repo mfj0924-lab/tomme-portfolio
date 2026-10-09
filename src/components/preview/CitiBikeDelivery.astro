@@ -1,0 +1,81 @@
+---
+const {stage, overview=false}=Astro.props;
+const examples=[
+ {name:'缺车，车位充足', multiplier:'1.50',price:'6.74',info:'可用 10 辆、空车位 20 个；需求参考为借出 20 辆、还入 5 辆。',reason:'车辆缺口比例为 −1，按缺车规则计算并取上限 1.50 倍。'},
+ {name:'车辆、车位充足', multiplier:'0.81',price:'3.64',info:'可用 20 辆、空车位 20 个；需求参考为借出 5 辆、还入 5 辆。',reason:'两项余量比例均为 0.75，按充足规则计算为 0.81 倍。'},
+ {name:'车辆、车位都不足', multiplier:'2.00',price:'8.98',info:'可用 10 辆、空车位 10 个；需求参考为借出 20 辆、还入 20 辆。',reason:'两项缺口比例均为 −1，按同时不足规则计算为 2.00 倍。'},
+ {name:'车辆充足，车位不足', multiplier:'1.30',price:'5.84',info:'可用 20 辆、空车位 10 个；需求参考为借出 5 辆、还入 20 辆。',reason:'车位缺口比例为 −1，按车位不足规则计算并取上限 1.30 倍。'},
+];
+const rules=[['1','车辆与车位同时不足','b < −0.5，且 d < −0.5','1.3 + |b + d| ÷ 2 × 0.7','最高 2.0'],['2','缺车','b < −0.3','1 + |b| × 0.6','最高 1.5'],['3','车位不足','d < −0.3','1 + |d| × 0.4','最高 1.3'],['4','车辆、车位都充足','b > 0.5，且 d > 0.5','1 − min(b, d) × 0.25','最低 0.7'],['5','车辆充足','b > 0.5','1 − b × 0.15','最低 0.8'],['6','其余情况','以上条件均未满足','1.0','保持基础价格']];
+const groups=[['第一组','保留原来 19 个字段','随机切分','作为本轮比较起点'],['第二组','移除 3 个字段','随机切分','观察删除字段的影响'],['第三组','移除 3 个字段','时间切分','检查按时间训练的表现']];
+---
+<div class:list={['delivery',{'delivery-overview':overview}]}>
+{stage==='pricing' && (overview ? <figure class="price-demo" data-price-demo>
+ <div class="axis-caption">空车位有余量 ↑</div>
+ <div class="quadrants" aria-label="车辆与空车位供需双轴示意图">
+  {examples.map((item,i)=><button type="button" class="quadrant" aria-pressed={i===0?'true':'false'} data-info={item.info} data-reason={item.reason} data-price={item.price} data-multiplier={item.multiplier}><span>{item.name}</span><strong><i aria-hidden="true">●</i> {item.multiplier} 倍</strong><small>示例倍率</small></button>)}
+ </div>
+ <div class="x-axis"><span>← 车辆不足</span><span>车辆有余量 →</span></div>
+ <div class="axis-caption">空车位不足 ↓</div>
+ <p class="hint">选择一个场景，查看输入与价格建议。</p>
+ <div class="price-output" aria-live="polite"><strong data-result>建议价格 $6.74 · 1.50 倍</strong><p data-input>{examples[0].info}</p><p data-reason-output>{examples[0].reason}</p></div>
+ <figcaption>图中使用假设数据演示规则。轴表示供需差的正负；实际倍率按下方阈值和公式计算。</figcaption>
+ </figure> : <>
+ <h4>先比较供需，再计算倍率和价格</h4>
+ <p>价格规则由程序预先设置。当前接口从历史数据取得借还需求参考，再结合提交的车辆数和空车位数计算建议价格。</p>
+ <div class="vertical-flow"><div>当前车辆数 − 借出需求参考<strong>得到车辆供需差</strong></div><span>↓</span><div>当前空车位数 − 还入需求参考<strong>得到车位供需差</strong></div><span>↓</span><div>分别除以当前供给<strong>得到两项相对供需差 b、d</strong></div><span>↓</span><div>按顺序匹配规则<strong>得到价格倍率 × 基础价格 $4.49</strong></div></div>
+ <p class="note">b = 车辆供需差 ÷ max(当前车辆数, 1)；d = 车位供需差 ÷ max(当前空车位数, 1)。max 表示取较大值，供给为零时用 1 作分母。负值表示不足，正值表示有余量。</p>
+ <h4>程序采用第一条满足条件的规则</h4>
+ <div class="table-scroll" tabindex="0" aria-label="价格规则表，可横向滚动"><table><thead><tr><th>顺序</th><th>情况</th><th>触发条件</th><th>倍率公式</th><th>限制</th></tr></thead><tbody>{rules.map(row=><tr>{row.map(cell=><td>{cell}</td>)}</tr>)}</tbody></table></div>
+ <p class="note">| | 表示绝对值，min 表示取较小值。程序先将倍率保留两位小数，再乘以基础价格，将金额保留两位小数。</p>
+ <details class="extra"><summary>看一次完整计算：10 辆车，借出需求为 20 辆</summary><div class="vertical-flow"><div>车辆：10 − 20 = −10；空车位：20 − 5 = 15</div><span>↓</span><div>b = −10 ÷ 10 = −1；d = 15 ÷ 20 = 0.75</div><span>↓</span><div>满足缺车条件：1 + 1 × 0.6 = 1.6<strong>按上限取 1.50 倍</strong></div><span>↓</span><div>$4.49 × 1.50 → <strong>建议价格 $6.74</strong></div></div></details>
+ <p class="note">$4.49 是项目设定的基础价格。当前完成了价格规则演示，尚未通过实际运营实验检验调价效果。</p>
+ </>)}
+
+{stage==='api' && (overview ? <figure>
+ <div class="branch-source">已经生成的历史分析数据</div><div class="branches two">
+ <div><strong>接口</strong><p>接收一次查询</p><span class="arrow">↓</span><p>计算并返回价格建议</p></div>
+ <div><strong>看板</strong><p>汇总已有数据</p><span class="arrow">↓</span><p>展示需求、价格与站点差异</p></div></div>
+ <details class="extra api-example"><summary>演示一次查询 → 查看返回内容</summary><p class="note">以下使用假设输入说明请求和返回内容。</p><div class="vertical-flow"><div>提交站点 A、指定小时<strong>当前车辆 10 辆 · 空车位 20 个</strong></div><span>↓</span><div>假设查到该小时历史记录<strong>借出 20 辆 · 还入 5 辆</strong></div><span>↓</span><div>接口应用价格规则<strong>返回 1.50 倍 · $6.74 · 缺车原因</strong></div></div></details>
+ </figure> : <>
+ <h4>一次查询怎样得到价格建议</h4>
+ <div class="vertical-flow"><div>提交站点、时间和当前库存<strong>FastAPI 接收请求，Pydantic 检查字段</strong></div><span>↓</span><div>查找对应站点、日期和小时的历史借还量<strong>没有对应记录时，取所有站点相同钟点的平均借还量</strong></div><span>↓</span><div>计算车辆与空车位的供需差<strong>调用阶段五的价格规则</strong></div><span>↓</span><div>返回需求参考、倍率、建议价格和原因</div></div>
+ <p class="note">FastAPI 提供程序调用入口；Pydantic 检查请求字段的类型和约束；Pandas 读取与筛选历史数据。当前接口使用历史数据提供需求参考。</p>
+ <div class="table-scroll" tabindex="0" aria-label="接口功能表，可横向滚动"><table><thead><tr><th>功能</th><th>提交什么？</th><th>得到什么？</th></tr></thead><tbody>
+ <tr><th>查询一次价格建议</th><td>站点、时间、当前车辆数和空车位数</td><td>借还需求参考、倍率、建议价格和原因</td></tr>
+ <tr><th>查看未来 24 小时的演示结果</th><td>站点、当前库存和站点容量</td><td>逐小时的需求参考和价格建议</td></tr>
+ <tr><th>查看站点排行</th><td>发起排行查询</td><td>历史分析数据中，平均价格倍率最高和最低的各 5 个站点</td></tr>
+ </tbody></table></div>
+ <details class="extra"><summary>24 小时演示怎样更新库存？</summary><div class="vertical-flow"><div>本小时车辆数 − 借出量 + 还入量</div><span>↓</span><div>将车辆数限制在 0 到站点容量之间<strong>空车位数 = 站点容量 − 车辆数</strong></div><span>↓</span><div>使用更新后的库存，继续计算下一小时</div></div><p>程序用这个方式模拟库存变化；需求参考仍来自历史数据。历史文件不存在或为空时，接口使用高峰、周末等预设时段规则。</p></details>
+ <h4>看板把已有结果展示成图</h4>
+ <div class="vertical-flow"><div>Pandas 读取并汇总分析数据</div><span>↓</span><div>PyEcharts 生成交互图表</div><span>↓</span><div>查看每小时借还需求、价格分布和站点差异</div></div>
+ <p>接口方便其他程序提交查询；看板方便使用者观察整体结果。模型训练与当前接口分别实现，接口收到请求时使用已有数据计算价格。</p>
+ </>)}
+
+{stage==='review' && (overview ? <figure>
+ <div class="branch-source">同一批 <strong>24,000</strong> 条记录</div><div class="branches three">{groups.map(g=><div><strong>{g[0]}</strong><p>{g[1]}</p><p class="group-method">{g[2]}</p><span class="arrow">↓</span><p class="group-purpose">{g[3]}</p></div>)}</div>
+ <figcaption>三组都分别训练借出与还入模型。第一、二组使用完全相同的训练、验证和测试记录。</figcaption>
+ </figure> : <>
+ <h4>移除三个需要事后统计的字段</h4>
+ <div class="table-scroll" tabindex="0" aria-label="移除字段表，可横向滚动"><table><thead><tr><th>字段</th><th>统计的是什么？</th><th>为什么移除？</th></tr></thead><tbody><tr><th>电动车比例</th><td>该小时借出骑行中，电动车的占比</td><td rowspan="2">需要该小时完整的借出记录，小时开始前无法得到。</td></tr><tr><th>会员比例</th><td>该小时借出骑行中，会员的占比</td></tr><tr><th>平均骑行时长</th><td>该小时借出骑行的平均时长</td><td>还需要等待相应骑行结束。</td></tr></tbody></table></div>
+ <p>移除三个字段后，模型保留 16 个输入字段。三组都使用相同的预设随机森林参数，使比较重点放在字段与分组方式上。</p>
+ <h4>第三组按小时先后划分数据</h4>
+ <div class="vertical-flow"><div>按小时从早到晚排列<strong>同一个小时的所有站点进入同一组</strong></div><span>↓</span><div>前 80% 的小时用于训练</div><span>↓</span><div>接下来 10% 的小时用于验证</div><span>↓</span><div>最后 10% 的小时用于测试</div></div>
+ <div class="table-scroll" tabindex="0" aria-label="样本时间划分表，可横向滚动"><table><caption>本次 24,000 条样本的实际划分（2026 年）</caption><thead><tr><th>集合</th><th>使用的时间段</th><th>记录数</th></tr></thead><tbody><tr><th>训练集</th><td>1 月 1 日至 5 月 2 日 23:00</td><td>18,343</td></tr><tr><th>验证集</th><td>5 月 3 日 00:00 至 5 月 17 日 12:00</td><td>2,844</td></tr><tr><th>测试集</th><td>5 月 17 日 13:00 至 5 月 31 日 23:00</td><td>2,813</td></tr></tbody></table></div>
+ <p class="note">比例按小时数划分。不同小时的记录数不同，因此记录数不必恰好为 80%、10%、10%。这样用较早的数据训练，再用较晚的数据评价。</p>
+ <h4>用三组结果检查修复后的变化</h4>
+ <div class="table-scroll" tabindex="0" aria-label="三组结果对照表，可横向滚动"><table><thead><tr><th>组别</th><th>字段与切分方式</th><th>借出量测试 R²</th><th>还入量测试 R²</th></tr></thead><tbody><tr><th>第一组</th><td>19 个字段 · 随机切分</td><td>0.633</td><td>0.464</td></tr><tr><th>第二组</th><td>16 个字段 · 相同随机切分</td><td>0.121</td><td>0.116</td></tr><tr><th>第三组</th><td>16 个字段 · 时间切分</td><td>0.095</td><td>0.101</td></tr></tbody></table></div>
+ <p>第一、二组使用相同记录进行训练和评价，删除三个字段后分数明显下降。第三组进一步检查按时间训练的表现；它使用了不同的测试记录。</p>
+ <div class="vertical-flow"><div>修改字段与时间划分</div><span>↓</span><div>运行三组训练与评价</div><span>↓</span><div>保存训练摘要与比较结果<strong>完成 24,000 条样本的冒烟测试</strong></div></div>
+ <p class="note">冒烟测试用于确认修改后的关键流程能够完整运行。本次没有保存新模型，也没有替换原接口和看板；表中成绩对应这批样本。</p>
+ </>)}
+</div>
+<script>
+ function bindPriceDemos(){document.querySelectorAll<HTMLElement>('[data-price-demo]').forEach(root=>{if(root.dataset.bound)return;root.dataset.bound='true';root.querySelectorAll<HTMLButtonElement>('.quadrant').forEach(button=>button.addEventListener('click',()=>{root.querySelectorAll('.quadrant').forEach(other=>other.setAttribute('aria-pressed',String(other===button)));root.querySelector('[data-result]')!.textContent=`建议价格 $${button.dataset.price} · ${button.dataset.multiplier} 倍`;root.querySelector('[data-input]')!.textContent=button.dataset.info!;root.querySelector('[data-reason-output]')!.textContent=button.dataset.reason!;}));});}
+ bindPriceDemos();document.addEventListener('astro:page-load',bindPriceDemos);
+</script>
+<style>
+ .delivery{font-size:16px;line-height:1.85;padding:8px 0 24px;color:var(--cb-ink)}.delivery p{margin:12px 0;max-width:75ch}.delivery h4{font-size:22px;line-height:1.5;margin:30px 0 18px}.delivery h4:first-child{margin-top:12px}.delivery-overview{padding:0}.delivery figure{margin:0 0 24px;padding:26px;background:#eef3f3;border-radius:12px}.delivery figcaption,.note,.hint{font-size:14px;color:var(--cb-secondary);line-height:1.8}.delivery figcaption{margin-top:22px}.axis-caption{text-align:center;font-size:14px}.quadrants{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#92adb9;position:relative;max-width:650px;margin:16px auto 0}.quadrant{border:0;background:#f1e9e3;color:var(--cb-ink);padding:22px 12px;display:flex;align-items:center;flex-direction:column;gap:4px;font:inherit;cursor:pointer;min-height:135px;outline-offset:-4px}.quadrant:nth-child(2){background:#e4eee7}.quadrant:nth-child(3){background:#eeddd9}.quadrant:nth-child(4){background:#eee9de}.quadrant strong{font-size:24px}.quadrant small{font-size:12px;color:var(--cb-secondary)}.quadrant i{font-style:normal;font-size:15px}.quadrant[aria-pressed=true]{outline:2px solid #315e72;outline-offset:-5px}.quadrant:hover{filter:brightness(.97)}.quadrant:focus-visible{outline:3px solid #173a4a}.x-axis{display:flex;justify-content:space-between;max-width:650px;margin:8px auto 0;font-size:14px}.price-demo .hint{text-align:center;max-width:none}.price-output{border-top:1px solid var(--cb-line);padding-top:18px;max-width:650px;margin:18px auto 0;min-height:130px}.price-output>strong{font-size:20px}.price-output p{font-size:14px;margin:8px 0}.branch-source{text-align:center;font-size:20px;margin:0 auto;position:relative;padding-bottom:30px}.branch-source:after{content:'';position:absolute;width:1px;height:24px;background:#8ba7b3;bottom:0;left:50%}.branches{display:grid;position:relative;margin:0 auto;max-width:800px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.branches>div{text-align:center;padding:32px 12px 0;position:relative;min-width:0}.branches>div:before{content:'';position:absolute;top:0;left:0;right:0;border-top:1px solid #8ba7b3}.branches>div:first-child:before{left:50%}.branches>div:last-child:before{right:50%}.branches>div:after{content:'↓';position:absolute;left:calc(50% - 7px);top:-4px;font-size:23px;color:#567987}.branches strong{font-size:19px}.branches p{margin:10px 0;font-size:16px}.branches .group-method{font-weight:600}.branches .group-purpose{color:var(--cb-secondary);font-size:14px}.arrow{font-size:23px}.vertical-flow{max-width:650px;display:flex;flex-direction:column;align-items:stretch;text-align:center;margin:24px auto;background:#eef3f3;padding:24px}.vertical-flow>div{font-size:16px}.vertical-flow strong{display:block;font-size:15px;font-weight:600;margin-top:6px}.vertical-flow>span{font-size:23px;margin:10px 0;color:#567987}.table-scroll{overflow-x:auto;margin:24px 0;max-width:100%}.table-scroll table{border-collapse:collapse;text-align:left;width:100%;font-size:15px;line-height:1.8}.table-scroll caption{text-align:left;font-size:16px;font-weight:600;padding-bottom:12px}.table-scroll th,.table-scroll td{padding:13px 12px;border-bottom:1px solid var(--cb-line);vertical-align:top}.table-scroll thead{background:#e7eff0}.table-scroll th{font-weight:600}.extra{margin:24px 0;border-block:1px solid var(--cb-line)}.extra>summary{cursor:pointer;padding:15px 0;font-size:16px;min-height:48px}.api-example{margin-bottom:0}.extra p{padding-bottom:12px}
+ @media(max-width:640px){.delivery figure{padding:20px 12px}.delivery h4{font-size:20px}.quadrant{padding:16px 7px;min-height:124px;font-size:13px}.quadrant strong{font-size:20px}.axis-caption,.x-axis{font-size:12px}.branches>div{padding-inline:5px}.branches strong{font-size:16px}.branches p{font-size:13px;line-height:1.9}.branches .group-purpose{font-size:12px}.branch-source{font-size:17px}.price-output>strong{font-size:18px}.table-scroll table{min-width:510px;font-size:14px}.table-scroll:after{content:'表格可左右滑动';display:block;font-size:12px;color:var(--cb-secondary);padding-top:8px}.vertical-flow{padding:20px 12px}.vertical-flow>div{font-size:15px}.vertical-flow strong{font-size:14px}.extra>summary{font-size:15px}}
+ .three>div>p:first-of-type{min-height:3.8em;display:flex;align-items:center;justify-content:center}
+</style>

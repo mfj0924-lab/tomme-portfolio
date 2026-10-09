@@ -1,4 +1,5 @@
 import { sitePath } from '../utils/sitePath';
+import { pbiProject } from './pbi-internship';
 
 export type Project = {
   slug: string;
@@ -25,6 +26,7 @@ export type Project = {
 };
 
 const projectDefinitions: Project[] = [
+  pbiProject,
   {
     slug: 'citibike',
     name: 'CitiBike 需求预测与动态定价',

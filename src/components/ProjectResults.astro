@@ -1,0 +1,21 @@
+---
+const {project:p,full=false}=Astro.props;
+const images=full?p.images:p.images.slice(0,p.slug==='citibike'?2:3);
+---
+<section class="project-results" aria-label="项目实际成果" data-result-gallery data-gallery-id={p.slug}>
+ <p class="results-eyebrow">实际成果</p><h2>{p.slug==='citibike'?'查看需求与价格怎样展示':'查看三页经营报表'}</h2>
+ <p>{p.slug==='citibike'?'课程版看板与接口演示。当前接口读取已有数据或时段规则，尚未接入离线训练模型。':'经营总览比较渠道贡献，盈利诊断继续查看商品，区域分析比较不同国家和渠道。'}</p>
+ <div class="result-tabs" aria-label="选择成果图片">{images.map((im,i)=><button type="button" data-result-tab={i} aria-pressed={String(i===0)}>{im.alt}</button>)}</div>
+ {images.map((im,i)=><figure data-result-panel={i} hidden={i!==0}><button class="result-enlarge" data-result-open aria-label={`放大${im.alt}`}><img src={im.src} alt={im.alt} loading="lazy" width="1440" height="900"/><span>点击放大 ↗</span></button><figcaption>{im.caption}</figcaption></figure>)}
+ <dialog class="result-dialog"><form method="dialog"><button aria-label="关闭图片">关闭 ×</button></form><img alt=""/></dialog>
+</section>
+<script>
+ document.querySelectorAll<HTMLElement>('[data-result-gallery]').forEach(g=>{
+ const tabs=g.querySelectorAll<HTMLButtonElement>('[data-result-tab]');
+ tabs.forEach(t=>t.addEventListener('click',()=>{try{sessionStorage.setItem('result-tab:'+g.dataset.galleryId,t.dataset.resultTab!);}catch{};tabs.forEach(b=>b.setAttribute('aria-pressed',String(b===t)));g.querySelectorAll<HTMLElement>('[data-result-panel]').forEach(p=>p.hidden=p.dataset.resultPanel!==t.dataset.resultTab);}));
+ try{const selected=sessionStorage.getItem('result-tab:'+g.dataset.galleryId);tabs.forEach(t=>{if(t.dataset.resultTab===selected)t.click();});}catch{}
+ const d=g.querySelector<HTMLDialogElement>('dialog')!;
+ g.querySelectorAll('[data-result-open]').forEach(b=>b.addEventListener('click',()=>{const im=b.querySelector('img')!;const full=d.querySelector('img')!;full.src=im.src;full.alt=im.alt;d.showModal();}));
+ d.addEventListener('click',e=>{if(e.target===d)d.close();});
+ });
+</script>

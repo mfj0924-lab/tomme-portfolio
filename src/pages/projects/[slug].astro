@@ -2,7 +2,7 @@
 import VisualProjectPage from '../../components/VisualProjectPage.astro';
 import {portfolioProjects} from '../../data/preview';
 export function getStaticPaths(){
- return portfolioProjects.map(project=>({params:{slug:project.slug},props:{project}}));
+ return portfolioProjects.filter(p=>p.slug!=='powerbi-internship').map(project=>({params:{slug:project.slug},props:{project}}));
 }
 ---
 <VisualProjectPage formal project={Astro.props.project.slug}/>

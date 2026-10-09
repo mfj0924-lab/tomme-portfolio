@@ -1,0 +1,22 @@
+---
+import {projectProcesses} from '../../data/preview-processes';
+import MethodExplanation from './MethodExplanation.astro';
+import '../../styles/illustrated-projects.css';
+const {slug}=Astro.props;
+const stages=projectProcesses[slug];
+---
+<div class="project-explainer remaining-explainer">
+ <p class="ex-intro">{slug==='qingdao-transit'?'先采集并整理线路、站点与轨迹，再制作地图、计算线路基本特征，最后按共同站名建立换乘网络。以下按答辩展示与项目报告的内容展开。':'把不同年份的专利资料整理成相同格式，再按公司与年份补充到研发表。项目交付的是合并数据与匹配说明。'}</p>
+ <nav class="ex-route" aria-label="项目阶段目录">{stages.map((stage,index)=><a href={`#${slug}-${stage.id}`}><span>{index+1}</span><strong>{stage.title}</strong></a>)}</nav>
+ {stages.map((stage,index)=><section class="explained-step" id={`${slug}-${stage.id}`}>
+  <h3><span class="ex-step-number">{index+1}</span><span>{stage.title}</span></h3>
+  <figure class="ex-figure"><MethodExplanation project={slug} id={stage.id} overview/></figure>
+  <p class="stage-narrative">{stage.output}</p>
+  <p class="stage-method"><strong>工具与方法：</strong>{stage.tools.join(' · ')}</p>
+  <details class="ex-technical"><summary><span class="ex-open">查看处理方法与依据</span><span class="ex-close">收起处理方法与依据</span><span class="ex-sign" aria-hidden="true">＋</span></summary>
+   <MethodExplanation project={slug} id={stage.id}/>
+   <ul class="ex-evidence">{stage.evidence.map(item=><li><a href={item.href} target="_blank" rel="noreferrer">{item.label} ↗</a></li>)}</ul>
+  </details>
+ </section>)}
+</div>
+<style>.remaining-explainer{--ex-line:#c8d2ca;--ex-muted:#607565}.ex-route{grid-template-columns:repeat(3,minmax(0,1fr))}.stage-method{font-size:15px;line-height:1.9;color:var(--ex-muted);margin:14px 0 20px}@media(max-width:600px){.ex-route{grid-template-columns:1fr 1fr}}</style>

@@ -1,0 +1,22 @@
+---
+import methods from '../../data/project-methods.json';
+const {project, id, overview=false}=Astro.props;
+const item=methods[project]?.[id];
+---
+{item && <div class="method-explanation">
+ {overview ? <ol class="method-flow" aria-label="处理顺序">{item.flow.map(text=><li>{text}</li>)}</ol> : <>
+ <ol class="method-flow" aria-label="详细处理顺序">{item.flow.map(text=><li>{text}</li>)}</ol>
+ <div class="method-table"><table><thead><tr>{item.columns.map(text=><th scope="col">{text}</th>)}</tr></thead><tbody>{item.rows.map(row=><tr>{row.map((text,i)=>i===0?<th scope="row">{text}</th>:<td>{text}</td>)}</tr>)}</tbody></table></div>
+ {item.notes.map(text=><p>{text}</p>)}
+ </>}
+</div>}
+<style>
+ .method-explanation{color:inherit;margin:22px 0;line-height:1.85;font-size:16px}
+ .method-flow{list-style:none!important;padding:0!important;margin:0 auto 28px!important;max-width:620px;display:grid;gap:27px}
+ .method-flow li{position:relative;padding:14px 20px;border:1px solid var(--ex-line,#c7d3cf);border-radius:7px;background:var(--ex-paper,rgba(255,255,255,.38));text-align:center;line-height:1.65}
+ .method-flow li+li:before{content:'↓';position:absolute;top:-28px;left:calc(50% - 8px);color:var(--ex-muted,#63756c);font-size:20px}
+ .method-table{overflow-x:auto;margin:24px 0;border-block:1px solid var(--ex-line,#c7d3cf)}
+ table{border-collapse:collapse;width:100%;text-align:left;font-size:15px;line-height:1.8}th,td{padding:14px 16px;vertical-align:top;border-bottom:1px solid var(--ex-line,#d5ded8)}thead{background:rgba(120,140,120,.09)}tbody th{font-weight:600;min-width:100px}tr:last-child>*{border-bottom:0}
+ .method-explanation p{font-size:16px;line-height:1.9;margin:16px 0}
+ @media(max-width:600px){th,td{padding:12px 9px}table{font-size:14px}.method-flow li{padding:12px}.method-explanation{margin:18px 0}}
+</style>

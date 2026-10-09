@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/PreviewLayout.astro';
+import articles from '../data/project-articles.json';
+import ProjectResults from './ProjectResults.astro';
+import ProjectResources from './preview/ProjectResources.astro';
+import '../styles/project-reading.css';
+const {project:p}=Astro.props;
+const article=articles[p.slug];
+const base=import.meta.env.BASE_URL.replace(/\/$/,'');
+---
+<Layout title={`${p.name}｜完整介绍｜Tomme`} description={article.intro[0]} active="projects" theme={p.slug}>
+ <div class="reading-shell">
+ <a class="reading-back" data-project-transition href={`${base}/projects/${p.slug}/`}>← 返回项目图解</a>
+ <header class="reading-header"><p>完整项目介绍</p><h1>{p.name}</h1>{article.intro.map(t=><p>{t}</p>)}</header>
+ <div class="reading-grid"><nav aria-label="文章目录">{article.sections.map((s,i)=><a href={`#part-${i}`}>{s.title}</a>)}<a href="#results-images">成果截图</a></nav>
+ <article>{article.sections.map((s,i)=><section id={`part-${i}`}><h2>{s.title}</h2>{s.paragraphs.map(t=><p>{t}</p>)}</section>)}</article></div>
+ <div id="results-images"><ProjectResults project={p} full/></div>
+ <section class="reading-resources"><h2>项目材料</h2><ProjectResources links={p.links}/><a data-project-transition href={`${base}/projects/${p.slug}/`}>← 返回刚才的图解位置</a></section>
+ </div>
+</Layout>
+<script>import '../scripts/project-transition';</script>

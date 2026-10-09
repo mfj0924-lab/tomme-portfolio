@@ -1,0 +1,43 @@
+---
+const nodes=[{name:'Raw',title:'原始骑行记录',row:'一行是一次骑行',save:'保留原始文件'},{name:'Bronze',title:'干净的骑行记录',row:'一行仍是一次骑行',save:'保存清洗结果'},{name:'Silver',title:'站点小时记录',row:'一行是一个站点的一小时',save:'保存汇总结果'}];
+---
+<figure class="saved-pipeline">
+ <p class="pipeline-reference">阶段一至三参考 <strong>Medallion 分层数据处理方法</strong>：按处理程度分别保存原始、清洗和汇总结果。</p>
+ <div class="pipeline-track" aria-label="原始数据经过清洗、汇总后，分别保存各阶段结果">
+ {nodes.map((node,index)=><>
+  {index>0&&<div class="pipeline-operation"><span>{index===1?'清洗':'按站点小时汇总'}{index===2&&<small>＋ 补充字段</small>}</span><i aria-hidden="true"></i></div>}
+  <div class={`saved-dataset dataset-${index}`}>
+   <div class="dataset-heading"><strong>{node.name}</strong><span>{node.title}</span></div>
+   <div class="dataset-lines" aria-hidden="true">{[0,1,2].map(()=> <div><i></i><i></i><i></i></div>)}</div>
+   <p>{node.row}</p><span class="saved-label"><span aria-hidden="true">✓</span> {node.save}</span>
+  </div>
+ </>)}
+ </div>
+ <div class="pipeline-destinations">
+  <span class="silver-out">从 Silver 继续 <span aria-hidden="true">↓</span></span>
+  <a class="actual-destination" href="#citibike-train"><span class="destination-line" aria-hidden="true"></span><strong>模型训练</strong><small>实际使用 Silver</small><span class="destination-arrow" aria-hidden="true">↗</span></a>
+  <a class="unused-destination" href="#citibike-features"><span class="destination-line" aria-hidden="true"></span><span>标准化 ＋ PCA</span><strong>Gold</strong><small>已生成 · 未用于最终训练</small><span class="destination-arrow" aria-hidden="true">↗</span></a>
+ </div>
+ <figcaption><strong>每一步都保存结果。</strong> 后续处理可以从已保存的数据继续，不必每次重新读取原始 CSV。</figcaption>
+</figure>
+<style>
+.pipeline-reference{margin:0 0 26px!important;padding-bottom:18px;border-bottom:1px solid var(--cb-line);font-size:15px;line-height:1.85;color:var(--cb-secondary)}.pipeline-reference strong{color:var(--cb-ink);font-weight:600}
+.saved-pipeline{margin:0 0 44px;padding:32px 26px 24px;border:1px solid var(--cb-line);border-radius:12px;background:#eef3f3;color:var(--cb-ink)}.pipeline-track{display:grid;grid-template-columns:minmax(0,1fr) 108px minmax(0,1fr) 132px minmax(0,1fr);align-items:center}.saved-dataset{min-width:0}.dataset-heading{padding:0 0 12px;display:flex;flex-direction:column;gap:4px}.dataset-heading strong{font-size:24px;font-weight:650}.dataset-heading>span{font-size:16px}.dataset-lines{border:1px solid var(--cb-line);border-radius:5px;overflow:hidden;background:#f7f9f8}.dataset-lines>div{display:grid;grid-template-columns:1.25fr .8fr 1fr;border-bottom:1px solid #d3e0e3;padding:10px 12px;gap:12px}.dataset-lines>div:last-child{border:0}.dataset-lines i{height:4px;background:#c6d9df;border-radius:1px}.dataset-1 .dataset-lines i{background:#9fbdc8}.dataset-2 .dataset-lines i{background:#739cae}.saved-dataset p{margin:12px 0 8px;font-size:14px;line-height:1.7;min-height:24px}.saved-label{font-size:13px;color:#465e67}.saved-label>span{color:#315e72}.pipeline-operation{text-align:center;padding:0 10px;font-size:13px;line-height:1.7;color:var(--cb-secondary)}.pipeline-operation span{display:block}.pipeline-operation small{font-size:12px;display:block}.pipeline-operation i{display:block;height:1px;background:#8daab6;position:relative;margin-top:12px}.pipeline-operation i:after{content:'';position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid #8daab6;border-right:1px solid #8daab6;transform:rotate(45deg)}.pipeline-destinations{margin:26px 0 0 45%;display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;position:relative}.silver-out{grid-column:1/-1;text-align:right;font-size:13px;color:var(--cb-secondary);padding:0 24px 6px}.silver-out>span{display:block;font-size:23px;margin-top:5px}.pipeline-destinations a{position:relative;padding:18px 26px 0 0;display:flex;flex-direction:column;gap:5px;text-decoration:none;border-top:1px solid #739cae}.pipeline-destinations .unused-destination{border-top-style:dashed;border-top-color:#a3b4b9}.pipeline-destinations strong{font-size:18px}.pipeline-destinations small,.pipeline-destinations a>span:not(.destination-arrow):not(.destination-line){font-size:13px;color:var(--cb-secondary)}.destination-arrow{position:absolute;right:0;top:20px}.pipeline-destinations a:hover strong{text-decoration:underline;text-underline-offset:4px}.saved-pipeline figcaption{margin-top:28px;padding-top:20px;border-top:1px solid var(--cb-line);font-size:15px;line-height:1.85;color:var(--cb-secondary)}.saved-pipeline figcaption strong{color:var(--cb-ink);font-weight:600}
+@media(max-width:800px){.pipeline-track{grid-template-columns:minmax(0,1fr) 65px minmax(0,1fr) 80px minmax(0,1fr)}.dataset-heading strong{font-size:21px}.dataset-heading>span{font-size:14px}.pipeline-operation{padding:0 5px;font-size:12px}.saved-dataset p{font-size:12px;min-height:42px}.dataset-lines>div{padding:9px 7px;gap:7px}.saved-label{font-size:12px}.pipeline-destinations{margin-left:25%}}
+@media(max-width:560px){.saved-pipeline{padding:24px 18px}.pipeline-track{grid-template-columns:1fr;max-width:340px;margin:auto}.dataset-heading{flex-direction:row;align-items:baseline;gap:12px}.dataset-heading strong{font-size:23px}.dataset-heading>span{font-size:15px}.saved-dataset p{min-height:0;font-size:14px;margin:10px 0 5px}.dataset-lines>div{padding:8px 12px}.pipeline-operation{display:flex;align-items:center;justify-content:center;gap:14px;margin:16px 0;padding:0}.pipeline-operation i{height:32px;width:1px;order:-1;margin:0}.pipeline-operation i:after{right:-3px;top:auto;bottom:0;transform:rotate(135deg)}.pipeline-operation span{text-align:left}.pipeline-operation small{display:inline;margin-left:6px}.pipeline-destinations{margin:18px auto 0;max-width:340px;gap:12px 18px}.silver-out{text-align:center;padding:0}.pipeline-destinations a{padding-right:18px}.pipeline-destinations strong{font-size:17px}.pipeline-destinations small{font-size:12px}.saved-pipeline figcaption{font-size:14px}}
+/* One reading direction on desktop and mobile: down through saved results. */
+.pipeline-track{grid-template-columns:minmax(0,1fr);max-width:460px;margin:0 auto}
+.dataset-heading{flex-direction:row;align-items:baseline;gap:14px}
+.dataset-heading strong{font-size:24px}.dataset-heading>span{font-size:16px}
+.saved-dataset p{min-height:0;font-size:14px;margin:10px 0 5px}
+.dataset-lines>div{padding:9px 14px}.saved-label{font-size:13px}
+.pipeline-operation{display:flex;align-items:center;justify-content:center;gap:16px;margin:20px 0;padding:0;font-size:14px}
+.pipeline-operation i{height:36px;width:1px;order:-1;margin:0}
+.pipeline-operation i:after{right:-3px;top:auto;bottom:0;transform:rotate(135deg)}
+.pipeline-operation span{text-align:left}.pipeline-operation small{display:inline;font-size:13px;margin-left:6px}
+.pipeline-destinations{margin:20px auto 0;max-width:460px;gap:12px 28px}
+.silver-out{text-align:center;padding:0 0 8px}.pipeline-destinations a{padding-top:16px}
+.pipeline-reference{text-align:center;max-width:760px;margin:0 auto 30px!important}
+.saved-pipeline figcaption{max-width:760px;margin:28px auto 0}
+@media(max-width:560px){.dataset-heading{gap:12px}.dataset-heading strong{font-size:23px}.dataset-heading>span{font-size:15px}.pipeline-operation{font-size:12px;margin:16px 0}.pipeline-operation small{font-size:12px}.pipeline-destinations{gap:12px 18px}.pipeline-reference{text-align:left}}
+</style>

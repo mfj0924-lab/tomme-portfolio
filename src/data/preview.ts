@@ -2,6 +2,7 @@ import { projects } from './projects';
 import { sitePath } from '../utils/sitePath';
 import { projectProcesses } from './preview-processes';
 export const projectVisuals = [
+ {name:'Power BI',title:'实习销售分析报表',kind:'business',color:'#dce9e3',ink:'#254c43',spot:'#3f8872',label:'从给定数据与设计稿，到两页可检查的报表。',tags:'实习培训 / Power BI / AI 协作',image:'powerbi-internship/company.png',href:'powerbi-internship'},
  {name:'CitiBike',title:'需求预测与动态定价',kind:'bike',color:'#d9e8ee',ink:'#173a4a',spot:'#fa693d',label:'从骑行记录，到站点供需与定价建议。',tags:'数据处理 / 预测模型 / API',image:'citibike/legacy-dashboard.png',href:'citibike'},
  {name:'AdventureWorks',title:'经营分析',kind:'business',color:'#f3dfce',ink:'#593d2f',spot:'#e88446',label:'销售规模之外，继续看盈利质量。',tags:'SQL / Power BI / 商业判断',image:'adventureworks/overview.png',href:'adventureworks'},
  {name:'AI 工作台',title:'可信数据分析',kind:'agent',color:'#dfe5cf',ink:'#34462c',spot:'#b2c65a',label:'让任务、检查与判断都有据可查。',tags:'Agent / 数据产品 / 结果审查',image:'workbench/home.png',href:'workbench'},
@@ -16,7 +17,7 @@ export const portfolioProjects = projects.map(p => ({...p,
   numbers:p.numbers.map(n=>n.label==='质量到报告流程'?{value:'4阶段',label:'质量、分析、审查、报告'}:n),
  }:{}),
  ...(p.slug==='qingdao-transit'?{
-  story:'高德地图 API 提供公交线路、站点、坐标和轨迹。我把线路、站点与轨迹分别整理后，用地图查看城市中的空间分布，再按共同站名建立线路之间的连接。项目采集得到 874 条有效线路和 5,616 个唯一站点；网络分析进一步说明哪些线路可以直接换乘，以及线路之间的可达关系。',
+  story:'高德地图 API 提供公交线路、站点、坐标和轨迹。我把线路、站点与轨迹分别整理后，用地图查看空间分布，计算线路长度、站距与绕行程度，再按共同站名建立线路之间的连接。项目采集得到 874 条有效线路和 5,616 个唯一站点；网络分析进一步说明哪些线路可以直接换乘，以及线路之间的可达关系。',
   shift:'地图用于查看站点与线路的位置，NetworkX 用于计算线路之间的连接与路径。单条线路、全市分布、换乘网络和综合指标分别展示，读者可以根据问题选择页面。班次、拥堵和步行时间需要额外数据支持，现有分析聚焦线路连接结构。',
   findings:[
    '采集数据包含 874 条有效线路、5,616 个唯一站点；换乘网络以线路为节点，按共同站名建立连接，记录了 25,929 条线路间连接。',
@@ -25,7 +26,7 @@ export const portfolioProjects = projects.map(p => ({...p,
   ],
   aiCollaboration:p.aiCollaboration.map(item=>({...item,text:item.text.replace('NetworkX用于计算站点连接与路径','NetworkX用于计算线路连接与路径')})),
  }:{}),
- process:projectProcesses[p.slug as keyof typeof projectProcesses],
+ process:projectProcesses[p.slug as keyof typeof projectProcesses] ?? p.process,
  visual:projectVisuals.find(v=>v.href===p.slug)!,
 }));
 // Public navigation uses the canonical routes; /preview/ remains a compatible entry.

@@ -1,0 +1,22 @@
+---
+import Layout from '../../../layouts/PreviewLayout.astro';
+import {portfolioProjects,previewPath} from '../../../data/preview';
+import {pbiSteps} from '../../../data/pbi-internship';
+import '../../../styles/project-navigation.css';
+const p=portfolioProjects.find(x=>x.slug==='powerbi-internship')!;
+const scenes=[['业务需求','Excel','MasterGo 设计稿'],['876 条源记录','统一时间 · 拆分部门','1,056 条事实记录'],['指标 / 对象 / 日期','一对多关系 → 事实表','DAX 计算实际与目标'],['公司／监控概览','部门概览','年度 / 月度 · 详情 · 提示'],['AI 检查常规细节','本人确认业务和关键结果','根据带教反馈修正'],['查询与整理步骤','关系与公式','可点击的执行说明']];
+---
+<Layout title="Power BI 实习项目｜Tomme" description={p.summary} active="projects">
+ <div class="page-width internship">
+  <a class="back-link" href={previewPath('projects/')}>← 全部项目</a>
+  <header><h1>从给定数据与设计稿，<br/>完成两页 Power BI 报表。</h1><p>北上智信 · 实习培训项目</p><p class="intro">我确认业务规则、检查重点和修改方向，AI 完成代码与报表实现。沿着下面的过程，可以看到数据怎样成为报表，以及我怎样检查结果。</p><a class="diagram-entry" href={previewPath('projects/powerbi-internship/details/')}><strong>阅读完整项目介绍</strong><span aria-hidden="true">↗</span></a></header>
+  <figure class="report"><a href={p.images[0].src} target="_blank" rel="noreferrer"><img src={p.images[0].src} alt={p.images[0].alt}/></a><figcaption>公司／监控概览 · 点击查看大图。图中为培训数据，复核截图后仅调整部分文字位置。</figcaption></figure>
+  <nav class="stage-nav" aria-label="项目步骤">{pbiSteps.map((s,i)=><a href={'#'+s.id}>{i+1} · {s.title}</a>)}</nav>
+  <div class="stages">{pbiSteps.map((s,i)=><section id={s.id}><span class="step">{String(i+1).padStart(2,'0')}</span><div class="stage-main"><h2>{s.title}</h2><p>{s.text}</p><ol class="scene" aria-label="本阶段的处理关系">{scenes[i].map(t=><li>{t}</li>)}</ol><details><summary>查看处理方法与依据</summary>{s.paragraphs.map(t=><p>{t}</p>)}<p><strong>得到什么：</strong>{s.output}</p></details><p class="tools">{s.tools.join(' · ')}</p></div></section>)}</div>
+  <section class="report-section"><h2>两页报表分别回答公司和部门的问题。</h2><div class="report-pair">{p.images.slice(1).map(img=><figure><a href={img.src} target="_blank" rel="noreferrer"><img src={img.src} alt={img.alt} loading="lazy"/></a><figcaption>{img.caption}</figcaption></figure>)}</div></section>
+  <a class="diagram-entry" href={previewPath('projects/powerbi-internship/details/')}><strong>阅读完整项目介绍与 AI 分工</strong><span aria-hidden="true">↗</span></a>
+ </div>
+</Layout>
+<style>
+ .internship{--ink:#254c43;--spot:#3f8872;padding-block:48px 90px;color:var(--ink)}header{max-width:880px;margin-block:28px 40px}h1{font-size:clamp(32px,4.6vw,62px);line-height:1.22;letter-spacing:-.025em;margin:0 0 24px}p{line-height:1.85;font-size:17px}.intro{max-width:740px}.report{margin:0 0 44px}img{display:block;width:100%;height:auto;border:1px solid #cbd8d1;border-radius:12px}figcaption{font-size:14px;line-height:1.8;margin-top:12px;color:#52665d}.stage-nav{display:flex;flex-wrap:wrap;gap:10px 22px;padding-block:20px;border-block:1px solid #cbd8d1}.stage-nav a{font-size:15px;padding:8px 0}.stages{margin-top:48px}.stages section{display:grid;grid-template-columns:60px minmax(0,1fr);gap:28px;position:relative;padding-bottom:64px;scroll-margin-top:100px}.stages section:before{content:'';position:absolute;left:22px;top:42px;bottom:0;border-left:1px solid #b2c8bc}.stages section:last-child:before{display:none}.step{font-size:20px;border:1px solid #8fae9d;border-radius:50%;width:45px;height:45px;display:grid;place-items:center}.stage-main{max-width:850px}h2{font-size:clamp(24px,2.4vw,32px);line-height:1.4;margin:2px 0 16px}.scene{list-style:none;margin:24px 0;padding:20px 0;display:flex;align-items:center;border-block:1px solid #cbd8d1}.scene li{flex:1;text-align:center;font-size:18px;line-height:1.6;padding:8px 16px}.scene li+li:before{content:'→';float:left;margin-left:-22px;color:#688d7d}details{padding:14px 0}summary{cursor:pointer;font-size:17px;font-weight:600;padding:8px 0}details p{max-width:760px}.tools{font-size:14px;color:#52665d}a:focus-visible,summary:focus-visible{outline:3px solid #3f8872;outline-offset:4px}.report-section{margin-block:20px 48px}.report-pair{display:grid;gap:30px}.report-pair figure{margin:0}.diagram-entry{justify-content:space-between}.stage-nav a:hover{text-decoration:underline}@media(max-width:620px){.internship{padding-top:28px}.stages section{grid-template-columns:38px minmax(0,1fr);gap:14px}.step{width:34px;height:34px;font-size:16px}.stages section:before{left:17px}.scene{flex-direction:column;gap:18px}.scene li{width:100%;padding:0}.scene li+li:before{content:'↓';display:block;float:none;margin:0 0 12px}.stage-nav{gap:2px 16px}p{font-size:16px}}
+</style>

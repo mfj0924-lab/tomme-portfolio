@@ -1,0 +1,60 @@
+---
+const {stage}=Astro.props;
+---
+<div class="cb-methods">
+{stage==='ingest' && <>
+  <figure class="method-flow">
+    <div class="flow-step"><strong>读取 16 个原始 CSV</strong><span>约 1,453 万条记录 · 一行代表一次骑行</span></div>
+    <span class="step-link" aria-hidden="true">↓</span>
+    <div class="flow-step"><strong>PySpark 读取并保存</strong><span>本次生成 73 个 Parquet 数据文件</span></div>
+    <span class="step-link" aria-hidden="true">↓</span>
+    <div class="flow-step cleaning-step"><strong>按规则清洗骑行记录</strong><div class="rule-sequence"><span>转换时间</span><i>→</i><span>按编号去重</span><i>→</i><span>检查站点编号</span></div></div>
+    <span class="step-link" aria-hidden="true">↓ 分别保存</span>
+    <div class="flow-branches"><div><strong>清洗后的骑行表</strong><span>4 个数据文件<br/>一行仍是一次骑行</span></div><div><strong>站点资料表</strong><span>站点编号、站名、坐标<br/>骑行表通过编号关联</span></div></div>
+    <figcaption>73 份和 4 份是这次保存的数据文件数量。PySpark 将同一目录中的文件作为一份数据表读取。</figcaption>
+  </figure>
+  <div class="method-table-wrap"><table><caption>清洗程序执行哪些规则？</caption><thead><tr><th scope="col">处理对象</th><th scope="col">具体处理</th><th scope="col">目的</th></tr></thead><tbody>
+    <tr><th scope="row">借出、归还时间</th><td>将 <code>started_at</code>、<code>ended_at</code> 转为时间类型。</td><td>计算骑行时长，归入对应小时。</td></tr>
+    <tr><th scope="row">骑行编号</th><td>按 <code>ride_id</code> 去重。</td><td>避免同一次骑行重复计数。</td></tr>
+    <tr><th scope="row">起终点站编号</th><td>删除任意一端站点编号缺失的记录。</td><td>让借还事件能够归到具体站点。</td></tr>
+    <tr><th scope="row">站名与经纬度</th><td>提取到站点表，骑行表保留站点编号。</td><td>减少重复保存的站点资料。</td></tr>
+  </tbody></table></div>
+  <div class="method-explanation"><p><strong>PySpark 怎样处理？</strong> 使用 Python 编写处理逻辑，由 Spark 按分区执行读取、清洗和汇总。</p><p><strong>为什么分阶段保存？</strong> 参考 Shakleen 项目的 Medallion 方法，按处理程度保存数据，后续实验可以从已经完成的步骤继续。Parquet 按列保存，后续可以选择读取需要的字段。</p></div>
+</>}
+{stage==='aggregate' && <>
+  <figure class="method-flow event-example">
+    <div class="flow-step"><strong>一次骑行，产生两个事件</strong><span>演示：08:50 从 A 站借出，09:10 在 B 站归还</span></div>
+    <div class="event-split" aria-hidden="true"><span>↙</span><span>↘</span></div>
+    <div class="flow-branches"><div><span>按借出时间归类</span><strong>A 站 · 08—09 点</strong><b>借出 ＋1</b><small>使用起点站和 started_at</small></div><div><span>按归还时间归类</span><strong>B 站 · 09—10 点</strong><b>还入 ＋1</b><small>使用终点站和 ended_at</small></div></div>
+    <span class="step-link" aria-hidden="true">↓</span>
+    <div class="flow-step"><strong>与其他骑行事件一起汇总</strong><span>按“站点编号＋小时”分组，分别累加借出、还入次数</span></div>
+    <figcaption>A、B 站和时间均为假设示例。借出与归还使用各自的时间，所以一次跨小时骑行会进入两条不同的小时记录。</figcaption>
+  </figure>
+  <div class="method-table-wrap"><table><caption>这次骑行为小时表增加了什么？</caption><thead><tr><th scope="col">站点</th><th scope="col">时段</th><th scope="col">借出次数</th><th scope="col">还入次数</th></tr></thead><tbody><tr><th scope="row">A 站</th><td>08:00—09:00</td><td>＋1</td><td>0</td></tr><tr><th scope="row">B 站</th><td>09:00—10:00</td><td>0</td><td>＋1</td></tr></tbody></table></div>
+  <p class="method-explanation">PySpark 读取清洗后的 4 个 Parquet 数据文件，将事件时间归到所在小时，再按站点和小时分组求和。同一站点、同一小时的事件即使分散在不同文件，也会一起统计。</p>
+  <div class="method-outcome"><strong>约 438.8 万条站点小时记录</strong><span>统计单位从“一次骑行”变成“一个站点的一个小时”。</span></div>
+  <p class="method-footnote">原 Silver 根据实际发生的借还事件汇总，没有完整补齐所有站点、所有小时的零需求记录。</p>
+</>}
+{stage==='features' && <>
+  <figure class="method-flow feature-flow">
+    <div class="feature-sources"><div><strong>从时间提取</strong><span>小时、星期、高峰等</span></div><div><strong>从骑行记录统计</strong><span>比例、平均时长</span></div><div><strong>关联外部资料</strong><span>天气、站点容量</span></div></div>
+    <div class="feature-arrows" aria-hidden="true"><span>↓</span><span>↓</span><span>↓</span></div>
+    <div class="flow-step"><strong>补充后的 Silver 站点小时表</strong><span>在借还数量之外，增加用于描述需求的信息</span></div>
+  </figure>
+  <div class="method-table-wrap"><table><caption>这些信息从哪里得到，模型用了哪些？</caption><thead><tr><th scope="col">信息类别</th><th scope="col">来源与处理方式</th><th scope="col">原版训练</th></tr></thead><tbody>
+    <tr><th scope="row">时间信息</th><td>从时间提取月份、星期、小时、高峰等，并添加小时、星期的周期编码。</td><td>使用 13 个字段。</td></tr>
+    <tr><th scope="row">骑行统计</th><td>按站点和小时计算电动车比例、会员比例和平均骑行时长。</td><td>原版使用 3 个，后续修复移除。</td></tr>
+    <tr><th scope="row">天气信息</th><td>按日期关联平均气温、累计降水和最大风速。</td><td>使用 3 个字段。</td></tr>
+    <tr><th scope="row">站点容量</th><td>按经纬度邻近关系匹配站点资料，取得容量。</td><td>保存在数据中，最终训练未使用。</td></tr>
+  </tbody></table></div>
+  <div class="feature-formulas"><p><strong>电动车比例</strong><span>该小时借出的电动车次数 ÷ 总借出次数</span></p><p><strong>会员比例</strong><span>该小时会员借车次数 ÷ 总借出次数</span></p><p><strong>平均骑行时长</strong><span>该小时借出骑行的总时长 ÷ 总借出次数</span></p></div>
+  <p class="method-footnote">没有借出事件时，代码将这三个统计值设为 0。三个字段依赖目标小时的完整骑行结果，因此后续修复将它们从预测输入中移除。</p>
+  <div class="time-cycle"><div aria-label="23点与0点在时间上相邻"><span>23 点</span><i>→</i><span>0 点</span><i>→</i><span>1 点</span></div><p>用 sin／cos 编码表达时间的循环关系，使 23 点与 0 点在数值表示上也能体现相邻关系。</p></div>
+  <figure class="gold-path"><div class="gold-origin">Silver</div><div class="gold-routes"><div><span>选择 19 个字段</span><i>↓</i><strong>最终模型训练</strong></div><div><span>标准化 → PCA</span><i>↓</i><strong>Gold · 5 个主成分</strong><small>已生成，未接入最终训练</small></div></div><figcaption>标准化调整字段的数值尺度；PCA 将多个原字段组合成较少的综合数值。它改变字段的表示方式，不会把 438 万行变成 350 万行。</figcaption></figure>
+</>}
+</div>
+<style>
+.cb-methods{padding:12px 0 26px;color:var(--cb-ink);font-size:16px;line-height:1.85}.cb-methods figure{margin:0 0 28px}.method-flow{padding:24px;background:#eef3f3;border-radius:10px}.flow-step{text-align:center;display:flex;flex-direction:column;gap:5px}.flow-step strong{font-size:19px;font-weight:650}.flow-step>span{font-size:15px;color:var(--cb-secondary)}.step-link{display:block;text-align:center;padding:10px 0;color:var(--cb-secondary);font-size:19px}.flow-branches{display:grid;grid-template-columns:1fr 1fr;gap:24px;position:relative}.flow-branches>div{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;padding:16px 12px;border-top:1px solid var(--cb-line)}.flow-branches strong{font-size:18px}.flow-branches span,.flow-branches small{font-size:14px;color:var(--cb-secondary)}.flow-branches b{font-size:23px;font-weight:600;color:#315e72}.rule-sequence{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:7px;font-size:15px}.rule-sequence i{font-style:normal;color:var(--cb-secondary)}.event-split{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-size:25px;color:var(--cb-secondary);padding:10px 0}.cb-methods figcaption{font-size:14px;color:var(--cb-secondary);line-height:1.8;margin-top:20px}.method-table-wrap{margin:28px 0;overflow-x:auto}.cb-methods table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.8;text-align:left;table-layout:fixed}.cb-methods caption{text-align:left;font-size:18px;font-weight:650;padding:0 0 14px;color:var(--cb-ink)}.cb-methods th,.cb-methods td{padding:14px 16px;border-bottom:1px solid var(--cb-line);vertical-align:top;overflow-wrap:anywhere}.cb-methods thead{background:#e7eff0}.cb-methods tbody th{font-weight:600}.cb-methods th:first-child{width:23%}.cb-methods code{font-size:.85em;overflow-wrap:anywhere;color:#315e72}.method-explanation{line-height:1.9;color:var(--cb-secondary)}.cb-methods .method-explanation p+p{margin-top:14px}.method-outcome{padding:20px 0;margin:20px 0;border-block:1px solid var(--cb-line);display:flex;flex-direction:column;gap:5px}.method-outcome strong{font-size:22px}.method-outcome span,.method-footnote{font-size:14px;color:var(--cb-secondary)}.feature-sources,.feature-arrows{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center}.feature-sources>div{display:flex;flex-direction:column;gap:5px}.feature-sources strong{font-size:16px}.feature-sources span{font-size:13px;color:var(--cb-secondary)}.feature-arrows{font-size:23px;color:var(--cb-secondary);padding:14px 0}.feature-formulas{margin:24px 0;padding-block:4px}.cb-methods .feature-formulas p{display:grid;grid-template-columns:145px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--cb-line);font-size:15px}.feature-formulas strong{font-weight:600}.time-cycle{display:grid;grid-template-columns:1fr 1.5fr;align-items:center;gap:24px;margin:30px 0;padding:22px 0;border-block:1px solid var(--cb-line)}.time-cycle>div{display:flex;justify-content:center;align-items:center;gap:12px;white-space:nowrap;font-size:20px}.time-cycle i,.gold-routes i{font-style:normal;color:var(--cb-secondary)}.time-cycle p{font-size:15px;color:var(--cb-secondary)}.gold-path{padding:24px;background:#f1f3ec;border-radius:10px}.gold-origin{text-align:center;font-size:21px;font-weight:650;padding-bottom:20px}.gold-routes{display:grid;grid-template-columns:1fr 1fr;gap:25px}.gold-routes>div{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;border-top:1px solid var(--cb-line);padding-top:18px}.gold-routes small{font-size:13px;color:#604b2a}.gold-routes strong{font-size:17px}
+@media(max-width:640px){.method-flow,.gold-path{padding:18px 12px}.flow-step strong{font-size:17px}.flow-step>span{font-size:14px}.flow-branches{gap:10px}.flow-branches>div{padding:12px 0}.flow-branches strong{font-size:15px}.flow-branches span,.flow-branches small{font-size:12px}.rule-sequence{gap:7px;font-size:12px}.cb-methods th,.cb-methods td{padding:10px 7px;font-size:13px}.cb-methods caption{font-size:17px}.feature-sources{grid-template-columns:1fr;text-align:left;gap:12px}.feature-sources>div{flex-direction:row;justify-content:space-between;gap:12px}.feature-sources strong{font-size:14px}.feature-arrows{display:block}.feature-arrows span:not(:first-child){display:none}.cb-methods .feature-formulas p{grid-template-columns:1fr;gap:3px}.time-cycle{grid-template-columns:1fr;gap:14px}.gold-routes{gap:12px}.gold-routes strong{font-size:15px}.gold-routes span{font-size:13px}.gold-routes small{font-size:12px}}
+@media(prefers-reduced-motion:no-preference){.flow-step,.flow-branches,.feature-sources,.gold-routes{animation:method-arrive 300ms ease-out both}@keyframes method-arrive{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
